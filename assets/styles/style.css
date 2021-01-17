@@ -1,0 +1,20 @@
+@font-face {
+ font-family: "VGA";
+ src: url("../fonts/ibm_vga.ttf");
+}
+
+body, html {
+	background-color:black;
+	margin:0px;
+	padding:0px;
+	font-family: "VGA";
+	overflow:hidden;
+	color:white;
+}
+
+bios {
+	display: block;
+	width:100%;
+	height:100%;
+	overflow:hidden;
+}
