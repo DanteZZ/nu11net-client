@@ -13,8 +13,20 @@ body, html {
 }
 
 bios {
+	padding:10px;
 	display: block;
 	width:100%;
 	height:100%;
 	overflow:hidden;
+	box-sizing: border-box;
+}
+
+bios tlt {
+	display:block;
+	text-align:center;
+	width:100%;
+	box-sizing: border-box;
+	background-color: #dcdbdb;
+    color: black;
+    padding: 5px;
 }
