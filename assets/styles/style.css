@@ -10,22 +10,98 @@ body, html {
 	font-family: "VGA";
 	overflow:hidden;
 	color:white;
+	height: 100%;
+    width: 100%;
 }
 
-bios {
-	padding:10px;
+.bios, .bios .tlt, .bios .ftr, .bios .main, .bios .sections, .bios .desc, .bios .menu {
 	display: block;
+	box-sizing: border-box;
+	overflow:hidden;
+	padding:0px;
+	margin:0px;
+	user-select: none;
+}
+
+.bios {
+	padding:10px;
 	width:100%;
 	height:100%;
-	overflow:hidden;
-	box-sizing: border-box;
+	display:flex;
+	flex-direction: column;
 }
 
-bios tlt {
-	display:block;
+.bios .menu {
+	padding:12px;
+	padding-top:9px;
+	padding-bottom:4px;
+	display: flex;
+}
+.bios .menu .item {
+	padding:4px;
+	margin-right:8px;
+}
+.bios .menu .item.active {
+	background-color:white;
+	color:black;
+}
+
+.bios .main {
+	display:flex;
+	flex-grow:1;
+	position:relative;
+	padding: 5px 0px;
+}
+
+.bios .main:before {
+    content: " ";
+    position: absolute;
+    z-index: 0;
+    top: 5px;
+    left: 0px;
+    right: 0px;
+    bottom: 5px;
+    border: 2px solid #5a5a5a;
+}
+
+.bios .main .sections {
+	flex-grow:1;
+	position:relative;
+	
+    padding: 12px;
+
+}
+
+.bios .main .desc {
+	width:250px;
+	min-width:250px;
+	position:relative;
+    padding: 12px;
+    margin-left: -6px;
+}
+
+.bios .main .sections:before, .bios .main .desc:before {
+    content: " ";
+    position: absolute;
+    z-index: 0;
+    top: 5px;
+    left: 5px;
+    right: 5px;
+    bottom: 5px;
+    border: 2px solid #5a5a5a;
+}
+
+.bios .tlt {
 	text-align:center;
 	width:100%;
-	box-sizing: border-box;
+	background-color: #dcdbdb;
+    color: black;
+    padding: 5px;
+}
+
+.bios .ftr {
+	text-align:center;
+	width:100%;
 	background-color: #dcdbdb;
     color: black;
     padding: 5px;

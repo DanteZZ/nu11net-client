@@ -7,12 +7,25 @@
 	<link rel="stylesheet" href="assets/styles/style.css">
 </head>
 <body>
-	<bios>
-		<tlt></tlt>
-	</bios>
+	<div class="bios" id="__bios">
+		<div class="tlt">{{title}}</div>
+		<div class="menu">
+			<div class="item" v-for="(item,id) in menuList" v-bind:class="{active: (id == selItem)}">{{item.title}}</div>
+		</div>
+		<div class="main">
+			<div class="sections">
+			</div>
+			<div class="desc">
+				Описание
+			</div>
+		</div class="main">
+		<div class="ftr">
+			{{footer}}
+		</div>
+	</div>
 </body>
 </html>
 
-	<script src="assets/scripts/js/seemple.min.js"></script>
+	<script src="assets/scripts/js/vue.js"></script>
 	<script src="assets/scripts/js/index.js"></script>
 	<script src="assets/scripts/js/bios.js"></script>
