@@ -14,6 +14,9 @@
 		</div>
 		<div class="main">
 			<div class="sections">
+				<div v-for="(sect,id) in menuList[selItem].sections" v-bind:class="{active: (id == selSection)}" class="section">
+					{{sect.title}}
+				</div>
 			</div>
 			<div class="desc">
 				Описание

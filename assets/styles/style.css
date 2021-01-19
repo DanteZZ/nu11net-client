@@ -67,9 +67,16 @@ body, html {
 .bios .main .sections {
 	flex-grow:1;
 	position:relative;
-	
     padding: 12px;
+}
 
+.bios .main .sections .section {
+	padding:2px;
+}
+
+.bios .main .sections .section.active {
+	background-color:white;
+	color:black;
 }
 
 .bios .main .desc {
