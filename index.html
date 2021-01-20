@@ -15,7 +15,8 @@
 		<div class="main">
 			<div class="sections">
 				<div v-for="(sect,id) in menuList[selItem].sections" v-bind:class="{active: (id == selSection)}" class="section">
-					{{sect.title}}
+					<div class="title">{{sect.title}}</div>
+					<div v-if="sect.value" class="value">[{{userData[sect.value]}}]</div>
 				</div>
 			</div>
 			<div class="desc">
@@ -25,10 +26,13 @@
 		<div class="ftr">
 			{{footer}}
 		</div>
+		<div v-if="isModal" class="modal">
+			<div class="tlt">{{modalTitle}}</div>
+		</div>
 	</div>
 </body>
 </html>
 
-	<script src="assets/scripts/js/vue.js"></script>
-	<script src="assets/scripts/js/index.js"></script>
-	<script src="assets/scripts/js/bios.js"></script>
+<script src="assets/scripts/js/vue.js"></script>
+<script src="assets/scripts/js/index.js"></script>
+<script src="assets/scripts/js/bios.js"></script>
