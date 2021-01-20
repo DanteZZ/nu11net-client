@@ -12,9 +12,10 @@ var BIOS = new Vue({
 		
 		selItem: 0,
 		selSection: 0,
-		
-		isModal:false,
-		modalTitle: "",
+		modal: {
+			opened:false,
+			title:""
+		},
 
 		serverList: {
 			"localhost:1337":{
@@ -42,7 +43,7 @@ var BIOS = new Vue({
 							title:"Выберите сервер из списка",
 							type:"select",
 							values:"serverList",
-							optionTitle:["name"," [","op",":","port","]"],
+							optionTitle:["name"," [","ip",":","port","]"],
 							model:"selectedServer"
 						}
 					}
@@ -76,13 +77,44 @@ var BIOS = new Vue({
 
   	methods: {
 	  	enterSection: function(section) {
-	  		section.action();
+	  		switch (typeof(section.action)) {
+	  			case "function":
+	  				section.action(this);
+	  			break;
+	  			case "string":
+	  				if (section.action == "modal") {
+	  					this.openModal(section.modal);
+	  				};
+	  			break;
+	  		};
+	  	},
+	  	getVar: function(name){
+	  		return this[name];
 	  	},
 	  	closeModal: function() {
-	  		this.isModal = false;
+	  		this.modal.opened = false;
+	  	},
+	  	genTitle: function(arr,vals=false){
+	  		if (typeof(arr) == "object") {
+	  			let res = "";
+	  			if (vals == false) {vals = this;};
+	  			for (var k in arr) {
+	  				if (vals[arr[k]]) {
+	  					res+=vals[arr[k]];
+	  				} else {
+	  					res+=arr[k];
+	  				};
+	  			};
+	  			return res;
+	  		} else {
+	  			return arr;
+	  		};
 	  	},
 	  	openModal: function(modal) {
-
+	  		for (var k in modal) {
+	  			this.modal[k] = modal[k];
+	  		};
+	  		this.modal.opened = true;
 	  	},
 	  	onkeyup: function(e) {
 	  		let b = BIOS;

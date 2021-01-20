@@ -26,8 +26,15 @@
 		<div class="ftr">
 			{{footer}}
 		</div>
-		<div v-if="isModal" class="modal">
-			<div class="tlt">{{modalTitle}}</div>
+		<div v-if="modal.opened" class="modalwrapper">
+			<div class="modal">
+				<div class="tlt">{{modal.title}}</div>
+				<div v-if="modal.type == 'select'" class="body">
+					<div class="list">
+						<div v-for="item in getVar(modal.values)" class="item">{{genTitle(modal.optionTitle,item)}}</div>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </body>
