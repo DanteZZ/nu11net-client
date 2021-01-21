@@ -31,7 +31,7 @@
 				<div class="tlt">{{modal.title}}</div>
 				<div v-if="modal.type == 'select'" class="body">
 					<div class="list">
-						<div v-for="item in getVar(modal.values)" class="item">{{genTitle(modal.optionTitle,item)}}</div>
+						<div v-for="(item, id) in getVar(modal.values)" v-bind:class="{active: (modal.selItem == modal.selItems.indexOf(id))}" class="item">{{genTitle(modal.optionTitle,item)}}</div>
 					</div>
 				</div>
 			</div>

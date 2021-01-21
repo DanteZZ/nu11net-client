@@ -54,6 +54,26 @@ body {
 	color: black;
 }
 
+.bios .modal .list {
+	background-color:#dcdbdb;
+	color: black;
+	position:relative;
+	padding:6px;
+}
+
+.bios .modal .list .item {
+	position:relative;
+	padding-left:20px;
+}
+
+.bios .modal .list .item.active:before {
+	content:"\2666\a0\A0";
+	position: absolute;
+	left:4px;
+	top:0px;
+
+}
+
 .bios .menu {
 	padding:12px;
 	padding-top:9px;
