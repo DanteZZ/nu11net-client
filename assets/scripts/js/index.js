@@ -8,7 +8,7 @@ var BIOS = new Vue({
   	el: '#__bios',
   	data: {
 	    title: "HIOS - Настройка CMOS",
-		footer: "v0.1 (C) Copyright 2015-2021, H4CK-IT, Inc",
+		footer: "v0.1 (C) Copyright 2015-2021, H4CK-IT, Ltd",
 		
 		selItem: 0,
 		selSection: 0,
