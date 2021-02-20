@@ -45,13 +45,23 @@ var BIOS = new Vue({
 					{
 						title:"Сервер",
 						action:"modal",
-						value: "selectedServer",
+						value: "userData.selectedServer",
 						modal: {
 							title:"Выберите сервер из списка",
 							type:"select",
 							values:"serverList",
 							optionTitle:["name"," [","ip",":","port","]"],
 							model:"userData.selectedServer"
+						}
+					},
+					{
+						title:"Логин",
+						action:"modal",
+						value: "userData.auth.login",
+						modal: {
+							title:"Введите логин",
+							type:"input_text",
+							model:"userData.auth.login"
 						}
 					}
 				]
@@ -105,6 +115,12 @@ var BIOS = new Vue({
 	  	},
 	  	closeModal: function() {
 	  		this.modal.opened = false;
+	  		document.body.focus();
+	  		switch (this.modal.type) {
+	  			case "input_text":
+	  				this.$refs.modal_input.removeEventListener("blur",this.modalFocusInput,false);
+	  			break;
+	  		};
 	  	},
 	  	enterModal: function() {
 	  		switch (this.modal.type) {
@@ -148,9 +164,24 @@ var BIOS = new Vue({
 	  				};
 	  				this.modal.selItem = this.modal.selItems.indexOf(this.getVar(this.modal.model));
 	  			break;
+	  			case "input_text":
+	  				this.$nextTick(() => {
+	  					this.$nextTick(() => {
+	  						this.$refs.modal_input.addEventListener("blur",this.modalFocusInput,false);
+				        	this.modalFocusInput();
+				        });
+				    });
+	  			break;
 	  		};
 	  		this.modal.opened = true;
 	  	},
+
+	  	modalFocusInput: function() {
+	  		if (this.$refs.modal_input) {
+	  			this.$refs.modal_input.focus();
+	  		};
+	  	},
+
 	  	onkeyup: function(e) {
 	  		let b = BIOS;
 	  		if (e.which == 39) {//Right arrow
@@ -187,16 +218,18 @@ var BIOS = new Vue({
 	  		};
 
 	  		if (e.which == 27) {//Escape
-	  			if (b.modal.opened) {b.closeModal();};
+	  			if (b.modal.opened) {
+	  				b.closeModal();
+	  			};
 	  		}
 	  	}
   	},
 
 	mounted: function() {
 	  	// Проверка нажати клавиш
-	  	window.addEventListener('keyup', this.onkeyup,false);
+	  	document.body.addEventListener('keyup', this.onkeyup,false);
 	},
 	beforeDestroy: function() {
-		window.removeEventListener('keyup', this.onkeyup,false);
+		document.body.removeEventListener('keyup', this.onkeyup,false);
 	}
 });

@@ -71,7 +71,11 @@ body {
 	position: absolute;
 	left:4px;
 	top:0px;
+}
 
+.bios .modal .input {
+	padding:10px;
+	padding-top:0px;
 }
 
 .bios .menu {

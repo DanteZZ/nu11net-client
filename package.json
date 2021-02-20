@@ -1,5 +1,9 @@
 {
-  "name": "hackit",
-  "main": "index.html",
-  "fullscreen":true
+	"name": "hackit",
+	"main": "index.html",
+	"fullscreen":true,
+	"width": 900,
+	"height": 700,
+	"min_width": 900,
+	"min_height": 700
 }

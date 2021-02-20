@@ -8,7 +8,7 @@
 </head>
 <body>
 	<div class="bios" id="__bios">
-		<div class="tlt">{{title}}</div>
+		<div class="tlt">{{title}} &#0007</div>
 		<div class="menu">
 			<div class="item" v-for="(item,id) in menuList" v-bind:class="{active: (id == selItem)}">{{item.title}}</div>
 		</div>
@@ -16,7 +16,7 @@
 			<div class="sections">
 				<div v-for="(sect,id) in menuList[selItem].sections" v-bind:class="{active: (id == selSection)}" class="section">
 					<div class="title">{{sect.title}}</div>
-					<div v-if="sect.value" class="value">[{{userData[sect.value]}}]</div>
+					<div v-if="sect.value" class="value">[{{getVar(sect.value)}}]</div>
 				</div>
 			</div>
 			<div class="desc">
@@ -32,6 +32,12 @@
 				<div v-if="modal.type == 'select'" class="body">
 					<div class="list">
 						<div v-for="(item, id) in getVar(modal.values)" v-bind:class="{active: (modal.selItem == modal.selItems.indexOf(id))}" class="item">{{genTitle(modal.optionTitle,item)}}</div>
+					</div>
+				</div>
+
+				<div v-if="modal.type == 'input_text'" class="body">
+					<div class="input">
+						<input ref="modal_input" type="text">
 					</div>
 				</div>
 			</div>
