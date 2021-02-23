@@ -78,6 +78,16 @@ body {
 	padding-top:0px;
 }
 
+.bios .modal .input input {
+	font-family: "VGA";
+    font-size: 16px;
+    border: 2px solid;
+    background-color: #dcdbdb;
+    color: black;
+    border-radius: 0px;
+    outline: none;
+}
+
 .bios .menu {
 	padding:12px;
 	padding-top:9px;
@@ -136,6 +146,11 @@ body {
 	position:relative;
     padding: 12px;
     margin-left: -6px;
+}
+.bios .main .desc pre {
+	font-family: 'VGA';
+    white-space: pre-wrap;
+    margin: 0px;
 }
 
 .bios .main .sections:before, .bios .main .desc:before {

@@ -17,10 +17,11 @@
 				<div v-for="(sect,id) in menuList[selItem].sections" v-bind:class="{active: (id == selSection)}" class="section">
 					<div class="title">{{sect.title}}</div>
 					<div v-if="sect.value" class="value">[{{getVar(sect.value)}}]</div>
+					<div v-else-if="sect.hidevalue" class="value">[Скрыто]</div>
 				</div>
 			</div>
 			<div class="desc">
-				Описание
+				<pre v-if="menuList[selItem].sections[selSection].description">{{menuList[selItem].sections[selSection].description}}</pre>
 			</div>
 		</div class="main">
 		<div class="ftr">
@@ -37,7 +38,8 @@
 
 				<div v-if="modal.type == 'input_text'" class="body">
 					<div class="input">
-						<input ref="modal_input" type="text">
+						<input v-if="modal.hide" v-model="modal.input" ref="modal_input" type="password">
+						<input v-else v-model="modal.input" ref="modal_input" type="text">
 					</div>
 				</div>
 			</div>

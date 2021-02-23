@@ -16,6 +16,7 @@ var BIOS = new Vue({
 			opened:false,
 			title:"",
 			selItem:0,
+			input:"",
 			selItems:[]
 		},
 
@@ -46,6 +47,7 @@ var BIOS = new Vue({
 						title:"Сервер",
 						action:"modal",
 						value: "userData.selectedServer",
+						description:"Выберите игровой сервер из списка.",
 						modal: {
 							title:"Выберите сервер из списка",
 							type:"select",
@@ -57,11 +59,24 @@ var BIOS = new Vue({
 					{
 						title:"Логин",
 						action:"modal",
+						description:"Введите логин для авторизации на сервере.",
 						value: "userData.auth.login",
 						modal: {
 							title:"Введите логин",
 							type:"input_text",
 							model:"userData.auth.login"
+						}
+					},
+					{
+						title:"Пароль",
+						action:"modal",
+						description:"Введите пароль для авторизации на сервере.",
+						hidevalue:true,
+						modal: {
+							title:"Введите пароль",
+							type:"input_text",
+							hide:true,
+							model:"userData.auth.password"
 						}
 					}
 				]
@@ -123,15 +138,27 @@ var BIOS = new Vue({
 	  		};
 	  	},
 	  	enterModal: function() {
+	  		let model = this;
+	  		let vars = "";
 	  		switch (this.modal.type) {
 	  			case "select":
-	  				let model = this;
-	  				let vars = this.modal.model.split('.');
+	  				model = this;
+	  				vars = this.modal.model.split('.');
 			  		for (var k in vars) {
 			  			if (k == vars.length-1) { break; };
 			  			model = model[vars[k]];
 			  		};
 			  		model[vars.pop()] = this.modal.selItems[this.modal.selItem];
+			  		this.closeModal();
+	  			break;
+	  			case "input_text":
+	  				model = this;
+	  				vars = this.modal.model.split('.');
+			  		for (var k in vars) {
+			  			if (k == vars.length-1) { break; };
+			  			model = model[vars[k]];
+			  		};
+			  		model[vars.pop()] = this.modal.input;
 			  		this.closeModal();
 	  			break;
 	  		};
@@ -165,12 +192,13 @@ var BIOS = new Vue({
 	  				this.modal.selItem = this.modal.selItems.indexOf(this.getVar(this.modal.model));
 	  			break;
 	  			case "input_text":
+	  			this.$nextTick(() => {
 	  				this.$nextTick(() => {
-	  					this.$nextTick(() => {
-	  						this.$refs.modal_input.addEventListener("blur",this.modalFocusInput,false);
-				        	this.modalFocusInput();
-				        });
-				    });
+  						this.$refs.modal_input.addEventListener("blur",this.modalFocusInput,false);
+			        	this.modalFocusInput();
+			        });
+			    });
+	  				this.modal.input = this.getVar(this.modal.model);
 	  			break;
 	  		};
 	  		this.modal.opened = true;
