@@ -1,9 +1,14 @@
 {
 	"name": "hackit",
 	"main": "index.html",
-	"fullscreen":true,
+	"fullscreen": true,
 	"width": 900,
 	"height": 700,
 	"min_width": 900,
-	"min_height": 700
+	"min_height": 700,
+	"dependencies": {
+		"sqlite": "^4.0.19",
+		"sqlite3": "^5.0.2",
+		"sqljs": "0.0.0-6"
+	}
 }
