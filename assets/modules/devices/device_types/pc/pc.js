@@ -1,4 +1,4 @@
-class cp {
+class pc {
 	constructor(a,b,c) {this._init(a,b,c)}
 }
-module.exports = router
+module.exports = pc
