@@ -3,7 +3,7 @@ module.exports = {
 	init:function(){
 		this._fs = require("fs");
 		this._pt = require("path");
-		let pt_types = this._pt.join(__dirname,"/card_types");
+		let pt_types = this._pt.join(__dirname,"/interface_types");
 		this._fs.readdirSync(pt_types).forEach(file => {
 			let pt_type = this._pt.join(pt_types,"/"+file);
 			if (this._fs.statSync(pt_type).isDirectory()) {

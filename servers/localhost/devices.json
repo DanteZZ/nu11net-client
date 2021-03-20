@@ -2,7 +2,7 @@
 	"a1b2c3d4e5":{
 		"type":"router",
 		"name":"Роутер",
-		"cards":{
+		"interfaces":{
 			"eth0_a1b2c3d4e5":{
 				"type":"ethernet"
 			}
