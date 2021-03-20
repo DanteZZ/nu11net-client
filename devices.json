@@ -1,0 +1,24 @@
+{
+	"a1b2c3d4e5":{
+		"type":"pc",
+		"name":"Мой компьютер",
+		"cards":{
+			"eth0_a1b2c3d4e5":{
+				"type":"ethernet"
+			}
+		}
+	},
+
+	"q0w9e8r7t6":{
+		"type":"router",
+		"name":"Роутер",
+		"cards":{
+			"eth0_q0w9e8r7t6":{
+				"type":"ethernet"
+			},
+			"eth1_q0w9e8r7t6":{
+				"type":"ethernet"
+			}
+		}
+	}
+}
