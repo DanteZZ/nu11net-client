@@ -11,7 +11,7 @@ const _dv = requireUncached("assets/modules/devices/devices.js"); // Работ�
 _cfg.load();
 
 
-let dv = _dv.init(JSON.parse(_fs.readFileSync("devices.json","utf-8")));
+let dv = _dv.init(JSON.parse(_fs.readFileSync("servers/localhost/devices.json","utf-8")));
 console.log(dv);
 
 /*
