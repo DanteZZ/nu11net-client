@@ -1,4 +1,4 @@
 class pc {
-	constructor(a,b,c) {this._init(a,b,c)}
+	constructor(a,b,c,d) {this._init(a,b,c,d)}
 }
 module.exports = pc

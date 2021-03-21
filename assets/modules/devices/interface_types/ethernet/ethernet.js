@@ -1,17 +1,13 @@
 class ethernet {
 	up = true;
-	mac = "A1:B2:C3:D4:E5:F6";
-	ip = {
-		address:""
-	};
 	connection = false;
 	events = {
 		tx: {},
 		rx: {}
 	};
 	eventId = {};
-	constructor(a,b) {
-		this._init(a,b) // Инициализация интерфейса
+	constructor(a,b,c,d) {
+		this._init(a,b,c,d) // Инициализация интерфейса
 	};
 
 	_recieve(data) {
@@ -23,9 +19,8 @@ class ethernet {
 		if (!this.up) {return false;}
 		if (this.connection !== false) {
 			if (typeof(this.connection._recieve) == "function") {
-				data._inf = {
-					mac: this.mac,
-					ip: this.ip
+				data.__inf = {
+					mac: this.__mac
 				};
 				this.connection._recieve(data);
 				this.do("tx",data);

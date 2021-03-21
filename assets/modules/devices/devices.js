@@ -14,41 +14,47 @@ module.exports = {
 
 		for (var id in list) {
 			if (this._device_types[list[id].type]) {
-				this._list[id] = new this._device_types[list[id].type](list[id],list[id].type,this._interface_types);
+				this._list[id] = new this._device_types[list[id].type](id,list[id],list[id].type,this._interface_types);
 			};
 		};
 		return this;
 	},
 	_device: {
-		_init(inf,type,ctypes) {
+		_init(id,inf,type,ctypes) {
 			this.interfaces = [];
+			this._id = id;
 			for (var k in inf) {
-				
 				switch (k) {
 					case "interfaces":
 						for (var id in inf.interfaces) {
 							if (ctypes[inf.interfaces[id].type]) {
-								this.interfaces[id] = new ctypes[inf.interfaces[id].type](inf.interfaces[id],inf.interfaces[id].type);
+								this.interfaces[id] = new ctypes[inf.interfaces[id].type](id,this,inf.interfaces[id],inf.interfaces[id].type);
 							};
 						};
 					break;
-					case "type":
-						this.type = type;
-					break;
-					default: this[k] = inf[k]; break;
+					default: this["__"+k] = inf[k]; break;
 				}
-				
 			}
+		},
+		_isInterface(id) {
+			if (this.interfaces[id]) {return true;} else {return false;}; 
+		},
+		_getInterfacesByType(type) {
+			let res = {};
+			for (var id in this.interfaces) {
+				let intr = this.interfaces[id];
+				if (intr.type == type) {res[id] = intr;};
+			};
+			return res;
 		}
 	},
 	_interface: {
-		_init(inf,type) {
+		_init(id,device,inf,type) {
+			this.__device = device;
+			this._id = id;
 			for (var k in inf) {
 				switch (k) {
-					case "type":
-						this.type = type;
-					break;
-					default: this[k] = inf[k]; break;
+					default: this["__"+k] = inf[k]; break;
 				}
 			}
 		}
