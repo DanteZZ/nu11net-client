@@ -16,12 +16,7 @@ class ethernet {
 
 	_recieve(data) {
 		if (!this.up) {return false;}
-		for (var k in this.events.rx) {
-			let f = this.events.rx[k];
-			if (typeof(f) == "function") {
-				f(data);
-			};
-		};
+		return this.do("rx",data);
 	};
 
 	_send(data) {
@@ -33,6 +28,7 @@ class ethernet {
 					ip: this.ip
 				};
 				this.connection._recieve(data);
+				this.do("tx",data);
 				return true;
 			} else {
 				return false;
@@ -56,9 +52,11 @@ class ethernet {
 			for (var k in this.events[event]) {
 				if (typeof(this.events[event][k]) == "function") {
 					this.events[event][k](data);
+					return true;
 				}
 			}
 		};
+		return false;
 	};
 	rme(id) {
 		let type = this.eventId[id]
