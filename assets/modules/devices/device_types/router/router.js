@@ -11,7 +11,7 @@ class router {
 					let st = this.__boot.priority[k];
 					if (typeof(st) == "string") {
 						let intr = this.interfaces[st];
-						if (!intr || intr.type !== "storage") { // Если интерфейса не существует или интерфейс не является накопителем, сбрасываем записи
+						if (!intr || intr.__type !== "storage") { // Если интерфейса не существует или интерфейс не является накопителем, сбрасываем записи
 							b_list = [];
 						} else {
 							b_list.push(intr);
@@ -26,10 +26,9 @@ class router {
 					b_list.push(ints[k]);
 				};
 			};
-			alert(JSON.stringify(b_list));
 
 			if (b_list.length) { // Если накопители с возможность загрузки, пытаемся их бутнуть
-				alert(JSON.stringify(b_list));
+				this.b_list = b_list;
 				/*
 
 					Здесь будет код с попыткой бута каждого носителя
