@@ -7,5 +7,14 @@
 				"type":"ethernet"
 			}
 		}
+	},
+	"a5b4c3d2e1":{
+		"type":"router",
+		"name":"Роутер",
+		"interfaces":{
+			"eth0_a5b4c3d2e1":{
+				"type":"ethernet"
+			}
+		}
 	}
 }
