@@ -9,7 +9,7 @@ class _kernel {
 	};
 	storage = {
 		run:function(path){
-			let f = __hw.__sys_storage._readFileSync(path);
+			let f = __hw.__sys_storage._readFile(path);
 			if (f) {
 				__hw.__device._vm_run(f);
 				return true;

@@ -3,7 +3,7 @@ _k.interfaces = {
 		return __hw.__ints;
 	},
 	getById: function(id) {
-		if (__hw.__ints[id]) {return __hw.__ints} else {return false;};
+		if (__hw.__ints[id]) {return __hw.__ints[id]} else {return false;};
 	},
 	getByType: function(type) {
 		let res = {};

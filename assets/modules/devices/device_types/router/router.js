@@ -49,7 +49,7 @@ class router {
 
 					let st = this.__boot.priority[k];
 					if (st.__boot_file) { // Если есть boot запись на носителе
-						let f = st._readFileSync(st.__boot_file);
+						let f = st._readFile(st.__boot_file);
 						this._boot_storage = st;
 						if (f) {// Если файл boot есть на носителе, то пытаемся его запустить
 							try {
