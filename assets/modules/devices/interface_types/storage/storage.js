@@ -3,8 +3,8 @@ class storage {
 	// t = 0 - Директория
 	// t = 1 - Файл
 
-	__fs = require("fs");
-	__pth = require("path");
+	#__fs = require("fs");
+	#__pth = require("path");
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d) // Инициализация интерфейса
 	};
@@ -33,11 +33,11 @@ class storage {
 		let map = this._getMapPath(path); // Получаем мапу нашего пути
 		if (map && map.t == 1) { // Если это файл
 			let fn = map["~"]; // Название физического файла
-			let p = this.__pth.join(global.__cfg.get().devicesDir,this.__device._id,this._id,fn.substr(0, 2),fn); // Собираем путь к файлу
+			let p = this.#__pth.join(global.__cfg.get().devicesDir,this.__device._id,this._id,fn.substr(0, 2),fn); // Собираем путь к файлу
 			p = p.replace(/\\/g, "/"); // Меняем ебаные виндовсовские слешы на человеческие юниксовые
 			
-			if (this.__fs.existsSync(p)) { // Если физически файл существует
-				return this.__fs.readFileSync(p,"utf-8"); // Возвращаем его
+			if (this.#__fs.existsSync(p)) { // Если физически файл существует
+				return this.#__fs.readFileSync(p,"utf-8"); // Возвращаем его
 			} else { 
 				/*
 

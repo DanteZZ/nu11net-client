@@ -3,7 +3,7 @@
 		"type":"router",
 		"name":"Роутер",
 		"boot":{
-			"priority":["storage_a1b2c3d4e5"]
+			"priority":[]
 		},
 		"interfaces":{
 			"eth0_a1b2c3d4e5":{
@@ -18,6 +18,15 @@
 					"kernel":{
 						"t":0,
 						"~":{
+							"modules":{
+								"t":0,
+								"~":{
+									"interfaces": {
+										"t":1,
+										"~":"9fc5341de219100986bc3b1a3f670ce9"
+									}
+								}
+							},
 							"init": {
 								"t":1,
 								"~":"c786b51629310cc822f7a2d7fb3c2b05"

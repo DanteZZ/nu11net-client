@@ -43,7 +43,7 @@ module.exports = {
 			let res = {};
 			for (var id in this.interfaces) {
 				let intr = this.interfaces[id];
-				if (intr.type == type) {res[id] = intr;};
+				if (intr.__type == type) {res[id] = intr;};
 			};
 			return res;
 		}

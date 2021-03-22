@@ -1,0 +1,16 @@
+_k.interfaces = {
+	getAll: function() {
+		return __hw.__ints;
+	},
+	getById: function(id) {
+		if (__hw.__ints[id]) {return __hw.__ints} else {return false;};
+	},
+	getByType: function(type) {
+		let res = {};
+		for (var id in __hw.__ints) {
+			let intr = __hw.__ints[id];
+			if (intr.__type == type) {res[id] = intr;};
+		};
+		return res;
+	}
+};

@@ -1,1 +1,28 @@
-Hello World
+//----------------------
+// Load Kernel functions
+//----------------------
+
+class _kernel {
+	constructor() {};
+	log(l){
+		__hw.__device._vm_wlog(l);
+	};
+	storage = {
+		run:function(path){
+			let f = __hw.__sys_storage._readFileSync(path);
+			if (f) {
+				__hw.__device._vm_run(f);
+				return true;
+			} else {
+				return false;
+			}
+		}
+	};
+}
+const _k = new _kernel();
+
+//----------------------
+// Load Kernel modules
+//----------------------
+
+_k.storage.run("kernel/modules/interfaces");
