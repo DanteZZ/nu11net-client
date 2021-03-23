@@ -10,8 +10,10 @@ const _dv = requireUncached("assets/modules/devices/devices.js"); // Работ�
 
 
 global.__cfg = _cfg
+global.__connectedServer = {
+	address: "localhost"
+}
 _cfg.load();
-
 
 let dv = _dv.init(JSON.parse(_fs.readFileSync("servers/localhost/devices.json","utf-8")));
 console.log(dv);

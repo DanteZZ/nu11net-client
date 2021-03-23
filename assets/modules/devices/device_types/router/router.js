@@ -49,7 +49,7 @@ class router {
 
 					let st = this.__boot.priority[k];
 					if (st.__boot_file) { // Если есть boot запись на носителе
-						let f = st._readFile(st.__boot_file);
+						let f = st._readData(st.__boot_file);
 						this._boot_storage = st;
 						if (f) {// Если файл boot есть на носителе, то пытаемся его запустить
 							try {
@@ -129,6 +129,10 @@ class router {
 			},
 			alert: alert,
 		};
+	};
+	_updateCfg() { // Функция, которую надо будет переписать, ибо она должна сохранять изменения на сервере
+		let __pth = require("path");
+		let fcfg = __pth.join(global.__cfg.get().serversDir,global.__connectedServer.address,"devices.json");
 	}
 }
 module.exports = router

@@ -9,14 +9,15 @@ class _kernel {
 	};
 	storage = {
 		run:function(path){
-			let f = __hw.__sys_storage._readFile(path);
+			let f = __hw.__sys_storage._readData(path);
 			if (f) {
 				__hw.__device._vm_run(f);
 				return true;
 			} else {
 				return false;
 			}
-		}
+		},
+		fs:__hw.__sys_storage
 	};
 }
 const _k = new _kernel();
@@ -26,3 +27,4 @@ const _k = new _kernel();
 //----------------------
 
 _k.storage.run("kernel/modules/interfaces");
+_k.storage.run("newscript")
