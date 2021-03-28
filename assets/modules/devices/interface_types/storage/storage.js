@@ -77,6 +77,144 @@ class storage {
 		}
 	};
 
+	/*
+		Работа с директориями
+	*/
+	_scanDir(path) {
+		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
+		let map = this._getMapPath(path); // Получаем мапу нашего пути
+		if (map && map.t == 0) { // Если это директория
+			let res = [];
+			for (var k in map["~"]) {
+				res.push(k);
+			};
+			return res;
+		} else { // Если в мапах нет такой директории
+			return false;
+		}; 
+	};
+
+	_isDir(path) { //Проверить директория ли это
+		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
+		let map = this._getMapPath(path); // Получаем мапу нашего пути
+		if (map && map.t == 0) { // Если это директория
+			return true;
+		} else { // Если в мапах нет такой директории
+			return false;
+		}; 
+	};
+
+	_rmDir(path) { // Удалить директорию
+		if (["",".",".."].indexOf(path) >= 0) {return false;} // Проверка на корневой каталог
+		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
+		let map = this._getMapPath(path); // Получаем мапу нашего пути
+		if (map && map.t == 0) { // Если это директория
+			if (!Object.keys(map["~"]).length) { // Если в папке ничего нет
+				let ppath = this.#__pth.dirname(path);
+				ppath = ppath.replace(/\\/g, "/");
+				if (ppath == ".") {ppath = "";};
+				let pmap = this._getMapPath(ppath); // Получаем родительскую директорию
+				if (pmap) { // Если родительская категория существует
+					delete(pmap["~"][this.#__pth.basename(path)]); // Удаляем директорию
+					this.__writeMap(); // Обновляем MAP
+					return true;
+				} else { // Если родителя нет, значит какая то трабла с MAP
+					return false;
+				}
+			} else { // Если в папке есть что то
+				return false;
+			};
+		} else { // Если в мапах нет такой директории
+			return false;
+		}; 
+	};
+
+	_mkDir(path) { // Создать директорию
+		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
+		
+		if (this._getMapPath(path)) { // Если это название занято
+			return false;
+		};
+
+		let dir = this.#__pth.dirname(path);
+		dir = dir.replace(/\\/g, "/");
+		if (dir == ".") {dir = "";};
+		
+		let map = this._getMapPath(dir); // Получаем мапу нашего пути
+		if (map && map.t == 0) { // Если это директория
+			if (typeof(map["~"]) !== "object") {map["~"] = {};};
+			map["~"][this.#__pth.basename(path)] = {
+				"t":0,
+				"~":{}
+			};
+			this.__writeMap(); // Обновляем MAP
+			return true;
+		} else { // Если в мапах нет такой директории
+			return false;
+		}; 
+	};
+
+	_mkAsync(path,func) { // Создать директорию асинхронно
+		if (typeof(func) !== "function") {func = function(){};};
+		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
+		
+		if (this._getMapPath(path)) { // Если это название занято
+			return false;
+		};
+
+		let dir = this.#__pth.dirname(path);
+		dir = dir.replace(/\\/g, "/");
+		if (dir == ".") {dir = "";};
+		
+		let map = this._getMapPath(dir); // Получаем мапу нашего пути
+		if (map && map.t == 0) { // Если это директория
+			if (typeof(map["~"]) !== "object") {map["~"] = {};};
+			map["~"][this.#__pth.basename(path)] = {
+				"t":0,
+				"~":{}
+			};
+			this.__writeMap(); // Обновляем MAP
+			func();
+		} else { // Если в мапах нет такой директории
+			return false;
+		}; 
+	};
+
+	/*
+		Работа с файлами
+	*/
+
+	_rmData(path) {
+		if (["",".",".."].indexOf(path) >= 0) {return false;} // Проверка на корневой каталог
+		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
+		let map = this._getMapPath(path); // Получаем мапу нашего пути
+		if (map && map.t == 1) { // Если это файл
+			let ppath = this.#__pth.dirname(path);
+			ppath = ppath.replace(/\\/g, "/");
+			if (ppath == ".") {ppath = "";};
+			let pmap = this._getMapPath(ppath); // Получаем родительскую директорию
+			if (pmap) { // Если родительский каталог существует
+				let p = this.#__pth.join(this.#__dir,map['~'].substr(0, 1),map['~']);
+				p = p.replace(/\\/g, "/");
+				try {
+				  this.#__fs.unlinkSync(p)
+				} catch(e) {
+				  alert(e)
+				  return false;
+				};
+				delete(pmap["~"][this.#__pth.basename(path)]); // Удаляем директорию
+				this.__writeMap(); // Обновляем MAP
+				return true;
+			} else { // Если родителя нет, значит какая то трабла с MAP
+				return false;
+			}
+		} else { // Если в мапах нет такого файла
+			return false;
+		}; 
+	};
+
+
+	/* Чтение данных */
 	_readData(path) {
 		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
 		let map = this._getMapPath(path); // Получаем мапу нашего пути
@@ -125,6 +263,7 @@ class storage {
 		}; 
 	};
 
+	/* Запись данных */
 	_writeData(path,data) {
 		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
 		if (!path) {return false;};
@@ -136,9 +275,9 @@ class storage {
 		let map = this._getMapPath(_dir); // Получаем мапу нашего пути
 		if (map && map.t == 0) { // Если это директория
 			let mapf = this._getMapPath(this.#__pth.join(_dir,_file));
-			if (!mapf || mapf.t !== 0) { // Если такого файла не существует, и нет директории с таким же названием, начинаем создавать файл
-				let hash = "" // Будущий хеш
-				let p = ""; // Будущий путь файла
+			let p = ""; // Будущий путь файла
+			let hash = "" // Будущий хеш
+			if (!mapf) { // Если такого файла не существует, и нет директории с таким же названием, начинаем создавать файл
 				do { // Генерим незанятый хеш
 					hash = this.#_randomHash();
 					p = this.#__pth.join(this.#__dir,hash.substr(0, 1),hash);
@@ -156,19 +295,17 @@ class storage {
 						return false;
 					};
 				};
-
-				this.#__fs.writeFileSync(p,data);
-				
-				if (typeof(map["~"]) !== "object") {map["~"] = {};};
-
-				map["~"][_file] = {"t":1,"~":hash};
-
-				this.__writeMap(); // Обновляем MAP
-
-				return true;
-			} else { //Если есть директория под таким названием
+			} else if (mapf.t !== 0) { //Если такой файл уже существует
+				hash = mapf['~'];
+				p = this.#__pth.join(this.#__dir,mapf['~'].substr(0, 1),mapf['~']);
+				p = p.replace(/\\/g, "/");
+			} else { // Если это директория
 				return false;
 			};
+			this.#__fs.writeFileSync(p,data);
+			if (typeof(map["~"]) !== "object") {map["~"] = {};};
+				map["~"][_file] = {"t":1,"~":hash};
+			this.__writeMap(); // Обновляем MAP
 		} else { // Если такой директории нет
 			return false;
 		}; 
@@ -186,9 +323,9 @@ class storage {
 		let map = this._getMapPath(_dir); // Получаем мапу нашего пути
 		if (map && map.t == 0) { // Если это директория
 			let mapf = this._getMapPath(this.#__pth.join(_dir,_file));
-			if (!mapf || mapf.t !== 0) { // Если такого файла не существует, и нет директории с таким же названием, начинаем создавать файл
-				let hash = "" // Будущий хеш
-				let p = ""; // Будущий путь файла
+			let p = ""; // Будущий путь файла
+			let hash = "" // Будущий хеш
+			if (!mapf) { // Если такого файла не существует, и нет директории с таким же названием, начинаем создавать файл
 				do { // Генерим незанятый хеш
 					hash = this.#_randomHash();
 					p = this.#__pth.join(this.#__dir,hash.substr(0, 1),hash);
@@ -206,22 +343,19 @@ class storage {
 						return false;
 					};
 				};
-
-				this.#__fs.writeFile(p,data,function(err,data){
-					this.__writeMap();
-					func(false,data);
-				});
-				
-				if (typeof(map["~"]) !== "object") {map["~"] = {};};
-
-				map["~"][_file] = {"t":1,"~":hash};
-
-				this.__writeMap(); // Обновляем MAP
-
-				return true;
-			} else { //Если есть директория под таким названием
+			} else if (mapf.t !== 0) { //Если такой файл уже существует
+				p = this.#__pth.join(this.#__dir,mapf['~'].substr(0, 1),mapf['~']);
+				hash = mapf['~'];
+				p = p.replace(/\\/g, "/");
+			} else { // Если это директория
 				return false;
 			};
+			if (typeof(map["~"]) !== "object") {map["~"] = {};};
+				map["~"][_file] = {"t":1,"~":hash};
+			this.__writeMap();
+			this.#__fs.writeFile(p,data,function(err){
+				func(false);
+			});
 		} else { // Если такой директории нет
 			return false;
 		}; 

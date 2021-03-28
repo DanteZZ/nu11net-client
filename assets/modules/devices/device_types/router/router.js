@@ -125,9 +125,18 @@ class router {
 			__hw : {
 				__ints:this.interfaces,
 				__device:this,
-				__sys_storage: this._boot_storage
+				__sys_storage: this._boot_storage,
+				__csl:global.__csl
+			},
+			_time: {
+				setInterval:setInterval,
+				setTimeout:setTimeout,
+				clearInterval:clearInterval,
+				clearTimeout:clearTimeout
 			},
 			alert: alert,
+			
+
 		};
 	};
 	_updateCfg() { // Функция, которую надо будет переписать, ибо она должна сохранять изменения на сервере

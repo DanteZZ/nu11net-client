@@ -4,9 +4,6 @@
 
 class _kernel {
 	constructor() {};
-	log(l){
-		__hw.__device._vm_wlog(l);
-	};
 	storage = {
 		run:function(path){
 			let f = __hw.__sys_storage._readData(path);
@@ -21,10 +18,15 @@ class _kernel {
 	};
 }
 const _k = new _kernel();
-
+const console = __hw.__csl;
 //----------------------
 // Load Kernel modules
 //----------------------
 
 _k.storage.run("kernel/modules/interfaces");
-_k.storage.run("newscript")
+let list = __hw.__sys_storage._scanDir("");
+console.log(list);
+
+//_time.setTimeout(function(){console.clear()},100);
+//alert (__hw.__sys_storage._readData("newscripts"));
+//_k.storage.run("newscript")
