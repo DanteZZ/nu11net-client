@@ -80,13 +80,18 @@ class storage {
 	/*
 		Работа с директориями
 	*/
-	_scanDir(path) {
+	_scanDir(path,more=false) {
 		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
 		let map = this._getMapPath(path); // Получаем мапу нашего пути
 		if (map && map.t == 0) { // Если это директория
 			let res = [];
 			for (var k in map["~"]) {
-				res.push(k);
+				if (more) { // Если нужно получить доп.информацию
+					res.push({name:k,type:map["~"][k].t});
+				} else {
+					res.push(k);
+				};
+				
 			};
 			return res;
 		} else { // Если в мапах нет такой директории
@@ -115,7 +120,7 @@ class storage {
 				if (ppath == ".") {ppath = "";};
 				let pmap = this._getMapPath(ppath); // Получаем родительскую директорию
 				if (pmap) { // Если родительская категория существует
-					delete(pmap["~"][this.#__pth.basename(path)]); // Удаляем директорию
+					delete(pmap["~"][this.#__pth.basename(oldpath)]); // Удаляем директорию
 					this.__writeMap(); // Обновляем MAP
 					return true;
 				} else { // Если родителя нет, значит какая то трабла с MAP
@@ -184,6 +189,7 @@ class storage {
 		Работа с файлами
 	*/
 
+	/* Удаление данных */
 	_rmData(path) {
 		if (["",".",".."].indexOf(path) >= 0) {return false;} // Проверка на корневой каталог
 		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
@@ -202,6 +208,30 @@ class storage {
 				  alert(e)
 				  return false;
 				};
+				delete(pmap["~"][this.#__pth.basename(path)]); // Удаляем директорию
+				this.__writeMap(); // Обновляем MAP
+				return true;
+			} else { // Если родителя нет, значит какая то трабла с MAP
+				return false;
+			}
+		} else { // Если в мапах нет такого файла
+			return false;
+		}; 
+	};
+
+	_rmDataAsync(path,func=function(){}) {
+		if (["",".",".."].indexOf(path) >= 0) {return false;} // Проверка на корневой каталог
+		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
+		let map = this._getMapPath(path); // Получаем мапу нашего пути
+		if (map && map.t == 1) { // Если это файл
+			let ppath = this.#__pth.dirname(path);
+			ppath = ppath.replace(/\\/g, "/");
+			if (ppath == ".") {ppath = "";};
+			let pmap = this._getMapPath(ppath); // Получаем родительскую директорию
+			if (pmap) { // Если родительский каталог существует
+				let p = this.#__pth.join(this.#__dir,map['~'].substr(0, 1),map['~']);
+				p = p.replace(/\\/g, "/");
+				this.#__fs.unlink(p,function(){func();});
 				delete(pmap["~"][this.#__pth.basename(path)]); // Удаляем директорию
 				this.__writeMap(); // Обновляем MAP
 				return true;
@@ -360,6 +390,54 @@ class storage {
 			return false;
 		}; 
 	};
+
+	/* Прочие функции */
+
+	_isData(path) { //Проверить директория ли это
+		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
+		let map = this._getMapPath(path); // Получаем мапу нашего пути
+		if (map && map.t == 1) { // Если это директория
+			return true;
+		} else { // Если в мапах нет такой директории
+			return false;
+		}; 
+	};
+
+	_rename(oldpath,newpath) {
+		if (["",".",".."].indexOf(oldpath) >= 0) {return false;} // Проверка на корневой каталог
+		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
+		
+		let map = this._getMapPath(oldpath); // Получаем мапу нашего пути
+		let nmap = this._getMapPath(newpath); // Получаем мапу нашего пути
+		if (map && !nmap) { // Если старое имя существует в мапах, а новое нет
+			
+			/* CHECK OLDPATH */
+			let ppath = this.#__pth.dirname(oldpath);
+			ppath = ppath.replace(/\\/g, "/");
+			if (ppath == ".") {ppath = "";};
+			let pmap = this._getMapPath(ppath); // Получаем родительскую директорию oldpath
+			
+			/* CHECK NEWPATH */
+			let npath = this.#__pth.dirname(newpath);
+			npath = npath.replace(/\\/g, "/");
+			if (npath == ".") {npath = "";};
+			let nmap = this._getMapPath(npath); // Получаем родительскую директорию oldpath
+
+			if (pmap && nmap) { // Если родительские категории существуют
+				
+				let mp = pmap["~"][this.#__pth.basename(oldpath)]; // Удаляем директорию
+				delete(pmap["~"][this.#__pth.basename(oldpath)]);
+				if (typeof(nmap["~"])!== "object") {nmap['~'] == {};};
+				nmap["~"][this.#__pth.basename(newpath)] = mp;
+				this.__writeMap(); // Обновляем MAP
+				return true;
+			} else { // Если родителя нет, значит какая то трабла с MAP
+				return false;
+			}
+		} else { // Если в мапах нет такой директории
+			return false;
+		}; 
+	}
 
 	#_randomHash = function(len) {
 		len = len || 32;
