@@ -304,7 +304,9 @@ class storage {
 		if (_dir == ".") {_dir = "";};
 		let map = this._getMapPath(_dir); // Получаем мапу нашего пути
 		if (map && map.t == 0) { // Если это директория
-			let mapf = this._getMapPath(this.#__pth.join(_dir,_file));
+			let mapf_p = this.#__pth.join(_dir,_file)
+			mapf_p = mapf_p.replace(/\\/g, "/");
+			let mapf = this._getMapPath(mapf_p);
 			let p = ""; // Будущий путь файла
 			let hash = "" // Будущий хеш
 			if (!mapf) { // Если такого файла не существует, и нет директории с таким же названием, начинаем создавать файл

@@ -24,11 +24,11 @@ const console = __hw.__csl;
 //----------------------
 
 _k.storage.run("kernel/modules/interfaces");
-let fs = __hw.__sys_storage;
+let fs = __hw.__sys_storage; 
 
-fs._rename("kernel/newhi","newhi");
-
-let list = fs._readData("newhi/check.txt");
+//fs._rename("newhi/check.txt","newhi/check2.txt");
+fs._writeData("newhi/check2.txt","asd");
+let list = fs._scanDir("newhi");
 console.log(list);
 
 //_time.setTimeout(function(){console.clear()},100);
