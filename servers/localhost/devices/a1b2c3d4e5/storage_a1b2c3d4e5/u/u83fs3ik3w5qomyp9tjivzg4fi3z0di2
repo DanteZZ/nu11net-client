@@ -1,0 +1,16 @@
+_k.proc = {
+	list:Array(),
+	run:function(path,attrs) { // Запустить процесс
+		let ctx = {
+			__hw: __hw
+		};
+		list.push__hw.__device._vm_create_thread(ctx);
+	}
+}; 
+
+/*
+
+	По логике, код должен запускаться из отдельных процессов
+	Пора прочекать VM2 выключать процессы
+
+*/

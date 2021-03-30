@@ -4,8 +4,8 @@
 
 class _kernel {
 	constructor() {};
-	storage = {
-		run:function(path){
+	store = {
+		load:function(path){ // Подгрузить скрипт
 			let f = __hw.__sys_storage._readData(path);
 			if (f) {
 				__hw.__device._vm_run(f);
@@ -16,21 +16,14 @@ class _kernel {
 		},
 		fs:__hw.__sys_storage
 	};
-}
+};
+
 const _k = new _kernel();
 const console = __hw.__csl;
+const fs = __hw.__sys_storage;
+
 //----------------------
 // Load Kernel modules
 //----------------------
 
-_k.storage.run("kernel/modules/interfaces");
-let fs = __hw.__sys_storage; 
-
-//fs._rename("newhi/check.txt","newhi/check2.txt");
-fs._writeData("newhi/check2.txt","asd");
-let list = fs._scanDir("newhi");
-console.log(list);
-
-//_time.setTimeout(function(){console.clear()},100);
-//alert (__hw.__sys_storage._readData("newscripts"));
-//_k.storage.run("newscript")
+//_k.store.load("kernel/interfaces/interfaces");

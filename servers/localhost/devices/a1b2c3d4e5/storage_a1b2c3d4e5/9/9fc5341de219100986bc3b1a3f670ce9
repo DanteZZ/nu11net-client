@@ -13,4 +13,7 @@ _k.interfaces = {
 		};
 		return res;
 	}
-}; 
+};
+
+_k.store.include("kernel/interfaces/storage");
+_k.store.include("kernel/interfaces/ethernet");

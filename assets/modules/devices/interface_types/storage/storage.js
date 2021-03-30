@@ -5,19 +5,21 @@ class storage {
 
 	#__fs = require("fs");
 	#__pth = require("path");
-	#__dir = "";
 	__mapped = true;
 	__map = {};
 
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d) // Инициализация интерфейса
-		this.#__dir = this.#__pth.join(global.__cfg.get().serversDir,global.__connectedServer.address,"devices",this.__device._id,this._id);
 		this.#__initMap(); // Инициализируем MAP
+	};
+
+	#__dir = function() {
+		return this.#__pth.join(global.__cfg.get().serversDir,global.__connectedServer.address,"devices",this.__device._id,this._id);
 	};
 
 	#__initMap = function() { // Инициализировать MAP
 		/* Функция которую надо будет переписать под серверную */
-		let pmap = this.#__pth.join(this.#__dir,".map");
+		let pmap = this.#__pth.join(this.#__dir(),".map");
 		if (!this.#__fs.existsSync(pmap)) {
 			this.__mapped = false;
 		} else {
@@ -37,7 +39,7 @@ class storage {
 		if (typeof(this.__map) == "object") {mp = this.__map;}; // Проверяем чтобы нам не посылали всякую шляпу в MAP
 
 		try {
-			this.#__fs.writeFileSync(this.#__pth.join(this.#__dir,".map"),JSON.stringify(mp));
+			this.#__fs.writeFileSync(this.#__pth.join(this.#__dir(),".map"),JSON.stringify(mp));
 			return true;
 		} catch (e) {
 			this.#__err("0x000101",e);
@@ -120,7 +122,7 @@ class storage {
 				if (ppath == ".") {ppath = "";};
 				let pmap = this._getMapPath(ppath); // Получаем родительскую директорию
 				if (pmap) { // Если родительская категория существует
-					delete(pmap["~"][this.#__pth.basename(oldpath)]); // Удаляем директорию
+					delete(pmap["~"][this.#__pth.basename(path)]); // Удаляем директорию
 					this.__writeMap(); // Обновляем MAP
 					return true;
 				} else { // Если родителя нет, значит какая то трабла с MAP
@@ -200,7 +202,7 @@ class storage {
 			if (ppath == ".") {ppath = "";};
 			let pmap = this._getMapPath(ppath); // Получаем родительскую директорию
 			if (pmap) { // Если родительский каталог существует
-				let p = this.#__pth.join(this.#__dir,map['~'].substr(0, 1),map['~']);
+				let p = this.#__pth.join(this.#__dir(),map['~'].substr(0, 1),map['~']);
 				p = p.replace(/\\/g, "/");
 				try {
 				  this.#__fs.unlinkSync(p)
@@ -229,7 +231,7 @@ class storage {
 			if (ppath == ".") {ppath = "";};
 			let pmap = this._getMapPath(ppath); // Получаем родительскую директорию
 			if (pmap) { // Если родительский каталог существует
-				let p = this.#__pth.join(this.#__dir,map['~'].substr(0, 1),map['~']);
+				let p = this.#__pth.join(this.#__dir(),map['~'].substr(0, 1),map['~']);
 				p = p.replace(/\\/g, "/");
 				this.#__fs.unlink(p,function(){func();});
 				delete(pmap["~"][this.#__pth.basename(path)]); // Удаляем директорию
@@ -250,7 +252,7 @@ class storage {
 		let map = this._getMapPath(path); // Получаем мапу нашего пути
 		if (map && map.t == 1) { // Если это файл
 			let fn = map["~"]; // Название физического файла
-			let p = this.#__pth.join(this.#__dir,fn.substr(0, 1),fn); // Собираем путь к файлу
+			let p = this.#__pth.join(this.#__dir(),fn.substr(0, 1),fn); // Собираем путь к файлу
 			p = p.replace(/\\/g, "/"); // Меняем ебаные виндовсовские слешы на человеческие юниксовые
 			
 			if (this.#__fs.existsSync(p)) { // Если физически файл существует
@@ -274,7 +276,7 @@ class storage {
 		let map = this._getMapPath(path); // Получаем мапу нашего пути
 		if (map && map.t == 1) { // Если это файл
 			let fn = map["~"]; // Название физического файла
-			let p = this.#__pth.join(this.#__dir,fn.substr(0, 1),fn); // Собираем путь к файлу
+			let p = this.#__pth.join(this.#__dir(),fn.substr(0, 1),fn); // Собираем путь к файлу
 			p = p.replace(/\\/g, "/"); // Меняем ебаные виндовсовские слешы на человеческие юниксовые
 			
 			if (this.#__fs.existsSync(p)) { // Если физически файл существует
@@ -312,10 +314,10 @@ class storage {
 			if (!mapf) { // Если такого файла не существует, и нет директории с таким же названием, начинаем создавать файл
 				do { // Генерим незанятый хеш
 					hash = this.#_randomHash();
-					p = this.#__pth.join(this.#__dir,hash.substr(0, 1),hash);
+					p = this.#__pth.join(this.#__dir(),hash.substr(0, 1),hash);
 					p = p.replace(/\\/g, "/");
 				} while (this.#__fs.existsSync(p));
-				let hdir = this.#__pth.join(this.#__dir,hash.substr(0, 1));
+				let hdir = this.#__pth.join(this.#__dir(),hash.substr(0, 1));
 				hdir = hdir.replace(/\\/g, "/");
 				if (!this.#__fs.existsSync(hdir)) {
 					// Создаём директорию если не существует
@@ -329,7 +331,7 @@ class storage {
 				};
 			} else if (mapf.t !== 0) { //Если такой файл уже существует
 				hash = mapf['~'];
-				p = this.#__pth.join(this.#__dir,mapf['~'].substr(0, 1),mapf['~']);
+				p = this.#__pth.join(this.#__dir(),mapf['~'].substr(0, 1),mapf['~']);
 				p = p.replace(/\\/g, "/");
 			} else { // Если это директория
 				return false;
@@ -354,16 +356,18 @@ class storage {
 		if (_dir == ".") {_dir = "";};
 		let map = this._getMapPath(_dir); // Получаем мапу нашего пути
 		if (map && map.t == 0) { // Если это директория
-			let mapf = this._getMapPath(this.#__pth.join(_dir,_file));
+			let mapf_p = this.#__pth.join(_dir,_file)
+			mapf_p = mapf_p.replace(/\\/g, "/");
+			let mapf = this._getMapPath(mapf_p);
 			let p = ""; // Будущий путь файла
 			let hash = "" // Будущий хеш
 			if (!mapf) { // Если такого файла не существует, и нет директории с таким же названием, начинаем создавать файл
 				do { // Генерим незанятый хеш
 					hash = this.#_randomHash();
-					p = this.#__pth.join(this.#__dir,hash.substr(0, 1),hash);
+					p = this.#__pth.join(this.#__dir(),hash.substr(0, 1),hash);
 					p = p.replace(/\\/g, "/");
 				} while (this.#__fs.existsSync(p));
-				let hdir = this.#__pth.join(this.#__dir,hash.substr(0, 1));
+				let hdir = this.#__pth.join(this.#__dir(),hash.substr(0, 1));
 				hdir = hdir.replace(/\\/g, "/");
 				if (!this.#__fs.existsSync(hdir)) {
 					// Создаём директорию если не существует
@@ -376,7 +380,7 @@ class storage {
 					};
 				};
 			} else if (mapf.t !== 0) { //Если такой файл уже существует
-				p = this.#__pth.join(this.#__dir,mapf['~'].substr(0, 1),mapf['~']);
+				p = this.#__pth.join(this.#__dir(),mapf['~'].substr(0, 1),mapf['~']);
 				hash = mapf['~'];
 				p = p.replace(/\\/g, "/");
 			} else { // Если это директория
