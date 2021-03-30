@@ -135,8 +135,6 @@ class router {
 				clearTimeout:clearTimeout
 			},
 			alert: alert,
-			
-
 		};
 	};
 	_updateCfg() { // Функция, которую надо будет переписать, ибо она должна сохранять изменения на сервере
