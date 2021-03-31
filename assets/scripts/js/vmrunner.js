@@ -26,8 +26,7 @@ function sendCommand(inf) {
 		return true;
 	} else {
 		return false;
-	}
-	
+	}	
 }
 
 const procFuncs = {
@@ -78,5 +77,6 @@ process.on('message', (msg) => {
   };
   if ((msg.type == "response") && (cmdBuffer[msg.bufferId])) {
   	cmdBuffer[msg.bufferId](msg.data);
+  	delete cmdBuffer[msg.bufferId];
   };
 });

@@ -1,7 +1,7 @@
 //----------------------
 // Load Kernel functions
 //----------------------
-
+/*
 class _kernel {
 	constructor() {};
 	store = {

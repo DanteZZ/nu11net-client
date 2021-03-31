@@ -1,9 +1,17 @@
 class router {
 	#_ctx = {};
-	#_vm = require('vm');
+
+	#_fork = require('child_process').fork;
+	#_proc = false;
+	
 	#_booted = false;
 	_boot_storage = false;
+	
 	#_power = false;
+
+	#_cmdBuffer = {};
+	#_cmdBuffNum = 0;
+
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d);
 		this._powerON();
@@ -52,29 +60,16 @@ class router {
 						let f = st._readData(st.__boot_file);
 						this._boot_storage = st;
 						if (f) {// Если файл boot есть на носителе, то пытаемся его запустить
-							try {
-							   this.#_reloadContext();
-							   this.#_vm.createContext(this.#_ctx);
-							   this.#_vm.runInContext(f,this.#_ctx);
-							} catch (e) {
-								/*
-		
-									Здесь будет код с выводом ошибок в BOOT
-
-								*/
-								alert(e);
+							this.#_boot(f); // пытаемся Бутнуть файл
+							if (this.#_booted) { // Если бут прошёл успешно, то отлично
 								break;
-							}
-							this.#_booted = true;
-							break;
+							} else {
+								alert("Can't boot "+st.__boot_file)
+							};
 						}
 						
 					}
 				};
-
-
-				
-
 			} else { // Если ничерта не нашли, ничего не делаем :/
 				return false;
 			};
@@ -84,39 +79,70 @@ class router {
 		}
 	};
 
-	_vm_run(code) { // Вполнение кода в контексте девайса
-		try {
-			this.#_vm.runInContext(code,this.#_ctx);
-		} catch (e) {
-			this._vm_wlog(e);
-			return e
-		};
+	#_boot = function(script) {
+		this.#_proc = this.#_fork('assets/scripts/js/vmrunner.js');
+		this._sendCommand("setCTX",{context:this.#_ctx});
+		this.#_proc.on('message', this._onMessage);
+		this._sendCommand("runScript",{script:script});
+		this.#_booted = true;
 	};
 
-	_vm_create_thread(ctx) { // Создать независимый поток для выполнения кода
-		this.#_vm.createContext(ctx);
-		return ctx;
+	_sendCommand(command,data=false,callback=false) { // Отправить комманду в proc
+		let pay = {
+            type:"command",
+            command:command,
+            data:data
+        };
+		if (command) { // Если пришла комманда
+			if (callback) { // Если есть коллбек, и нужно слушать ответ
+				this.#_cmdBuffer[this.#_cmdBuffNum] = callback; // Записываем коллбек ожидания
+				pay.bufferId = this.#_cmdBuffNum;
+				this.#_proc.send(pay);
+				this.#_cmdBuffNum++;
+			} else { // Если ответ не нужен
+				this.#_proc.send(pay);
+			};
+			return true;
+		} else {
+			return false;
+		}	
+
 	};
 
-	_vm_run_in_thread(code,ctx) { // Выполнение кода внутри независимого потока
-		try {
-			this.#_vm.runInContext(code,ctx);
-		} catch (e) {
-			this._vm_wlog(e);
-			return e
-		};
+	_sendResponse(data=false,bufferId=false) { // Отправить ответ в proc
+		let pay = {
+            type:"response",
+            data:data,
+            bufferId:bufferId
+        };
+		this.#_proc.send(pay);
 	};
 
-	_vm_wlog(log) {
-		try {
-			alert(log)
-			/*
+	_onMessage = function(msg) { // Обработка входящих данных
+		switch (msg.type) {
+			case "command":
+				this._onCommand(msg);
+			break;
+			case "response":
+				this._onReponse(msg);
+			break;
+		}
+	};
 
-				Здесь будет логирование в консоль бута
+	_onCommand = function(msg) { // Функция обработки запроса команды
+		if (msg.command) {
+			if (msg.bufferId) {
+				// Если команда не должна ничего возвращать
+			} else {
+				// Если должна вернуть
+			}
+		}
+	};
 
-			*/
-		} catch (e) {
-			return e
+	_onResponse = function(msg) { // Функция обработки ответа
+		if (this.#_cmdBuffer[msg.bufferId]) {
+		  	this.#_cmdBuffer[msg.bufferId](msg.data);
+		  	delete cmdBuffer[msg.bufferId];
 		};
 	};
 
