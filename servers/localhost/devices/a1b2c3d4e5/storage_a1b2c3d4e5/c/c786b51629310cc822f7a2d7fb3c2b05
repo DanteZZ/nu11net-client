@@ -27,3 +27,7 @@ const fs = __hw.__sys_storage;
 //----------------------
 
 //_k.store.load("kernel/interfaces/interfaces");
+
+*/
+
+process.send({type:"log",data:"Hello World!"});

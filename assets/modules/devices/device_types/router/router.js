@@ -80,9 +80,10 @@ class router {
 	};
 
 	#_boot = function(script) {
+		this.#_reloadContext();
 		this.#_proc = this.#_fork('assets/scripts/js/vmrunner.js');
-		this._sendCommand("setCTX",{context:this.#_ctx});
 		this.#_proc.on('message', this._onMessage);
+		this._sendCommand("setCTX",{context:this.#_ctx});
 		this._sendCommand("runScript",{script:script});
 		this.#_booted = true;
 	};
@@ -119,6 +120,7 @@ class router {
 	};
 
 	_onMessage = function(msg) { // Обработка входящих данных
+		global.__csl.log(msg);
 		switch (msg.type) {
 			case "command":
 				this._onCommand(msg);
@@ -126,12 +128,15 @@ class router {
 			case "response":
 				this._onReponse(msg);
 			break;
+			case "log":
+				global.__csl.log(msg);
+			break;
 		}
 	};
 
 	_onCommand = function(msg) { // Функция обработки запроса команды
 		if (msg.command) {
-			if (msg.bufferId) {
+			if (!msg.bufferId) {
 				// Если команда не должна ничего возвращать
 			} else {
 				// Если должна вернуть
@@ -148,19 +153,7 @@ class router {
 
 	#_reloadContext = function() {
 		this.#_ctx = {
-			__hw : {
-				__ints:this.interfaces,
-				__device:this,
-				__sys_storage: this._boot_storage,
-				__csl:global.__csl
-			},
-			_time: {
-				setInterval:setInterval,
-				setTimeout:setTimeout,
-				clearInterval:clearInterval,
-				clearTimeout:clearTimeout
-			},
-			alert: alert,
+			hi:1
 		};
 	};
 	_updateCfg() { // Функция, которую надо будет переписать, ибо она должна сохранять изменения на сервере

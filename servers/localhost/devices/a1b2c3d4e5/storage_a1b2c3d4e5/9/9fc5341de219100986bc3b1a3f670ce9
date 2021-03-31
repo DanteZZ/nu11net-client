@@ -15,5 +15,5 @@ _k.interfaces = {
 	}
 };
 
-_k.store.include("kernel/interfaces/storage");
-_k.store.include("kernel/interfaces/ethernet");
+_k.store.load("kernel/interfaces/storage");
+_k.store.load("kernel/interfaces/ethernet");
