@@ -16,10 +16,13 @@ class router {
 		"check":{
 			async:true,
 			fn:function(data,callback){
-				global.__csl.log("Стартануло выполнение комманды, пытаюсь выполнить колбек");
 				callback(1);
 			}
 		}
+	};
+
+	getBuff() {
+		return this.#_cmdBuffer;
 	};
 
 	constructor(a,b,c,d) {
@@ -104,12 +107,21 @@ class router {
 	};
 
 	#_boot = function(script) {
-		var device = this;
 		this.#_reloadContext();
 		this.#_proc = this.#_fork('assets/scripts/js/vmrunner.js');
-		this.#_proc.on('message', function(msg) {device._onMessage(msg)});
-		this._sendCommand("setCTX",{context:this.#_ctx});
+		this.#_proc.__device = this;
+		this.#_proc.on('message', this._onMessage);
+		this._sendCommand("setCTX",{context:this.#_ctx},function(res){
+			if (res) {
+				global.__csl.log("Context Created!")
+			}
+		});
 		this._sendCommand("runScript",{script:script});
+		this._sendCommand("runScript",{script:script},function(res){
+			if (res) {
+				global.__csl.log("Script Started!")
+			}
+		});
 		this.#_booted = true;
 	};
 
@@ -145,19 +157,20 @@ class router {
 	};
 
 	_onMessage(msg) { // Обработка входящих данных
-		global.__csl.log(this);
+		let device = this;
+		if (this.__device) { device = this.__device; };
 		switch (msg.type) {
 			case "command":
 				try {
-					this._onCommand(msg);
+					device._onCommand(msg);
 				} catch (e) {
-					alert(e);
+					global.__csl.debug(e,this,msg);
 				}
 				
 
 			break;
 			case "response":
-				this._onReponse(msg);
+				device._onResponse(msg);
 			break;
 			case "log":
 				global.__csl.log(msg);
@@ -166,23 +179,22 @@ class router {
 	};
 
 	_onCommand(msg) { // Функция обработки запроса команды
-		global.__csl.log("search commands");
+		let __device = this;
 		if (this._commands[msg.command]) { // Если такая команда зарегистрирована
-			global.__csl.log("find command",msg.command);
 			let cmd = this._commands[msg.command];
 			if (!cmd.async) { // Если функция асинхронна
-				global.__csl.log("its async");
-				let res = this._commands[msg.command](msg.data);
+				let res = this._commands[msg.command].fn(msg.data);
 				if (msg.bufferId) { // Если запрашивается возврат
 					this._sendResponse(res,msg.bufferId);	
 				};
 			} else {
-				if (msg.bufferId) { // Если запрашивается возврат
-					this._commands[msg.command](msg.data,function(){
-						this._sendResponse(res,msg.bufferId);
+
+				if (msg.bufferId !== false) { // Если запрашивается возврат
+					this._commands[msg.command].fn(msg.data,function(data){
+						__device._sendResponse(data,msg.bufferId);
 					});
 				} else {
-					this._commands[msg.command](msg.data,function(){});
+					this._commands[msg.command].fn(msg.data,function(){});
 				};
 			};
 			

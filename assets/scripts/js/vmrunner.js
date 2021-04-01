@@ -3,42 +3,42 @@ var ctx = {};
 const cmdBuffer = {};
 var cmdBuffNum = 0;
 
+_commands = {
+	"setCTX":{
+		async:false,
+		fn:function(d) {
+			ctx = d.context;
+			ctx.process = procFuncs;
+			ctx = vm.createContext(ctx);
+			return true;
+		}
+	},
+	"runScript":{
+		async:false,
+		fn:function(d) {
+			if ((ctx) && (d.script)) { // Если контекст не пустой
+				try {
+					vm.runInContext(d.script,ctx);
+				} catch (e) {
+					return false;
+				};
+				return true;
+			} else {
+				return false;
+				process.send({
+					type:"log",
+					data:"Empty context"
+				})
+
+			};
+		}
+	}
+};
+
 const procFuncs = {
 	send: function(data) { process.send(data); },
 	exit: function() { process.exit(); },
 	sendCommand: function(command,data,callback=false) {return _sendCommand(command,data,callback);}
-};
-
-const commands = {
-	setCTX:function(msg) {
-		let d = msg.data;
-		ctx = d.context;
-		ctx.process = procFuncs;
-
-		ctx = vm.createContext(ctx);
-
-		process.send({
-			type:"log",
-			data:"Context created",
-			ctx:ctx
-		})
-	},
-	runScript:function(msg) {
-		let d = msg.data;
-		if ((ctx) && (d.script)) { // Если контекст не пустой
-			try {vm.runInContext(d.script,ctx);} catch (e) {
-				process.send({
-					type:"error",
-					error:e
-				});
-			};
-		} else {
-			process.send({
-				type:"error",
-				error:"Empty context"
-			})
-		}
-	}
 };
 
 function _sendCommand(command,data=false,callback=false) { // Отправить комманду в proc
@@ -48,7 +48,7 @@ function _sendCommand(command,data=false,callback=false) { // Отправить
         data:data
     };
 	if (command) { // Если пришла комманда
-		if (callback) { // Если есть коллбек, и нужно слушать ответ
+		if (typeof(callback) == "function") { // Если есть коллбек, и нужно слушать ответ
 			cmdBuffer[cmdBuffNum] = callback; // Записываем коллбек ожидания
 			pay.bufferId = cmdBuffNum;
 			process.send(pay);
@@ -64,6 +64,7 @@ function _sendCommand(command,data=false,callback=false) { // Отправить
 };
 
 function _sendResponse(data=false,bufferId=false) { // Отправить ответ в proc
+	
 	let pay = {
         type:"response",
         data:data,
@@ -78,22 +79,33 @@ function _onMessage(msg) { // Обработка входящих данных
 			_onCommand(msg);
 		break;
 		case "response":
-			_onReponse(msg);
+			_onResponse(msg);
 		break;
 	}
 };
 
 function _onCommand(msg) { // Функция обработки запроса команды
-	if (msg.command) {
-		if (!msg.bufferId) { // Если команда не должна ничего возвращать
-			if (commands[msg.command]) { 
-				commands[msg.command](msg);
+		if (_commands[msg.command]) { // Если такая команда зарегистрирована
+			let cmd = _commands[msg.command];
+			if (!cmd.async) { // Если функция асинхронна
+				let res = _commands[msg.command].fn(msg.data);
+				if (typeof(msg.bufferId) !== "undefined") { // Если запрашивается возврат
+					_sendResponse(res,msg.bufferId);
+				};
+			} else {
+				
+				if (typeof(msg.bufferId) !== "undefined") { // Если запрашивается возврат
+					
+					_commands[msg.command].fn(msg.data,function(data){
+						
+						_sendResponse(data,msg.bufferId);
+					});
+				} else {
+					_commands[msg.command].fn(msg.data);
+				};
 			};
-		} else {
-			// Если должна вернуть
 		}
-	}
-};
+	};
 
 function _onResponse(msg) { // Функция обработки ответа
 	if (cmdBuffer[msg.bufferId]) {
