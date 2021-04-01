@@ -18,7 +18,7 @@ const commands = {
 		ctx = vm.createContext(ctx);
 
 		process.send({
-			type:"msg",
+			type:"log",
 			data:"Context created",
 			ctx:ctx
 		})

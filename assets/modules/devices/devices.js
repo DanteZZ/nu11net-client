@@ -46,6 +46,12 @@ module.exports = {
 				if (intr.__type == type) {res[id] = intr;};
 			};
 			return res;
+		},
+		_regCommand(command,func,async = false) { // Зарегистрировать комманду
+			this._commands[command] = {
+				async:async,
+				fn:func
+			};
 		}
 	},
 	_interface: {

@@ -12,10 +12,20 @@ class router {
 	#_cmdBuffer = {};
 	#_cmdBuffNum = 0;
 
+	_commands = {
+		"check":{
+			async:true,
+			fn:function(data,callback){
+				global.__csl.log("Стартануло выполнение комманды, пытаюсь выполнить колбек");
+				callback(1);
+			}
+		}
+	};
+
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d);
 		this._powerON();
-	}
+	};
 
 	_powerON() { // Включить устройство
 		if (this.#_power) {return false;} else {this.#_power = true; this.#_booted = false;};
@@ -79,10 +89,25 @@ class router {
 		}
 	};
 
+	_powerOFF() { // Выключить устройство
+		this.#_booted = false;
+		this.#_power = false;
+		this.#_proc.kill();
+		this.#_cmdBuffer = {};
+		this.#_cmdBuffNum = 0;
+		this.#_ctx = {};
+	};
+
+	_restart() {
+		this._powerOFF();
+		this._powerON();
+	};
+
 	#_boot = function(script) {
+		var device = this;
 		this.#_reloadContext();
 		this.#_proc = this.#_fork('assets/scripts/js/vmrunner.js');
-		this.#_proc.on('message', this._onMessage);
+		this.#_proc.on('message', function(msg) {device._onMessage(msg)});
 		this._sendCommand("setCTX",{context:this.#_ctx});
 		this._sendCommand("runScript",{script:script});
 		this.#_booted = true;
@@ -119,11 +144,17 @@ class router {
 		this.#_proc.send(pay);
 	};
 
-	_onMessage = function(msg) { // Обработка входящих данных
-		global.__csl.log(msg);
+	_onMessage(msg) { // Обработка входящих данных
+		global.__csl.log(this);
 		switch (msg.type) {
 			case "command":
-				this._onCommand(msg);
+				try {
+					this._onCommand(msg);
+				} catch (e) {
+					alert(e);
+				}
+				
+
 			break;
 			case "response":
 				this._onReponse(msg);
@@ -134,17 +165,31 @@ class router {
 		}
 	};
 
-	_onCommand = function(msg) { // Функция обработки запроса команды
-		if (msg.command) {
-			if (!msg.bufferId) {
-				// Если команда не должна ничего возвращать
+	_onCommand(msg) { // Функция обработки запроса команды
+		global.__csl.log("search commands");
+		if (this._commands[msg.command]) { // Если такая команда зарегистрирована
+			global.__csl.log("find command",msg.command);
+			let cmd = this._commands[msg.command];
+			if (!cmd.async) { // Если функция асинхронна
+				global.__csl.log("its async");
+				let res = this._commands[msg.command](msg.data);
+				if (msg.bufferId) { // Если запрашивается возврат
+					this._sendResponse(res,msg.bufferId);	
+				};
 			} else {
-				// Если должна вернуть
-			}
+				if (msg.bufferId) { // Если запрашивается возврат
+					this._commands[msg.command](msg.data,function(){
+						this._sendResponse(res,msg.bufferId);
+					});
+				} else {
+					this._commands[msg.command](msg.data,function(){});
+				};
+			};
+			
 		}
 	};
 
-	_onResponse = function(msg) { // Функция обработки ответа
+	_onResponse(msg) { // Функция обработки ответа
 		if (this.#_cmdBuffer[msg.bufferId]) {
 		  	this.#_cmdBuffer[msg.bufferId](msg.data);
 		  	delete cmdBuffer[msg.bufferId];
@@ -156,9 +201,10 @@ class router {
 			hi:1
 		};
 	};
+
 	_updateCfg() { // Функция, которую надо будет переписать, ибо она должна сохранять изменения на сервере
 		let __pth = require("path");
 		let fcfg = __pth.join(global.__cfg.get().serversDir,global.__connectedServer.address,"devices.json");
-	}
+	};
 }
 module.exports = router
