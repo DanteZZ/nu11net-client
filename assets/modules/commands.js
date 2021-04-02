@@ -3,7 +3,7 @@ class CMD {
 	_cmdBuffer = {};
 	_cmdBuffNum = 0;
 	#_proc = false;
-	
+	_main = false;
 	_setProc(proc) {
 		this.#_proc = proc;
 	};
@@ -40,24 +40,46 @@ class CMD {
 		};
 	};
 
-	_onMessage(cmd,msg) { // Обработка входящих данных
+	_onMessageSub(msg) {
+		let cmd = this; if (cmd.__device) {cmd = cmd.__device._cmd;};
+
+		switch (msg.type) {
+			case "command":
+				cmd._onCommand(cmd,msg);
+
+			break;
+			case "response":
+				cmd._onResponse(cmd,msg);
+			break;
+		}
+	}
+
+	_onMessage(msg) { // Обработка входящих данных
+		let cmd = this; if (cmd.__device) {cmd = cmd.__device._cmd;};
 		switch (msg.type) {
 			case "command":
 				try {
 					cmd._onCommand(cmd,msg);
 				} catch (e) {
-					global.__csl.log("error",e,msg);
+					if (cmd._main) {
+						global.__csl.log("error",e,msg);
+					}
 				}
 			break;
 			case "response":
 				try {
 					cmd._onResponse(cmd,msg);
 				} catch (e) {
-					global.__csl.log("error",e,msg);
+					if (cmd._main) {
+						global.__csl.log("error",e,msg);
+					}
 				}
+
 			break;
 			case "log":
-				global.__csl.log(msg);
+				if (cmd._main) {
+					global.__csl.log(msg);
+				}
 			break;
 		}
 	};
@@ -67,7 +89,7 @@ class CMD {
 		if (cmd) { // Если такая команда зарегистрирована
 			if (!cmd.async) { // Если функция асинхронна
 				let res = cmd.fn(msg.data);
-				if (msg.bufferId) { // Если запрашивается возврат
+				if (typeof(msg.bufferId) !== "undefined") { // Если запрашивается возврат
 					__device._sendResponse(res,msg.bufferId);	
 				};
 			} else {
@@ -92,6 +114,7 @@ class CMD {
 	};
 
 	_sendCommand(command,data=false,callback=false) { // Отправить комманду в proc
+		
 		let pay = {
             type:"command",
             command:command,

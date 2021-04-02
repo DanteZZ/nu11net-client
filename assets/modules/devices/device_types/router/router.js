@@ -12,6 +12,12 @@ class router {
 	#_cmdBuffer = {};
 	#_cmdBuffNum = 0;
 
+	constructor(a,b,c,d) {
+		this._init(a,b,c,d);
+		this._regDefaultCommands();
+		this._powerON();
+	};
+
 	_regDefaultCommands() { // Регистрация команд устройства
 		this._cmd._reg("check",function(data,callback){
 			callback(1);
@@ -20,12 +26,6 @@ class router {
 
 	getBuff() {
 		return this._cmd._cmdBuffer;
-	};
-
-	constructor(a,b,c,d) {
-		this._init(a,b,c,d);
-		this._regDefaultCommands();
-		this._powerON();
 	};
 
 	_powerON() { // Включить устройство
@@ -109,14 +109,19 @@ class router {
 		this.#_proc = this.#_fork('assets/modules/vmrunner.js');
 		this.#_proc.__device = this;
 		this._cmd._setProc(this.#_proc);
-		this.#_proc.on('message', function(msg){this._device._cmd._onMessage(this._device._cmd,msg)});
+		this._proc = this.#_proc;
+		this.#_proc.on('message', this._cmd._onMessage);
+		
 		this._cmd._sendCommand("setCTX",{context:this.#_ctx},function(res){
 			if (res) {global.__csl.log("Device "+_device._id+": vm.context created");}
 		});
+		
 		this._cmd._sendCommand("runScript",{script:script},function(res){
 			if (res) {global.__csl.log("Device "+_device._id+": boot file executed");}
 		});
+
 		this.#_booted = true;
+
 	};
 
 	#_reloadContext = function() {
