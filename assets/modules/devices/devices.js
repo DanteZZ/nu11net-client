@@ -23,6 +23,8 @@ module.exports = {
 		_init(id,inf,type,ctypes) {
 			this.interfaces = [];
 			this._id = id;
+			delete require.cache[require.resolve("assets/modules/commands.js")];
+		    this._cmd = require("assets/modules/commands.js");
 			for (var k in inf) {
 				switch (k) {
 					case "interfaces":

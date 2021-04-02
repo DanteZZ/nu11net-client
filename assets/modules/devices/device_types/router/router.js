@@ -12,21 +12,19 @@ class router {
 	#_cmdBuffer = {};
 	#_cmdBuffNum = 0;
 
-	_commands = {
-		"check":{
-			async:true,
-			fn:function(data,callback){
-				callback(1);
-			}
-		}
+	_regDefaultCommands() { // Регистрация команд устройства
+		this._cmd._reg("check",function(data,callback){
+			callback(1);
+		},true)
 	};
 
 	getBuff() {
-		return this.#_cmdBuffer;
+		return this._cmd._cmdBuffer;
 	};
 
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d);
+		this._regDefaultCommands();
 		this._powerON();
 	};
 
@@ -96,9 +94,8 @@ class router {
 		this.#_booted = false;
 		this.#_power = false;
 		this.#_proc.kill();
-		this.#_cmdBuffer = {};
-		this.#_cmdBuffNum = 0;
 		this.#_ctx = {};
+		this._cmd.clear();
 	};
 
 	_restart() {
@@ -107,105 +104,19 @@ class router {
 	};
 
 	#_boot = function(script) {
+		let _device = this;
 		this.#_reloadContext();
-		this.#_proc = this.#_fork('assets/scripts/js/vmrunner.js');
+		this.#_proc = this.#_fork('assets/modules/vmrunner.js');
 		this.#_proc.__device = this;
-		this.#_proc.on('message', this._onMessage);
-		this._sendCommand("setCTX",{context:this.#_ctx},function(res){
-			if (res) {
-				global.__csl.log("Context Created!")
-			}
+		this._cmd._setProc(this.#_proc);
+		this.#_proc.on('message', function(msg){this._device._cmd._onMessage(this._device._cmd,msg)});
+		this._cmd._sendCommand("setCTX",{context:this.#_ctx},function(res){
+			if (res) {global.__csl.log("Device "+_device._id+": vm.context created");}
 		});
-		this._sendCommand("runScript",{script:script});
-		this._sendCommand("runScript",{script:script},function(res){
-			if (res) {
-				global.__csl.log("Script Started!")
-			}
+		this._cmd._sendCommand("runScript",{script:script},function(res){
+			if (res) {global.__csl.log("Device "+_device._id+": boot file executed");}
 		});
 		this.#_booted = true;
-	};
-
-	_sendCommand(command,data=false,callback=false) { // Отправить комманду в proc
-		let pay = {
-            type:"command",
-            command:command,
-            data:data
-        };
-		if (command) { // Если пришла комманда
-			if (callback) { // Если есть коллбек, и нужно слушать ответ
-				this.#_cmdBuffer[this.#_cmdBuffNum] = callback; // Записываем коллбек ожидания
-				pay.bufferId = this.#_cmdBuffNum;
-				this.#_proc.send(pay);
-				this.#_cmdBuffNum++;
-			} else { // Если ответ не нужен
-				this.#_proc.send(pay);
-			};
-			return true;
-		} else {
-			return false;
-		}	
-
-	};
-
-	_sendResponse(data=false,bufferId=false) { // Отправить ответ в proc
-		let pay = {
-            type:"response",
-            data:data,
-            bufferId:bufferId
-        };
-		this.#_proc.send(pay);
-	};
-
-	_onMessage(msg) { // Обработка входящих данных
-		let device = this;
-		if (this.__device) { device = this.__device; };
-		switch (msg.type) {
-			case "command":
-				try {
-					device._onCommand(msg);
-				} catch (e) {
-					global.__csl.debug(e,this,msg);
-				}
-				
-
-			break;
-			case "response":
-				device._onResponse(msg);
-			break;
-			case "log":
-				global.__csl.log(msg);
-			break;
-		}
-	};
-
-	_onCommand(msg) { // Функция обработки запроса команды
-		let __device = this;
-		if (this._commands[msg.command]) { // Если такая команда зарегистрирована
-			let cmd = this._commands[msg.command];
-			if (!cmd.async) { // Если функция асинхронна
-				let res = this._commands[msg.command].fn(msg.data);
-				if (msg.bufferId) { // Если запрашивается возврат
-					this._sendResponse(res,msg.bufferId);	
-				};
-			} else {
-
-				if (msg.bufferId !== false) { // Если запрашивается возврат
-					this._commands[msg.command].fn(msg.data,function(data){
-						__device._sendResponse(data,msg.bufferId);
-					});
-				} else {
-					this._commands[msg.command].fn(msg.data,function(){});
-				};
-			};
-			
-		}
-	};
-
-	_onResponse(msg) { // Функция обработки ответа
-		if (this.#_cmdBuffer[msg.bufferId]) {
-		  	this.#_cmdBuffer[msg.bufferId](msg.data);
-		  	delete cmdBuffer[msg.bufferId];
-		};
 	};
 
 	#_reloadContext = function() {
