@@ -11,6 +11,7 @@ class storage {
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d) // Инициализация интерфейса
 		this.#__initMap(); // Инициализируем MAP
+		this.#_initCommands();
 	};
 
 	#__dir = function() {
@@ -455,6 +456,10 @@ class storage {
 	    }
 	    return randomString;
 	};
+
+	#_initCommands = function() {
+		this.__device._cmd._regCat("interfaces/storage/"+this._id);
+	}
 }
 
 module.exports = storage

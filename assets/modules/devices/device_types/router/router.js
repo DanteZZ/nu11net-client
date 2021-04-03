@@ -14,14 +14,8 @@ class router {
 
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d);
-		this._regDefaultCommands();
+		this._initCommands();
 		this._powerON();
-	};
-
-	_regDefaultCommands() { // Регистрация команд устройства
-		this._cmd._reg("check",function(data,callback){
-			callback(1);
-		},true)
 	};
 
 	getBuff() {
@@ -95,7 +89,7 @@ class router {
 		this.#_power = false;
 		this.#_proc.kill();
 		this.#_ctx = {};
-		this._cmd.clear();
+		this._cmd._clear();
 	};
 
 	_restart() {
@@ -112,11 +106,11 @@ class router {
 		this._proc = this.#_proc;
 		this.#_proc.on('message', this._cmd._onMessage);
 		
-		this._cmd._sendCommand("setCTX",{context:this.#_ctx},function(res){
+		this._cmd._sendCommand("vm/setCTX",{context:this.#_ctx},function(res){
 			if (res) {global.__csl.log("Device "+_device._id+": vm.context created");}
 		});
 		
-		this._cmd._sendCommand("runScript",{script:script},function(res){
+		this._cmd._sendCommand("vm/runScript",{script:script},function(res){
 			if (res) {global.__csl.log("Device "+_device._id+": boot file executed");}
 		});
 
@@ -133,6 +127,16 @@ class router {
 	_updateCfg() { // Функция, которую надо будет переписать, ибо она должна сохранять изменения на сервере
 		let __pth = require("path");
 		let fcfg = __pth.join(global.__cfg.get().serversDir,global.__connectedServer.address,"devices.json");
+	};
+
+	_initCommands() { // Регистрация команд устройства
+		this._cmd._regCat("device");
+		this._cmd._reg("device/restart",function(){
+			this.ctx._restart();
+		},this);
+		this._cmd._reg("device/powerOFF",function(){
+			this.ctx._powerOFF();
+		},this);
 	};
 }
 module.exports = router

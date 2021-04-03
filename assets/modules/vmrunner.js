@@ -5,17 +5,26 @@ const cmd = require("./commands.js");
 var ctx = {};
 
 cmd._setProc(process);
-process.on('message', function(msg){cmd._onMessageSub(msg)});
+process.on('message', function(msg){cmd._onMessage(msg)});
 
+const hwFuncs = { // Функции общения с железом
+	sendCommand: function(command,data,callback=false) {return cmd._sendCommand(command,data,callback);},
+	sendLog: function(data) {return cmd._sendLog(data);},
+	sendError: function(data) {return cmd._sendError(data);},
+	
+	regCommand: function(command,func,ctx=false,async=false){return cmd._reg(command,func,ctx,async)},
+	regCat: function(name){return cmd._regCat(command,func,ctx,async)}
+};
 
 function _regDefaultCommands() { // Регистрация команд устройства
-	cmd._reg("setCTX",function(d) {
+	cmd._regCat("vm");
+	cmd._reg("vm/setCTX",function(d) {
 		ctx = d.context;
-		ctx.process = procFuncs;
+		ctx.__hw = hwFuncs;
 		ctx = vm.createContext(ctx);
 		return true;
 	});
-	cmd._reg("runScript",function(d) {
+	cmd._reg("vm/runScript",function(d) {
 		if ((ctx) && (d.script)) { // Если контекст не пустой
 			try {
 				vm.runInContext(d.script,ctx);
@@ -34,10 +43,3 @@ function _regDefaultCommands() { // Регистрация команд устр
 	});
 };
 _regDefaultCommands();
-
-const procFuncs = {
-	send: function(data) { process.send(data); },
-	exit: function() { process.exit(); },
-	sendCommand: function(command,data,callback=false) {return cmd._sendCommand(command,data,callback);}
-};
-//process.on('message', function(msg){cmd._onMessage(cmd,msg)});

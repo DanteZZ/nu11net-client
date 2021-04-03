@@ -29,6 +29,7 @@ const fs = __hw.__sys_storage;
 //_k.store.load("kernel/interfaces/interfaces");
 
 */
-let check = process.sendCommand("check","Hello From Kernel",function(res){
-	process.send({type:"log",data:"I get it: "+res});
-});
+
+__hw.regCommand("check",function(){
+	
+})
