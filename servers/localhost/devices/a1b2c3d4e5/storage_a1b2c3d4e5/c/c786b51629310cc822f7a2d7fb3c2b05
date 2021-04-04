@@ -30,6 +30,7 @@ const fs = __hw.__sys_storage;
 
 */
 
-__hw.listenEvent("check/event",function(data){
+var a = __hw.listenEvent("check/event",function(data){
 	__hw.sendLog("Ow sheeet, i check event!");
+	__hw.unlistenEvent(a);
 })

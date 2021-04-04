@@ -105,7 +105,7 @@ class CMD {
 			fn: func,
 			ctx:ctx
 		});
-		return event+"#"+this.#_events[event].length-1;
+		return event+"#"+(this.#_events[event].length-1);
 	};
 	_unlistenEvent(id) { // Перестать прослушивать Event
 		let p = id.split("#");
@@ -122,10 +122,12 @@ class CMD {
 		if (typeof(this.#_events[event]) == "object") {
 			for (var k in this.#_events[event]) {
 				let ev = this.#_events[event][k];
-				try {
-					ev.fn(data,ev.ctx);
-				} catch (e) {
-					this._sendError(e);
+				if (ev.fn) {
+					try {
+						ev.fn(data,ev.ctx);
+					} catch (e) {
+						this._sendError(e);
+					}
 				}
 			}
 		}
