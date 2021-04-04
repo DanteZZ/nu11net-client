@@ -1,3 +1,4 @@
+/*
 _k.interfaces = {
 	getAll: function() {
 		return __hw.__ints;
@@ -17,3 +18,6 @@ _k.interfaces = {
 
 _k.store.load("kernel/interfaces/storage");
 _k.store.load("kernel/interfaces/ethernet");
+*/
+
+__vm.sendLog(this);

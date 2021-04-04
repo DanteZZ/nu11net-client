@@ -493,6 +493,12 @@ class storage {
 		cmd._reg(catf+"writedataasync",function(d,cb) {
 			this.ctx._writeDataAsync(d.path,d.data,cb);
 		},this,true);
+		cmd._reg(catf+"readdata",function(d) {
+			return this.ctx._readData(d.path);
+		},this,false);
+		cmd._reg(catf+"readdataasync",function(d,cb) {
+			this.ctx._readDataAsync(d.path,cb);
+		},this,true);
 
 		/* ANOTHER */
 		cmd._reg(catf+"isdata",function(d) {

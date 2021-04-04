@@ -198,7 +198,12 @@ class CMD {
 					cmd.fn(msg.data,function(){});
 				};
 			};
-			
+		} else {
+			if (__device._main) {
+				global.__csl.error("Undefined command: "+msg.command);
+			} else {
+				__device._sendError("Undefined command: "+msg.command);
+			};
 		}
 	};
 
@@ -208,12 +213,12 @@ class CMD {
 
 	_onResponse(__device,msg) { // Функция обработки ответа
 		if (__device._cmdBuffer[msg.bufferId]) {
-		  	__device._cmdBuffer[msg.bufferId](msg.data);
+		  	__device._cmdBuffer[msg.bufferId].fn(msg.data,__device._cmdBuffer[msg.bufferId].ctx);
 		  	delete __device._cmdBuffer[msg.bufferId];
 		};
 	};
 
-	_sendCommand(command,data=false,callback=false) { // Отправить комманду в proc
+	_sendCommand(command,data=false,callback=false,ctx=null) { // Отправить комманду в proc
 		let pay = {
             type:"command",
             command:command,
@@ -221,7 +226,7 @@ class CMD {
         };
 		if (command) { // Если пришла комманда
 			if (callback) { // Если есть коллбек, и нужно слушать ответ
-				this._cmdBuffer[this._cmdBuffNum] = callback; // Записываем коллбек ожидания
+				this._cmdBuffer[this._cmdBuffNum] = {fn:callback,ctx:ctx}; // Записываем коллбек ожидания
 				pay.bufferId = this._cmdBuffNum;
 				this.#_proc.send(pay);
 				this._cmdBuffNum++;

@@ -1,26 +1,24 @@
 //----------------------
 // Load Kernel functions
 //----------------------
-/*
+
 class _kernel {
-	constructor() {};
-	store = {
-		load:function(path){ // Подгрузить скрипт
-			let f = __hw.__sys_storage._readData(path);
-			if (f) {
-				__hw.__device._vm_run(f);
-				return true;
+	#_cmd_queue = []; // Очередь на выполнение команд
+	initScript(path) {
+		__vm.sendCommand("interfaces/storage/"+__boot.storage+"/readdata",{path:path},function(d){
+			if (d !== false) {
+				__vm.runScript(d);
 			} else {
-				return false;
-			}
-		},
-		fs:__hw.__sys_storage
-	};
-};
+				__vm.sendError("Undefined script: "+path);
+			};
+			
+		})
+	}
+}
 
 const _k = new _kernel();
-const console = __hw.__csl;
-const fs = __hw.__sys_storage;
+
+_k.initScript("kernel/interfaces/interfaces");
 
 //----------------------
 // Load Kernel modules
@@ -28,8 +26,7 @@ const fs = __hw.__sys_storage;
 
 //_k.store.load("kernel/interfaces/interfaces");
 
-*/
 
-__hw.listenEvent("interfaces/ethernet/eth0_a1b2c3d4e5/rx",function(d){
-	__hw.sendLog(d);
+__vm.listenEvent("interfaces/ethernet/eth0_a1b2c3d4e5/rx",function(d){
+	__vm.sendLog(d);
 })

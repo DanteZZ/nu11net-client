@@ -94,7 +94,7 @@ class router {
 		let _device = this;
 
 		this._reloadInterfaceCommands();
-		
+
 		this.#_reloadContext();
 		this.#_proc = this.#_fork('assets/modules/vmrunner.js');
 		this.#_proc.__device = this;
@@ -116,7 +116,10 @@ class router {
 
 	#_reloadContext = function() {
 		this.#_ctx = {
-			hi:1
+			__boot:{
+				storage:this._boot_storage._id
+			},
+			__interfaces:this._interfacesList()
 		};
 	};
 
@@ -125,13 +128,44 @@ class router {
 		let fcfg = __pth.join(global.__cfg.get().serversDir,global.__connectedServer.address,"devices.json");
 	};
 
+	_interfacesList(type=false) { // Получить список интерфесов по типу
+		let res = [];
+		for (var n in this.interfaces) {
+			if (!type) {
+				res.push({name:n,type:this.interfaces[n].__type});
+			} else {
+				if (this.interfaces[n].__type == type) {
+					res.push({name:n,type:this.interfaces[n].__type});
+				}
+			}
+			
+		}
+		return res;
+	}
+
 	_initCommands() { // Регистрация команд устройства
-		this._cmd._regCat("device");
+		/*
+			DEVICE
+		*/
+
+		this._cmd._regCat("devices"); // CAT
 		this._cmd._reg("device/restart",function(){
 			this.ctx._restart();
 		},this);
 		this._cmd._reg("device/powerOFF",function(){
 			this.ctx._powerOFF();
+		},this);
+
+		/*
+			INTERFACES
+		*/
+
+		this._cmd._regCat("interfaces"); // CAT
+		this._cmd._reg("interfaces/list",function(){
+			return this.ctx._interfacesList();
+		},this);
+		this._cmd._reg("interfaces/listbytype",function(d){
+			return this.ctx._interfacesList(d.type);
 		},this);
 	};
 }
