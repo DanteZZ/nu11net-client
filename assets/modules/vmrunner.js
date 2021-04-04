@@ -11,9 +11,14 @@ const hwFuncs = { // Функции общения с железом
 	sendCommand: function(command,data,callback=false) {return cmd._sendCommand(command,data,callback);},
 	sendLog: function(data) {return cmd._sendLog(data);},
 	sendError: function(data) {return cmd._sendError(data);},
+	sendEvent: function(event,data) {return cmd._sendEvent(event,data);},
 	
 	regCommand: function(command,func,ctx=false,async=false){return cmd._reg(command,func,ctx,async)},
-	regCat: function(name){return cmd._regCat(command,func,ctx,async)}
+	regCat: function(name){return cmd._regCat(command,func,ctx,async)},
+
+	listenEvent:function(event,func = ()=>{},ctx=null){return cmd._listenEvent(event,func,ctx)},
+	unlistenEvent:function(id){return cmd._unlistenEvent(id)},
+	doEvent:function(event,data=false){return cmd._doEvent(event,data)}
 };
 
 function _regDefaultCommands() { // Регистрация команд устройства

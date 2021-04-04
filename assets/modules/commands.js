@@ -1,5 +1,6 @@
 class CMD {
 	#_commands = {};
+	#_events = {};
 	_cmdBuffer = {};
 	_cmdBuffNum = 0;
 	#_proc = false;
@@ -10,6 +11,7 @@ class CMD {
 
 	_clear() {
 		this.#_commands = {};
+		this.#_events = {};
 		this._cmdBuffer = {};
 		this._cmdBuffNum = 0;
 	};
@@ -18,7 +20,10 @@ class CMD {
 		return this.#_commands;
 	}
 
-	_reg(command,func,ctx=false,async = false) { // Зарегистрировать комманду
+	/*
+		COMMANDS
+	*/
+	_reg(command,func,ctx=null,async = false) { // Зарегистрировать комманду
 		let p = command.split("/");
 		let n = p.pop(); // Название создаваемой команды
 		let ct = this.#_commands; // Текущий директория поиска
@@ -89,6 +94,43 @@ class CMD {
 		return this._is(name);
 	};
 
+	/*
+		EVENTS
+	*/
+	_listenEvent(event,func = ()=>{},ctx=null) { // Прослушивать Event
+		if (!this.#_events[event]) { // Если в массиве Event'ов такого ещё не прослушивалось
+			this.#_events[event] = [];
+		};
+		this.#_events[event].push({
+			fn: func,
+			ctx:ctx
+		});
+		return event+"#"+this.#_events[event].length-1;
+	};
+	_unlistenEvent(id) { // Перестать прослушивать Event
+		let p = id.split("#");
+		let event = p[0];
+		id = p[1];
+		if (typeof(this.#_events[event][id]) == "object") {// Если такой Event существует
+			this.#_events[event][id] = null;
+			return true;
+		} else {
+			return false;
+		}
+	};
+	_doEvent(event,data=false) {
+		if (typeof(this.#_events[event]) == "object") {
+			for (var k in this.#_events[event]) {
+				let ev = this.#_events[event][k];
+				try {
+					ev.fn(data,ev.ctx);
+				} catch (e) {
+					this._sendError(e);
+				}
+			}
+		}
+	};
+
 	_onMessage(msg) { // Обработка входящих данных
 		let cmd = this; if (cmd.__device) {cmd = cmd.__device._cmd;};
 		if (cmd._main) {
@@ -113,6 +155,13 @@ class CMD {
 				case "error":
 					global.__csl.error("Error from",this.__device._id,":\n",msg.data);
 				break;
+				case "event":
+					try {
+						cmd._onEvent(cmd,msg);
+					} catch (e) {
+						global.__csl.error(e,msg);
+					}
+				break;
 			}
 		} else {
 			switch (msg.type) {
@@ -121,6 +170,9 @@ class CMD {
 				break;
 				case "response":
 					cmd._onResponse(cmd,msg);
+				break;
+				case "event":
+					cmd._onEvent(cmd,msg);
 				break;
 			}
 		};
@@ -148,6 +200,10 @@ class CMD {
 		}
 	};
 
+	_onEvent(__device,msg) { // Функция обработки приходящего Event'а
+		__device._doEvent(msg.event,msg.data);
+	};
+
 	_onResponse(__device,msg) { // Функция обработки ответа
 		if (__device._cmdBuffer[msg.bufferId]) {
 		  	__device._cmdBuffer[msg.bufferId](msg.data);
@@ -156,7 +212,6 @@ class CMD {
 	};
 
 	_sendCommand(command,data=false,callback=false) { // Отправить комманду в proc
-		
 		let pay = {
             type:"command",
             command:command,
@@ -182,6 +237,15 @@ class CMD {
             type:"response",
             data:data,
             bufferId:bufferId
+        };
+		this.#_proc.send(pay);
+	};
+
+	_sendEvent(event,data=false) { // Отправить Event в proc
+		let pay = {
+            type:"event",
+            event:event,
+            data:data
         };
 		this.#_proc.send(pay);
 	};
