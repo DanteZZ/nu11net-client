@@ -43,6 +43,8 @@ class ethernet {
 		}
 	};
 	do(event,data) {
+		let _cat = "interfaces/"+this.__type+"/"+this._id+"/";
+		
 		if (this.#events[event]) {
 			for (var k in this.#events[event]) {
 				if (typeof(this.#events[event][k]) == "function") {
@@ -51,6 +53,12 @@ class ethernet {
 				}
 			}
 		};
+
+		if (this.__device._cmd) { // Если устройства использует систему команд
+			this.__device._cmd._sendEvent(_cat+event,data);
+			return true;
+		};
+		
 		return false;
 	};
 	rme(id) {
@@ -61,6 +69,19 @@ class ethernet {
 	};
 	genRandId() {
 		return Math.random().toString(36).slice(-8);
+	};
+
+	__initCommands = function() {
+		/* Запишем путь к командам и путь с конечным слешом */
+		let cat = "interfaces/"+this.__type+"/"+this._id;
+		let catf = cat+"/";
+		let cmd = this.__device._cmd;
+		cmd._regCat(cat); //Регаем каталог
+
+		/* SEND */
+		cmd._reg(catf+"send",function(d) {
+			return this.ctx._scanDir(d.data);
+		},this,false);
 	};
 }
 

@@ -94,8 +94,7 @@ class router {
 		let _device = this;
 
 		this._reloadInterfaceCommands();
-		this._reloadInterfaceEvents();
-
+		
 		this.#_reloadContext();
 		this.#_proc = this.#_fork('assets/modules/vmrunner.js');
 		this.#_proc.__device = this;

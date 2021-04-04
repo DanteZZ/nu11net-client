@@ -458,51 +458,49 @@ class storage {
 
 	__initCommands = function() {
 		/* Запишем путь к командам и путь с конечным слешом */
-		let cat = "interfaces/storage/"+this._id;
+		let cat = "interfaces/"+this.__type+"/"+this._id;
 		let catf = cat+"/";
 		let cmd = this.__device._cmd;
 		cmd._regCat(cat); //Регаем каталог
 
 		/* DIR */
-		cmd._reg(catf+"scdir",function(d) { // Чтение каталога
+		cmd._reg(catf+"scdir",function(d) {
 			return this.ctx._scanDir(d.path,d.more);
 		},this,false);
-		cmd._reg(catf+"isdir",function(d) { // Чтение каталога
+		cmd._reg(catf+"isdir",function(d) {
 			return this.ctx._isDir(d.path);
 		},this,false);
-		cmd._reg(catf+"rmdir",function(d) { // Чтение каталога
+		cmd._reg(catf+"rmdir",function(d) {
 			return this.ctx._rmDir(d.path);
 		},this,false);
-		cmd._reg(catf+"mkdir",function(d) { // Чтение каталога
+		cmd._reg(catf+"mkdir",function(d) {
 			return this.ctx._mkDir(d.path);
 		},this,false);
-		cmd._reg(catf+"mkdirasync",function(d,cb) { // Чтение каталога
+		cmd._reg(catf+"mkdirasync",function(d,cb) {
 			this.ctx._mkDirAsync(d.path,cb);
 		},this,true);
 
 		/* DATA */
-		cmd._reg(catf+"rmdata",function(d) { // Чтение каталога
+		cmd._reg(catf+"rmdata",function(d) {
 			return this.ctx._rmData(d.path);
 		},this,false);
-		cmd._reg(catf+"rmdataasync",function(d,cb) { // Чтение каталога
+		cmd._reg(catf+"rmdataasync",function(d,cb) {
 			this.ctx._rmDataAsync(d.path,cb);
 		},this,true);
-		cmd._reg(catf+"writedata",function(d) { // Чтение каталога
+		cmd._reg(catf+"writedata",function(d) {
 			return this.ctx._writeData(d.path,d.data);
 		},this,false);
-		cmd._reg(catf+"writedataasync",function(d,cb) { // Чтение каталога
+		cmd._reg(catf+"writedataasync",function(d,cb) {
 			this.ctx._writeDataAsync(d.path,d.data,cb);
 		},this,true);
 
 		/* ANOTHER */
-		cmd._reg(catf+"isdata",function(d) { // Чтение каталога
+		cmd._reg(catf+"isdata",function(d) {
 			return this.ctx._isData(d.path);
 		},this,false);
-		cmd._reg(catf+"rename",function(d) { // Чтение каталога
+		cmd._reg(catf+"rename",function(d) {
 			return this.ctx._rename(d.oldpath,d.newpath);
 		},this,false);
-
-
 	}
 }
 

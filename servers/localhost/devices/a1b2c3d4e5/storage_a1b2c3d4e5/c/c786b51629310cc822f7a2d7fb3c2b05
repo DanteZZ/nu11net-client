@@ -30,18 +30,6 @@ const fs = __hw.__sys_storage;
 
 */
 
-
-__hw.sendCommand(
-	"interfaces/storage/storage_a1b2c3d4e5/rmdir",
-	{path:"mmdir"},
-	function(data){
-		__hw.sendCommand(
-			"interfaces/storage/storage_a1b2c3d4e5/scdir",
-			{path:""},
-			function(data){__hw.sendLog(data);}
-		)
-	}
-)
-
-
-
+__hw.listenEvent("interfaces/ethernet/eth0_a1b2c3d4e5/rx",function(d){
+	__hw.sendLog(d);
+})
