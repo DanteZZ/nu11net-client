@@ -1,1 +1,1 @@
-{"serverList":{"172.18.1.31":{"name":"My server","ip":"172.18.1.31"},"172.18.1.32:1337":{"name":"Oleg","ip":"172.18.1.32:1337"}},"login":"DantezZ","password":"DantezZ","selectedServer":"172.18.1.32:1337","serversDir":"servers"}
+{"serverList":{"172.18.1.31":{"name":"My server","ip":"172.18.1.31"},"localhost:1337":{"name":"Мой сервак","ip":"localhost:1337"}},"login":"DantezZ","password":"DantezZ","selectedServer":"localhost:1337","serversDir":"servers"}

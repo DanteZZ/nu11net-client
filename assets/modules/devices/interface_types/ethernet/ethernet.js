@@ -10,24 +10,33 @@ class ethernet {
 		this._init(a,b,c,d) // Инициализация интерфейса
 	};
 
-	_recieve(data) {
+	_rx(data) {
 		if (!this.#up) {return false;}
 		return this.do("rx",data);
 	};
 
+	_connect(to) {
+		this.connection = to;
+	};
+
 	_send(data) {
+		let _cat = "interfaces/"+this.__type+"/"+this._id+"/";
+		let ok = false;
+
 		if (!this.#up) {return false;}
-		if (this.#connection !== false) {
-			if (typeof(this.#connection._recieve) == "function") {
-				data.__inf = {
+
+		if (this.connection !== false) {
+			if (typeof(this.connection._rx) == "function") {
+				/*data.__inf = {
 					mac: this.__mac
-				};
-				this.#connection._recieve(data);
+				};*/
+				this.connection._rx(data);
 				this.do("tx",data);
-				return true;
-			} else {
-				return false;
-			}
+				ok = true;
+			};
+			return ok;
+		} else {
+			return false;
 		}
 	};
 
@@ -44,22 +53,22 @@ class ethernet {
 	};
 	do(event,data) {
 		let _cat = "interfaces/"+this.__type+"/"+this._id+"/";
-		
+		let ok = false;
 		if (this.#events[event]) {
 			for (var k in this.#events[event]) {
 				if (typeof(this.#events[event][k]) == "function") {
 					this.#events[event][k](data);
-					return true;
+					ok = true;
 				}
 			}
 		};
 
 		if (this.__device._cmd) { // Если устройства использует систему команд
 			this.__device._cmd._sendEvent(_cat+event,data);
-			return true;
+			ok = true;
 		};
-		
-		return false;
+
+		return ok;
 	};
 	rme(id) {
 		let type = this.#eventId[id]
@@ -80,7 +89,7 @@ class ethernet {
 
 		/* SEND */
 		cmd._reg(catf+"send",function(d) {
-			return this.ctx._scanDir(d.data);
+			return this.ctx._send(d);
 		},this,false);
 	};
 }
