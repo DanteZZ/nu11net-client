@@ -30,7 +30,18 @@ const fs = __hw.__sys_storage;
 
 */
 
-var a = __hw.listenEvent("check/event",function(data){
-	__hw.sendLog("Ow sheeet, i check event!");
-	__hw.unlistenEvent(a);
-})
+
+__hw.sendCommand(
+	"interfaces/storage/storage_a1b2c3d4e5/rmdir",
+	{path:"mmdir"},
+	function(data){
+		__hw.sendCommand(
+			"interfaces/storage/storage_a1b2c3d4e5/scdir",
+			{path:""},
+			function(data){__hw.sendLog(data);}
+		)
+	}
+)
+
+
+

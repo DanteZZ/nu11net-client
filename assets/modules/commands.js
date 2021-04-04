@@ -190,7 +190,7 @@ class CMD {
 				};
 			} else {
 
-				if (msg.bufferId !== false) { // Если запрашивается возврат
+				if (typeof(msg.bufferId) !== "undefined") { // Если запрашивается возврат
 					cmd.fn(msg.data,function(data){
 						__device._sendResponse(data,msg.bufferId);
 					});

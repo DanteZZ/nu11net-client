@@ -9,17 +9,10 @@ class router {
 	
 	#_power = false;
 
-	#_cmdBuffer = {};
-	#_cmdBuffNum = 0;
-
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d);
 		this._initCommands();
 		this._powerON();
-	};
-
-	getBuff() {
-		return this._cmd._cmdBuffer;
 	};
 
 	_powerON() { // Включить устройство
@@ -99,6 +92,10 @@ class router {
 
 	#_boot = function(script) {
 		let _device = this;
+
+		this._reloadInterfaceCommands();
+		this._reloadInterfaceEvents();
+
 		this.#_reloadContext();
 		this.#_proc = this.#_fork('assets/modules/vmrunner.js');
 		this.#_proc.__device = this;

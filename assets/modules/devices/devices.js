@@ -37,7 +37,9 @@ module.exports = {
 					break;
 					default: this["__"+k] = inf[k]; break;
 				}
-			}
+			};
+			//this._reloadInterfaceCommands();
+			//this._reloadInterfaceEvents();
 		},
 		_isInterface(id) {
 			if (this.interfaces[id]) {return true;} else {return false;}; 
@@ -50,10 +52,16 @@ module.exports = {
 			};
 			return res;
 		},
-		_regCommand(command,func,async = false) { // Зарегистрировать комманду
-			this._commands[command] = {
-				async:async,
-				fn:func
+		_reloadInterfaceCommands() {
+			for (var id in this.interfaces) {
+				let intr = this.interfaces[id];
+				if (typeof intr.__initCommands == "function") {intr.__initCommands();};
+			};
+		},
+		_reloadInterfaceEvents() {
+			for (var id in this.interfaces) {
+				let intr = this.interfaces[id];
+				if (typeof intr.__initEvents == "function") {intr.__initEvents();};
 			};
 		}
 	},

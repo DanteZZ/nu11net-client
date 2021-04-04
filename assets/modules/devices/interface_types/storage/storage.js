@@ -11,7 +11,6 @@ class storage {
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d) // Инициализация интерфейса
 		this.#__initMap(); // Инициализируем MAP
-		this.#_initCommands();
 	};
 
 	#__dir = function() {
@@ -162,12 +161,12 @@ class storage {
 		}; 
 	};
 
-	_mkAsync(path,func) { // Создать директорию асинхронно
+	_mkDirAsync(path,func) { // Создать директорию асинхронно
+
 		if (typeof(func) !== "function") {func = function(){};};
 		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
-		
 		if (this._getMapPath(path)) { // Если это название занято
-			return false;
+			func(false);
 		};
 
 		let dir = this.#__pth.dirname(path);
@@ -182,10 +181,10 @@ class storage {
 				"~":{}
 			};
 			this.__writeMap(); // Обновляем MAP
-			func();
+			func(true);
 		} else { // Если в мапах нет такой директории
-			return false;
-		}; 
+			func(false);
+		};
 	};
 
 	/*
@@ -234,15 +233,15 @@ class storage {
 			if (pmap) { // Если родительский каталог существует
 				let p = this.#__pth.join(this.#__dir(),map['~'].substr(0, 1),map['~']);
 				p = p.replace(/\\/g, "/");
-				this.#__fs.unlink(p,function(){func();});
+				
 				delete(pmap["~"][this.#__pth.basename(path)]); // Удаляем директорию
 				this.__writeMap(); // Обновляем MAP
-				return true;
+				this.#__fs.unlink(p,function(){func(true);});
 			} else { // Если родителя нет, значит какая то трабла с MAP
-				return false;
+				func(false);
 			}
 		} else { // Если в мапах нет такого файла
-			return false;
+			func(false);
 		}; 
 	};
 
@@ -281,7 +280,7 @@ class storage {
 			p = p.replace(/\\/g, "/"); // Меняем ебаные виндовсовские слешы на человеческие юниксовые
 			
 			if (this.#__fs.existsSync(p)) { // Если физически файл существует
-				this.#__fs.readFile(p,"utf-8",function(err,data){func(false,data)}); // Возвращаем его
+				this.#__fs.readFile(p,"utf-8",function(err,data){func(data)}); // Возвращаем его
 			} else { 
 				/*
 
@@ -289,10 +288,10 @@ class storage {
 					Да и вообще, стоит сделать доп. проверку на контрольную сумму файлов, чтобы их никто не подменял.
 
 				*/
-				return false;
+				func(false);
 			}
 		} else { // Если файла в мапах нет
-			return false;
+			func(false);
 		}; 
 	};
 
@@ -376,8 +375,8 @@ class storage {
 						this.#__fs.mkdirSync(hdir);
 					} catch (e) {
 						/* Тут надо вернуть ошибку */
-						alert(e);
-						return false;
+						global.__csl.error(e);
+						func(false);
 					};
 				};
 			} else if (mapf.t !== 0) { //Если такой файл уже существует
@@ -385,16 +384,16 @@ class storage {
 				hash = mapf['~'];
 				p = p.replace(/\\/g, "/");
 			} else { // Если это директория
-				return false;
+				func(false);
 			};
 			if (typeof(map["~"]) !== "object") {map["~"] = {};};
 				map["~"][_file] = {"t":1,"~":hash};
 			this.__writeMap();
 			this.#__fs.writeFile(p,data,function(err){
-				func(false);
+				func(true);
 			});
 		} else { // Если такой директории нет
-			return false;
+			func(false);
 		}; 
 	};
 
@@ -457,8 +456,53 @@ class storage {
 	    return randomString;
 	};
 
-	#_initCommands = function() {
-		this.__device._cmd._regCat("interfaces/storage/"+this._id);
+	__initCommands = function() {
+		/* Запишем путь к командам и путь с конечным слешом */
+		let cat = "interfaces/storage/"+this._id;
+		let catf = cat+"/";
+		let cmd = this.__device._cmd;
+		cmd._regCat(cat); //Регаем каталог
+
+		/* DIR */
+		cmd._reg(catf+"scdir",function(d) { // Чтение каталога
+			return this.ctx._scanDir(d.path,d.more);
+		},this,false);
+		cmd._reg(catf+"isdir",function(d) { // Чтение каталога
+			return this.ctx._isDir(d.path);
+		},this,false);
+		cmd._reg(catf+"rmdir",function(d) { // Чтение каталога
+			return this.ctx._rmDir(d.path);
+		},this,false);
+		cmd._reg(catf+"mkdir",function(d) { // Чтение каталога
+			return this.ctx._mkDir(d.path);
+		},this,false);
+		cmd._reg(catf+"mkdirasync",function(d,cb) { // Чтение каталога
+			this.ctx._mkDirAsync(d.path,cb);
+		},this,true);
+
+		/* DATA */
+		cmd._reg(catf+"rmdata",function(d) { // Чтение каталога
+			return this.ctx._rmData(d.path);
+		},this,false);
+		cmd._reg(catf+"rmdataasync",function(d,cb) { // Чтение каталога
+			this.ctx._rmDataAsync(d.path,cb);
+		},this,true);
+		cmd._reg(catf+"writedata",function(d) { // Чтение каталога
+			return this.ctx._writeData(d.path,d.data);
+		},this,false);
+		cmd._reg(catf+"writedataasync",function(d,cb) { // Чтение каталога
+			this.ctx._writeDataAsync(d.path,d.data,cb);
+		},this,true);
+
+		/* ANOTHER */
+		cmd._reg(catf+"isdata",function(d) { // Чтение каталога
+			return this.ctx._isData(d.path);
+		},this,false);
+		cmd._reg(catf+"rename",function(d) { // Чтение каталога
+			return this.ctx._rename(d.oldpath,d.newpath);
+		},this,false);
+
+
 	}
 }
 
