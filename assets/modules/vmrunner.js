@@ -11,7 +11,7 @@ const vmFuncs = { // Функции общения с железом
 	sendCommand: function(command,data={},callback=false,ctx=null) {return cmd._sendCommand(command,data,callback,ctx);},
 	sendLog: function(data) {return cmd._sendLog(data);},
 	sendError: function(data) {return cmd._sendError(data);},
-	sendEvent: function(event,data) {return cmd._sendEvent(event,data);},
+	sendEvent: function(event,data=false) {return cmd._sendEvent(event,data);},
 	
 	regCommand: function(command,func,ctx=false,async=false){return cmd._reg(command,func,ctx,async)},
 	regCat: function(name){return cmd._regCat(command,func,ctx,async)},
