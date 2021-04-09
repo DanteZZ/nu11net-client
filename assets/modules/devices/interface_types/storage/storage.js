@@ -499,11 +499,11 @@ class storage {
 		cmd._reg(catf+"readdataasync",function(d,cb) {
 			this.ctx._readDataAsync(d.path,cb);
 		},this,true);
-
-		/* ANOTHER */
 		cmd._reg(catf+"isdata",function(d) {
 			return this.ctx._isData(d.path);
 		},this,false);
+		
+		/* ANOTHER */
 		cmd._reg(catf+"rename",function(d) {
 			return this.ctx._rename(d.oldpath,d.newpath);
 		},this,false);

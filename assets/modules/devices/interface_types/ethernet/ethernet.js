@@ -1,11 +1,14 @@
 class ethernet {
 	#up = true;
-	#connection = false;
 	#events = {
 		tx: {},
 		rx: {}
 	};
+	
 	#eventId = {};
+	#connectify = ["twistedpair"]; // Устанавливаем возможность подключения кабельной продукции
+	#connection = false;
+
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d) // Инициализация интерфейса
 	};

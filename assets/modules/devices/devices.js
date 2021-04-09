@@ -1,23 +1,63 @@
 module.exports = {
-	_list:{},
-	init:function(list){
+	_device_list:{},
+	_cable_list:{},
+	_connection_list:{},
+	init:function(inf){
 		this._device_types = this.requireUncached("./device_types.js").init();
 		this._interface_types = this.requireUncached("./interface_types.js").init();
+		this._cable_types = this.requireUncached("./cable_types.js");
 
 		for (var dn in this._device_types) {
 			Object.assign(this._device_types[dn].prototype, this._device);
 		};
 
-		for (var cn in this._interface_types) {
+		for (var inn in this._interface_types) {
+			Object.assign(this._interface_types[inn].prototype, this._interface);
+		};
+
+		for (var cn in this._cable_types) {
 			Object.assign(this._interface_types[cn].prototype, this._interface);
 		};
 
+		this._loadDevices(inf.devices);
+		this._loadDevices(inf.cables);
+		this._reloadConnections(inf.onnections);
+		return this;
+	},
+
+	_loadDevices: function(list) {
 		for (var id in list) {
 			if (this._device_types[list[id].type]) {
-				this._list[id] = new this._device_types[list[id].type](id,list[id],list[id].type,this._interface_types);
+				this._device_list[id] = new this._device_types[list[id].type](id,list[id],list[id].type,this._interface_types);
 			};
 		};
-		return this;
+	},
+	_loadCables: function(list) {
+		for (var id in list) {
+			if (this._cable_types[list[id].type]) { 
+				this._cable_list[id] = new this._cable(id,list[id].type);
+			};
+		};
+	},
+	_reloadConnections: function(inf=false){
+		if (inf) {this._connection_list = inf};
+		for (var id in this._cable_list) {
+			if (this._connection_list[id]) {
+				this._cable_list[id].in_use = false;
+				let clist = this._connection_list[id];
+				let cons = [];
+				for (var i = 0; i<2;i++) { // Перебираем массив с подключениями
+					con = clist[i].split("#");
+					let dv = con[0];
+					let inn = con[1];
+					cons[i] = this._device_list[dv].interfaces[inn];
+				};
+				cons[0]._connect(cons[1]);
+				cons[1]._connect(cons[0]);
+			} else {
+				this._cable_list[id].in_use = false;
+			};
+		};
 	},
 	_device: {
 		_init(id,inf,type,ctypes) {
@@ -66,6 +106,12 @@ module.exports = {
 					default: this["__"+k] = inf[k]; break;
 				}
 			}
+		}
+	},
+	_cable: class {
+		constructor(id,type) {
+			this._type = type;
+			this._id = id;
 		}
 	},
 	requireUncached: function(module) {
