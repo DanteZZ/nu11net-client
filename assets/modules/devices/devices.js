@@ -2,6 +2,7 @@ module.exports = {
 	_device_list:{},
 	_cable_list:{},
 	_connection_list:{},
+	_old_connection_list:{},
 	init:function(inf){
 		this._device_types = this.requireUncached("./device_types.js").init();
 		this._interface_types = this.requireUncached("./interface_types.js").init();
@@ -20,8 +21,8 @@ module.exports = {
 		};
 
 		this._loadDevices(inf.devices);
-		this._loadDevices(inf.cables);
-		this._reloadConnections(inf.onnections);
+		this._loadCables(inf.cables);
+		this._reloadConnections(inf.connections);
 		return this;
 	},
 
@@ -34,13 +35,41 @@ module.exports = {
 	},
 	_loadCables: function(list) {
 		for (var id in list) {
-			if (this._cable_types[list[id].type]) { 
+			if (this._cable_types.is([list[id].type])) { 
 				this._cable_list[id] = new this._cable(id,list[id].type);
 			};
 		};
 	},
 	_reloadConnections: function(inf=false){
-		if (inf) {this._connection_list = inf};
+		if (inf) {
+			this._removeConnections();
+			this._connection_list = inf
+		};
+		for (var id in this._cable_list) {
+			if (this._connection_list[id]) {
+				let clist = this._connection_list[id];
+				let cons = [];
+				for (var i = 0; i<2;i++) { // Перебираем массив с подключениями
+					con = clist[i].split("#");
+					let dv = con[0];
+					let inn = con[1];
+					cons[i] = this._device_list[dv].interfaces[inn];
+				};
+				if (cons[0]._canConnect(this._cable_list[id]._type) && cons[1]._canConnect(this._cable_list[id]._type)){
+					cons[0]._connect(cons[1]);
+					cons[1]._connect(cons[0]);
+					this._cable_list[id].in_use = true;
+				} else {
+					this._cable_list[id].in_use = false;
+				};
+				
+			} else {
+				this._cable_list[id].in_use = false;
+			};
+		};
+	},
+	_removeConnections:function() {
+		if (!Object.keys(this._connection_list).length) {return false};
 		for (var id in this._cable_list) {
 			if (this._connection_list[id]) {
 				this._cable_list[id].in_use = false;
@@ -52,8 +81,8 @@ module.exports = {
 					let inn = con[1];
 					cons[i] = this._device_list[dv].interfaces[inn];
 				};
-				cons[0]._connect(cons[1]);
-				cons[1]._connect(cons[0]);
+				cons[0]._unconnect();
+				cons[1]._unconnect();
 			} else {
 				this._cable_list[id].in_use = false;
 			};

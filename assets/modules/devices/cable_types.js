@@ -3,7 +3,10 @@ class cables {
 		twistedpair:{
 			image:null
 		},
-		com:{
+		serial:{
+			image:null
+		},
+		display:{
 			image:null
 		}
 	};
