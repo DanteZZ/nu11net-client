@@ -465,42 +465,42 @@ class storage {
 
 		/* DIR */
 		cmd._reg(catf+"scdir",function(d) {
-			return this.ctx._scanDir(d.path,d.more);
+			return this._scanDir(d.path,d.more);
 		},this,false);
 		cmd._reg(catf+"isdir",function(d) {
-			return this.ctx._isDir(d.path);
+			return this._isDir(d.path);
 		},this,false);
 		cmd._reg(catf+"rmdir",function(d) {
-			return this.ctx._rmDir(d.path);
+			return this._rmDir(d.path);
 		},this,false);
 		cmd._reg(catf+"mkdir",function(d) {
-			return this.ctx._mkDir(d.path);
+			return this._mkDir(d.path);
 		},this,false);
 		cmd._reg(catf+"mkdirasync",function(d,cb) {
-			this.ctx._mkDirAsync(d.path,cb);
+			this._mkDirAsync(d.path,cb);
 		},this,true);
 
 		/* DATA */
 		cmd._reg(catf+"rmdata",function(d) {
-			return this.ctx._rmData(d.path);
+			return this._rmData(d.path);
 		},this,false);
 		cmd._reg(catf+"rmdataasync",function(d,cb) {
-			this.ctx._rmDataAsync(d.path,cb);
+			this._rmDataAsync(d.path,cb);
 		},this,true);
 		cmd._reg(catf+"writedata",function(d) {
-			return this.ctx._writeData(d.path,d.data);
+			return this._writeData(d.path,d.data);
 		},this,false);
 		cmd._reg(catf+"writedataasync",function(d,cb) {
-			this.ctx._writeDataAsync(d.path,d.data,cb);
+			this._writeDataAsync(d.path,d.data,cb);
 		},this,true);
 		cmd._reg(catf+"readdata",function(d) {
-			return this.ctx._readData(d.path);
+			return this._readData(d.path);
 		},this,false);
 		cmd._reg(catf+"readdataasync",function(d,cb) {
-			this.ctx._readDataAsync(d.path,cb);
+			this._readDataAsync(d.path,cb);
 		},this,true);
 		cmd._reg(catf+"isdata",function(d) {
-			return this.ctx._isData(d.path);
+			return this._isData(d.path);
 		},this,false);
 		
 		/* ANOTHER */

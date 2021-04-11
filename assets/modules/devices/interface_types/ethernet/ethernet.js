@@ -81,7 +81,7 @@ class ethernet {
 
 		/* SEND */
 		cmd._reg(catf+"send",function(d) {
-			return this.ctx.__tx(d);
+			return this.__tx(d);
 		},this,false);
 	};
 }

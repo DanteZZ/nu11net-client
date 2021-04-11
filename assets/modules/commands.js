@@ -39,6 +39,11 @@ class CMD {
 			fn:func,
 			ctx:ctx
 		};
+		if (ctx==null) {
+			ct[n].fn = ct[n].fn.bind({});
+		} else {
+			ct[n].fn = ct[n].fn.bind(ct[n].ctx);
+		};
 		return true;
 	};
 
@@ -101,10 +106,16 @@ class CMD {
 		if (!this.#_events[event]) { // Если в массиве Event'ов такого ещё не прослушивалось
 			this.#_events[event] = [];
 		};
-		this.#_events[event].push({
+		let p = {
 			fn: func,
 			ctx:ctx
-		});
+		};
+		if (ctx==null) {
+			p.fn = p.fn.bind({});
+		} else {
+			p.fn = p.fn.bind(p.ctx);
+		};
+		this.#_events[event].push(p);
 		return event+"#"+(this.#_events[event].length-1);
 	};
 	_unlistenEvent(id) { // Перестать прослушивать Event
