@@ -4,44 +4,25 @@ class ethernet {
 		tx: {},
 		rx: {}
 	};
-
 	#eventId = {};
-	#connectify = ["twistedpair"]; // Устанавливаем возможность подключения кабельной продукции
-	#connection = false;
+	connectify = ["twistedpair"]; // Устанавливаем возможность подключения кабельной продукции
+	connection = null;
 
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d) // Инициализация интерфейса
 	};
 
-	_canConnect(type){
-		if (this.#connectify.indexOf(type)>-1) {
-			return true;
-		};
-		return false;
-	};
-
-	_connect(to) {
-		this.#connection = to;
-	};
-
-	_unconnect() {
-		this.#connection = null;
-	};
-
-	_rx(data) {
+	__rx(data) {
 		if (!this.#up) {return false;}
 		return this.do("rx",data);
 	};
 
-	_tx(data) {
+	__tx(data) {
 		let ok = false;
 		if (!this.#up) {return false;}
-		if (this.#connection !== false) {
-			if (typeof(this.#connection._rx) == "function") {
-				/*data.__inf = {
-					mac: this.__mac
-				};*/
-				this.#connection._rx(data);
+		if (this.connection !== null) {
+			if (typeof(this.connection.__rx) == "function") {
+				this.connection.__rx(data);
 				this.do("tx",data);
 				ok = true;
 			};
@@ -100,7 +81,7 @@ class ethernet {
 
 		/* SEND */
 		cmd._reg(catf+"send",function(d) {
-			return this.ctx._tx(d);
+			return this.ctx.__tx(d);
 		},this,false);
 	};
 }

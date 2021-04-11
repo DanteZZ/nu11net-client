@@ -5,9 +5,6 @@ class cables {
 		},
 		serial:{
 			image:null
-		},
-		display:{
-			image:null
 		}
 	};
 	list() {

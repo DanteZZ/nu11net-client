@@ -14,7 +14,7 @@ class CMD {
 		this.#_events = {};
 		this._cmdBuffer = {};
 		this._cmdBuffNum = 0;
-	};
+	}; 
 
 	_commands() {
 		return this.#_commands;
@@ -219,6 +219,7 @@ class CMD {
 	};
 
 	_sendCommand(command,data=false,callback=false,ctx=null) { // Отправить комманду в proc
+		if (!this.#_proc) { return false;};
 		let pay = {
             type:"command",
             command:command,
@@ -240,24 +241,28 @@ class CMD {
 	};
 
 	_sendResponse(data=false,bufferId=false) { // Отправить ответ в proc
+		if (!this.#_proc) { return false;};
 		let pay = {
             type:"response",
             data:data,
             bufferId:bufferId
         };
-		this.#_proc.send(pay);
+        this.#_proc.send(pay);
 	};
 
 	_sendEvent(event,data=false) { // Отправить Event в proc
+		if (!this.#_proc) { return false;};
 		let pay = {
             type:"event",
             event:event,
             data:data
         };
-		this.#_proc.send(pay);
+        this.#_proc.send(pay);
+		
 	};
 
 	_sendLog(data=false) { // Отправить ответ в proc
+		if (!this.#_proc) { return false;};
 		if (!this._main) {
 			let pay = {
 	            type:"log",
@@ -268,12 +273,13 @@ class CMD {
 	};
 
 	_sendError(data=false) { // Отправить ответ в proc
+		if (!this.#_proc) { return false;};
 		if (!this._main) {
 			let pay = {
 	            type:"error",
 	            data:data
 	        };
-			this.#_proc.send(pay);
+	        this.#_proc.send(pay);
 		};
 	};
 }

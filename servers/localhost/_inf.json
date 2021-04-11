@@ -3,6 +3,7 @@
 		"a1b2c3d4e5":{
 			"type":"router",
 			"name":"Роутер",
+			"power":true,
 			"boot":{
 				"priority":[]
 			},
@@ -18,18 +19,38 @@
 				}
 			}
 		},
-		"a5b4c3d2e1":{
+		"a1b2c3d4e5_2":{
 			"type":"router",
 			"name":"Роутер",
+			"power":false,
 			"boot":{
 				"priority":[]
 			},
 			"interfaces":{
-				"eth0_a5b4c3d2e1":{
+				"eth0_a1b2c3d4e5":{
 					"type":"ethernet",
 					"mac":"A1:B2:C3:D4:E5:F6"
 				},
-				"storage_a5b4c3d2e1":{
+				"storage_a1b2c3d4e5":{
+					"type":"storage",
+					"size":2048,
+					"boot_file":"kernel/init"
+				}
+			}
+		},
+		"a1b2c3d4e5_3":{
+			"type":"router",
+			"name":"Роутер",
+			"power":true,
+			"boot":{
+				"priority":[]
+			},
+			"interfaces":{
+				"eth0_a1b2c3d4e5":{
+					"type":"ethernet",
+					"mac":"A1:B2:C3:D4:E5:F6"
+				},
+				"storage_a1b2c3d4e5":{
 					"type":"storage",
 					"size":2048,
 					"boot_file":"kernel/init"
@@ -42,6 +63,6 @@
 		"serial001":{"type":"serial"}
 	},
 	"connections":{
-		"tp001":["a1b2c3d4e5#eth0_a1b2c3d4e5","a5b4c3d2e1#eth0_a5b4c3d2e1"]
+		"tp001":["a1b2c3d4e5#eth0_a1b2c3d4e5","a1b2c3d4e5_3#eth0_a1b2c3d4e5"]
 	}
 }

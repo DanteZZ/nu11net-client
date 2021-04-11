@@ -1,0 +1,5 @@
+_k.storage = {
+	list: function() {
+		return _k.interfaces.getByType("storage");
+	}
+}; 

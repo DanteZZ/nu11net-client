@@ -3,7 +3,7 @@ module.exports = {
 	_cable_list:{},
 	_connection_list:{},
 	_old_connection_list:{},
-	init:function(inf){
+	init:function(inf){ 
 		this._device_types = this.requireUncached("./device_types.js").init();
 		this._interface_types = this.requireUncached("./interface_types.js").init();
 		this._cable_types = this.requireUncached("./cable_types.js");
@@ -29,7 +29,11 @@ module.exports = {
 	_loadDevices: function(list) {
 		for (var id in list) {
 			if (this._device_types[list[id].type]) {
+				let dev = list[id];
 				this._device_list[id] = new this._device_types[list[id].type](id,list[id],list[id].type,this._interface_types);
+				if (dev.power) {
+					this._device_list[id].__powerON();
+				};
 			};
 		};
 	},
@@ -55,9 +59,9 @@ module.exports = {
 					let inn = con[1];
 					cons[i] = this._device_list[dv].interfaces[inn];
 				};
-				if (cons[0]._canConnect(this._cable_list[id]._type) && cons[1]._canConnect(this._cable_list[id]._type)){
-					cons[0]._connect(cons[1]);
-					cons[1]._connect(cons[0]);
+				if (cons[0].__canConnect(this._cable_list[id]._type) && cons[1].__canConnect(this._cable_list[id]._type)){
+					cons[0].__connect(cons[1]);
+					cons[1].__connect(cons[0]);
 					this._cable_list[id].in_use = true;
 				} else {
 					this._cable_list[id].in_use = false;
@@ -81,8 +85,8 @@ module.exports = {
 					let inn = con[1];
 					cons[i] = this._device_list[dv].interfaces[inn];
 				};
-				cons[0]._unconnect();
-				cons[1]._unconnect();
+				cons[0].__unconnect();
+				cons[1].__unconnect();
 			} else {
 				this._cable_list[id].in_use = false;
 			};
@@ -101,6 +105,11 @@ module.exports = {
 						for (var id in inf.interfaces) {
 							if (ctypes[inf.interfaces[id].type]) {
 								this.interfaces[id] = new ctypes[inf.interfaces[id].type](id,this,inf.interfaces[id],inf.interfaces[id].type);
+								if (this.interfaces[id].connectify) { // Если интерфейс использует систему кабелей
+									this.interfaces[id].__canConnect = function(type){return this.connectify.indexOf(type)>-1 ? true : false};
+									this.interfaces[id].__connect = function(to) {this.connection = to;};
+									this.interfaces[id].__unconnect = function() {this.connection = null;};
+								}
 							};
 						};
 					break;

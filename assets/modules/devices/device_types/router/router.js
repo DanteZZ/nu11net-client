@@ -7,15 +7,14 @@ class router {
 	#_booted = false;
 	_boot_storage = false;
 	
-	#_power = false;
+	#_power = false; 
 
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d);
 		this._initCommands();
-		this._powerON();
 	};
 
-	_powerON() { // Включить устройство
+	__powerON() { // Включить устройство
 		if (this.#_power) {return false;} else {this.#_power = true; this.#_booted = false;};
 		if (this.__boot) { // Проверка BOOT накопителя
 			let b_list = [];
@@ -77,7 +76,7 @@ class router {
 		}
 	};
 
-	_powerOFF() { // Выключить устройство
+	__powerOFF() { // Выключить устройство
 		this.#_booted = false;
 		this.#_power = false;
 		this.#_proc.kill();
@@ -85,7 +84,7 @@ class router {
 		this._cmd._clear();
 	};
 
-	_restart() {
+	__restart() {
 		this._powerOFF();
 		this._powerON();
 	};

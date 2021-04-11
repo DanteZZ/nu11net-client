@@ -17,12 +17,12 @@ class _kernel {
 }
 
 __vm.regCommand("sendShit",function(d){
-	__vm.sendCommand("interfaces/ethernet/eth0_a5b4c3d2e1/send",d);
-},this)
+	__vm.sendCommand("interfaces/ethernet/eth0_a1b2c3d4e5/send",d);
+},this) 
 
 const _k = new _kernel();
 
-
+ 
 
 //----------------------
 // Load Kernel modules
@@ -30,6 +30,6 @@ const _k = new _kernel();
 
 _k.initScript("kernel/interfaces/interfaces");
 
-__vm.listenEvent("interfaces/ethernet/eth0_a5b4c3d2e1/rx",function(d){
-	__vm.sendLog(["eth0_a5b4c3d2e1: i get ",d]);
+__vm.listenEvent("interfaces/ethernet/eth0_a1b2c3d4e5/rx",function(d){
+	__vm.sendLog(["Router 3: i get ",d]);
 });
