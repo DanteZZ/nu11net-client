@@ -1,9 +1,0 @@
-class _FS {
-	constructor(){
-		this.a = 10;
-	};
-	get() {
-		return this.a;
-	}
-};
-module.exports = _FS;

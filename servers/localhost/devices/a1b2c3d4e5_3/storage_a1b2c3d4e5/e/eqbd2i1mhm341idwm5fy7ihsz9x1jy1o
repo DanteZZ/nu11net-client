@@ -1,5 +1,0 @@
-class _SHELL {
-
-}
-
-_CLI = new _SHELL();

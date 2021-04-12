@@ -15,7 +15,6 @@ global.__connectedServer = {
 }
 _cfg.load();
 
-
 let dv = _dv.init(JSON.parse(_fs.readFileSync("servers/localhost/_inf.json","utf-8")));
 
 
