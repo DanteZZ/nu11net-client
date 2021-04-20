@@ -27,27 +27,11 @@ class Sprite {
 		for (var k in info) {
 			this[k] = info[k];
 		};
-
-		this.image = new Image();
-		this.image.src = this.base64_encode(this.src);
-
-		this.original_width = this.image.width;
-		this.original_height = this.image.height;
-
-		if (!this.width) {
-			this.width = this.original_width/this.frames;
-		};
-		if (!this.height) {
-			this.height = this.original_height;
-		};
+		this.image = info.src;
+		
 
 		return this;
-	} 
-
-	base64_encode(path) {
-	    var image = this._oge._fs.readFileSync(path, 'base64');
-	    return "data:image/png;base64,"+image;
-	}
+	};
 }
 
 
@@ -61,8 +45,9 @@ module.exports = {
 		this.oge.Sprite = Sprite;
 		Object.assign(this.oge.Sprite.prototype, {_oge:this.oge});
 
-		this.oge._em.on("project_load",function(proj){
-			_sprites = {};
+		this.oge._em.on("before_load",function(proj){
+			this._sprites = {};
+			let sprlist = [];
 			if (proj.sprites) {
 				let list = proj.sprites;
 				for (var name in list) {
@@ -70,10 +55,29 @@ module.exports = {
 					sprite.name = name;
 					if (sprite.src[0] == "/") {sprite.src = sprite.src.substr(1);};
 					sprite.src = proj.path+sprite.src;
+					sprlist.push(sprite.src);
 					this.regSprite(sprite);
 				};
+				global.console.log(sprlist);
+				this._rl.load(sprlist); // Resource Loading
 			};
-		})
+		});
+
+		this.oge._em.on("project_load",function(proj){
+			for (var k in this._sprites) {
+				let spr = this._sprites[k];
+				spr.image = this._rl.get(spr.image); // Set images
+				spr.original_width = spr.image.width;
+				spr.original_height = spr.image.height;
+
+				if (!spr.width) {
+					spr.width = spr.original_width/spr.frames;
+				};
+				if (!spr.height) {
+					spr.height = spr.original_height;
+				};
+			};
+		});
 
 		this.oge._em.on("after_init",function(){
 

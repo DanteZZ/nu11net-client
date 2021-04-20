@@ -9,6 +9,7 @@ class OGEngine {
 		this._path = require("path");
 		this.path = "assets/modules/oge";
 		this._em = new EventEmitter(this);
+		this._rl = new ResourceLoader(this);
 	}
 
 	init(doc,win) {
@@ -24,16 +25,20 @@ class OGEngine {
 		this.project = this.loadObjectAsync(path+"project.js");
 		this.project.path = path;
 
-		this._em.emit("before_load");
+		this._rl.onReady(function(){this.onResourceLoaded(callback);});
 
+		this._em.emit("before_load",this.project);
+	}
+
+	onResourceLoaded(callback) {
+		global.console.log(this);
 		this._em.emit("project_load",this.project);
 		if (this.project.FPSLimit !== undefined) {this.FPSLimit = this.project.FPSLimit;};
-		
 		this._em.emit("load");
 		this._em.emit("after_load");
-		
-		if (callback) {callback();};
+		if (typeof callback == "function") {callback.apply(global);};
 	}
+
 	start() {
 		this._em.emit("before_start");
 		this._em.emit("start");
@@ -101,6 +106,66 @@ class EventEmitter {
         listener.apply(this._bind, args);
     });
   }
+};
+
+class ResourceLoader {
+    constructor(oge) {
+    	this.oge = oge;
+    	global.resourceCache = {};
+	    global.loading = [];
+	    global.readyCallbacks = [];
+    }
+
+    // Load an image url or an array of image urls
+    load(urlOrArr) {
+        if(urlOrArr instanceof Array) {
+        	for (var k in urlOrArr) {
+        		this._load(urlOrArr[k]);
+        	};
+        }
+        else {
+            this._load(urlOrArr);
+        }
+    }
+
+    _load(url) {
+        if(global.resourceCache[url]) {
+            return global.resourceCache[url];
+        }
+        else {
+            var img = new Image();
+            img._rl = this;
+            img.onload = function() {
+                global.resourceCache[url] = img;
+                if(this._rl.isReady()) {
+                	for (var k in global.readyCallbacks) {
+                		global.readyCallbacks[k].apply(this._rl.oge);
+                	};
+                }
+            };
+            global.resourceCache[url] = false;
+            img.src = url;
+        }
+    }
+
+    get(url) {
+        return global.resourceCache[url];
+    }
+
+    isReady() {
+        var ready = true;
+        for(var k in global.resourceCache) {
+            if(global.resourceCache.hasOwnProperty(k) &&
+               !global.resourceCache[k]) {
+                ready = false;
+            }
+        }
+        return ready;
+    }
+
+    onReady(func) {
+        global.readyCallbacks.push(func);
+    }
 };
 
 module.exports = new OGEngine;

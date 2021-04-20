@@ -26,9 +26,12 @@ _graph.init(_oge)
 global._oge = _oge;
 
 _oge.init(document,window);
-_oge.loadProject("assets/modules/oge/projects/example");
-_oge.start();
-_raf();
+_oge.loadProject("assets/modules/oge/projects/example",()=> {
+	_oge.start();
+	_raf();
+});
+
+
 
 Vue.component('hios', httpVueLoader('assets/vue-modules/hios.vue'));
 var app = new Vue({
