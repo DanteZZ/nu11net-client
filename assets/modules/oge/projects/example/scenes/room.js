@@ -5,9 +5,10 @@
 
 	layers: {
 		game:{
-			type:"2d",
-			width:1280,
-			height:1280
+			type:"2d"
+		},
+		gui:{
+			type:"2d"
 		}
 	},
 
@@ -15,7 +16,7 @@
 		{
 			name:"hero",
 			x:156,
-			y:156
+			y:320
 		}
 	],
 
@@ -31,16 +32,16 @@
 
 	_create:function() {
 
-		
+		// Create Map
 		let map = [
 			[1,1,1,1,1,1,1,1,1,1],
-			[1,0,0,1,0,0,0,0,0,1],
-			[1,0,0,1,0,0,0,0,0,1],
-			[1,0,0,1,0,0,1,0,0,1],
-			[1,0,0,1,0,0,1,0,0,1],
-			[1,0,0,1,0,0,1,0,0,1],
-			[1,0,0,0,0,0,1,0,0,0],
-			[1,0,0,0,0,0,1,0,0,0],
+			[1,0,0,0,0,0,0,0,0,1],
+			[1,0,0,0,0,0,0,0,0,1],
+			[1,0,0,0,0,0,0,0,0,1],
+			[1,0,0,0,0,0,0,0,0,1],
+			[1,0,0,0,0,0,0,0,0,1],
+			[1,0,0,0,0,0,0,0,0,1],
+			[1,0,0,0,0,0,0,0,0,1],
 			[1,1,1,1,1,1,1,1,1,1]
 		];
 		for (var y in map) {
@@ -55,10 +56,28 @@
 			}
 		}
 
+		//Create Devices
+		/*
+		for (var k in _dv._device_list) {
+			let dev = _dv._device_list[k];
+			this._oge.createInstance({
+				name:"device",
+				x:dev.__position.x,
+				y:dev.__position.y,
+				type:dev.__type
+			});
+		};*/
+
 	},
 
 	_draw:function() {
 		let ctx = this._oge._graph.getCanvas(this._oge.buffer.defaultLayer);
+		let gui = this._oge._graph.getCanvas("gui");
+
+		gui.fillStyle = "#FFFFFF";
+		gui.font = "48px VGA";
+  		gui.fillText("Hello world", 10, 50);
+
 
 		ctx.fillStyle = "#3B474F";
 		ctx.fillRect(0,0, 5000, 5000);

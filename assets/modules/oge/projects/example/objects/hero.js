@@ -1,11 +1,6 @@
 {
-	sprite:"hero_down",
+	sprite:"hero_right",
 	speed:40,
-
-	load:function() {
-		//setInterval(function(){$("#fps").text(oge.realFPS);},500);
-	},
-
 	_create:function() {
 		this.createCollider({
 			name:"collider",
@@ -28,12 +23,6 @@
 		if (this._oge.onKeyHold(65)) {
 			this.x-= parseInt(this.speed*deltaTime*10);
 		}
-		if (this._oge.onKeyHold(87)) {
-			this.y-= parseInt(this.speed*deltaTime*10);
-		}
-		if (this._oge.onKeyHold(83)) {
-			this.y+= parseInt(this.speed*deltaTime*10);
-		}
 
 		if (this._oge.onKeyPress(68)) {
 			this.setSprite("hero_right");
@@ -43,15 +32,6 @@
 			this.setSprite("hero_left");
 			this.setSpriteSpeed(1);
 		}
-		if (this._oge.onKeyPress(87)) {
-			this.setSprite("hero_up");
-			this.setSpriteSpeed(1);
-		}
-		if (this._oge.onKeyPress(83)) {
-			this.setSprite("hero_down");
-			this.setSpriteSpeed(1);
-		}
-
 
 		if (this._oge.onKeyRelease(68)) {
 			this.setSprite("hero_right");
@@ -61,14 +41,6 @@
 			this.setSprite("hero_left");
 			this.setSpriteSpeed(0);
 		}
-		if (this._oge.onKeyRelease(87)) {
-			this.setSprite("hero_up");
-			this.setSpriteSpeed(0);
-		}
-		if (this._oge.onKeyRelease(83)) {
-			this.setSprite("hero_down");
-			this.setSpriteSpeed(0);
-		};
 
 		if (this.onCollide("wall")) {
 			this.x = this.prevent_x;

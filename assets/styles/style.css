@@ -13,9 +13,19 @@ body, html {
 	height: 100%;
     width: 100%;
 }
+canvas {
+	position:absolute;
+}
 
 body {
 	display:flex;
 	align-items:center;
 	justify-content: center;
+}
+
+#app {
+	z-index:10;
+	position:absolute;
+	background-color:rgba(0,0,0,0.8);
+	display:none;
 }
