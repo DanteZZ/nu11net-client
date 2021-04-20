@@ -4,7 +4,7 @@
 			"type":"router",
 			"name":"Компьютер 1",
 			"power":true,
-			"position": {"x":100,"y":100},
+			"position": {"x":300,"y":300},
 			"boot":{
 				"priority":[]
 			},
@@ -28,7 +28,7 @@
 		"a5b4c3d2e1":{
 			"type":"router",
 			"name":"Компьютер 2",
-			"position": {"x":100,"y":100},
+			"position": {"x":600,"y":600},
 			"power":false,
 			"boot":{
 				"priority":[]

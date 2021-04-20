@@ -6,6 +6,10 @@ let fns = {
 		this._sprites[info.name] = new this.Sprite(info);
 		this._sprites[info.name]._oge = this;
 		return this._sprites[info.name];
+	},
+	isSprite:function(name) {
+		if (this._sprites[name]) {return true};
+		return false;
 	}
 }
 
@@ -94,9 +98,9 @@ module.exports = {
 				this.spriteSpeed = speed;
 			}
 
-			this.Instance.prototype.setSpriteFrame = function(sprite,frame) {
+			this.Instance.prototype.setSpriteFrame = function(sprite,frame=null) {
 				this.check__sprites();
-
+				if (frame === null) {frame = sprite; sprite = this.sprite; }
 				if (this.__sprites[sprite]) {
 					this.__sprites[sprite].frame = frame;
 				} else {

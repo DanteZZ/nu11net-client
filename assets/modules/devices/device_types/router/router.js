@@ -6,7 +6,6 @@ class router {
 	
 	#_booted = false;
 	_boot_storage = false;
-	
 	#_power = false; 
 
 	constructor(a,b,c,d) {
@@ -82,11 +81,12 @@ class router {
 		this.#_proc.kill();
 		this.#_ctx = {};
 		this._cmd._clear();
+		this._status = 0;
 	};
 
 	__restart() {
-		this._powerOFF();
-		this._powerON();
+		this.__powerOFF();
+		this.__powerON();
 	};
 
 	#_boot = function(script) {
@@ -110,6 +110,7 @@ class router {
 		});
 
 		this.#_booted = true;
+		this._status = 1;
 
 	};
 
@@ -147,12 +148,12 @@ class router {
 			DEVICE
 		*/
 
-		this._cmd._regCat("devices"); // CAT
+		this._cmd._regCat("device"); // CAT
 		this._cmd._reg("device/restart",function(){
-			this.ctx._restart();
+			this.__restart();
 		},this);
 		this._cmd._reg("device/powerOFF",function(){
-			this.ctx._powerOFF();
+			this.__powerOFF();
 		},this);
 
 		/*
@@ -161,10 +162,10 @@ class router {
 
 		this._cmd._regCat("interfaces"); // CAT
 		this._cmd._reg("interfaces/list",function(){
-			return this.ctx._interfacesList();
+			return this._interfacesList();
 		},this);
 		this._cmd._reg("interfaces/listbytype",function(d){
-			return this.ctx._interfacesList(d.type);
+			return this._interfacesList(d.type);
 		},this);
 	};
 }

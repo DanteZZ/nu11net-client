@@ -19,15 +19,15 @@
 			center_x:0,
 			center_y:0
 		},
-		old_pc: {
-			src:"/sprites/old_pc.png",
+		device_pc: {
+			src:"/sprites/device_pc.png",
 			frames:2,
 			speed:0.5,
 			center_x:104,
 			center_y:66
 		},
-		old_router: {
-			src:"/sprites/old_router.png",
+		device_router: {
+			src:"/sprites/device_router.png",
 			frames:2,
 			speed:0.5,
 			center_x:46,

@@ -6,7 +6,7 @@ function requireUncached(module) {
 const _vm = require("vm"); // Работа с контекстами
 const _fs = require("fs"); // Работа с файловой системой
 const _cfg = requireUncached("assets/modules/config.js"); // Работа с конфигурационным файлом
-const _dv = requireUncached("assets/modules/devices/devices.js"); // Работа с девайсами
+global._dv = requireUncached("assets/modules/devices/devices.js"); // Работа с девайсами
 global.__csl = console;
 
 global.__cfg = _cfg
@@ -15,7 +15,7 @@ global.__connectedServer = {
 }
 _cfg.load();
 
-let dv = _dv.init(JSON.parse(_fs.readFileSync("servers/localhost/_inf.json","utf-8")));
+global._dv.init(JSON.parse(_fs.readFileSync("servers/localhost/_inf.json","utf-8")));
 
 
 

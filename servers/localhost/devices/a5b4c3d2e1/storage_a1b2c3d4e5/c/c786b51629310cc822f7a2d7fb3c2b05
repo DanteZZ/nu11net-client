@@ -31,5 +31,5 @@ const _k = new _kernel();
 _k.initScript("kernel/interfaces/interfaces");
 
 __vm.listenEvent("interfaces/ethernet/eth0_a1b2c3d4e5/rx",function(d){
-	__vm.sendLog(["Router 2: i get ",d]);
+	__vm.sendCommand("device/powerOFF");
 });

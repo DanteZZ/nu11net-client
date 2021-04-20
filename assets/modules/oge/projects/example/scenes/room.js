@@ -57,16 +57,16 @@
 		}
 
 		//Create Devices
-		/*
-		for (var k in _dv._device_list) {
-			let dev = _dv._device_list[k];
+		
+		for (var k in global._dv._device_list) {
+			let dev = global._dv._device_list[k];
 			this._oge.createInstance({
 				name:"device",
 				x:dev.__position.x,
 				y:dev.__position.y,
-				type:dev.__type
+				dev:dev
 			});
-		};*/
+		};
 
 	},
 

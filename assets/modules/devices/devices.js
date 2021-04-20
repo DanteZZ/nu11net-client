@@ -99,6 +99,7 @@ module.exports = {
 			delete require.cache[require.resolve("assets/modules/commands.js")];
 		    this._cmd = require("assets/modules/commands.js");
 		    this._cmd._main = true;
+		    this._status = 0; // Статус устройства
 			for (var k in inf) {
 				switch (k) {
 					case "interfaces":
