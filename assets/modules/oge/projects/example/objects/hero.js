@@ -1,13 +1,15 @@
 {
 	sprite:"hero_right",
 	speed:40,
+	collide_with:null,
 	_create:function() {
 		this.createCollider({
 			name:"collider",
-			width:64,
-			height:32,
-			x:-32,
-			y:32
+			width:128,
+			height:280,
+			x:-64,
+			y:-260,
+
 		});
 		this.setSpriteSpeed(0);
 
@@ -17,6 +19,9 @@
 
 	_update:function() {
 		this.depth = this.y;
+
+		this.checkDeviceCollide();
+
 		if (this._oge.onKeyHold(68)) {
 			this.x+= parseInt(this.speed*deltaTime*10);
 		}
@@ -48,6 +53,29 @@
 		}
 	},
 
+	checkDeviceCollide:function() {
+		let dev = this.onCollide("device")
+
+		if (this.collide_with) {
+			this.collide_with.collided = false;
+			this.collide_with = null;
+		}
+
+		if (dev) {
+			dev[0].collided = true;
+			this.collide_with = dev[0];
+		};
+
+		if (this.collide_with && this._oge.onKeyPress(69)) {
+			dev = this.collide_with.dev;
+			if (dev._status == 0) {
+				dev.__powerON();
+			} else {
+				dev.__powerOFF();
+			};
+		}
+	},
+
 	_draw:function() {
 		if (this.sprite) {
 			this.drawSprite({
@@ -56,6 +84,6 @@
 				y:this.y
 			});
 		};
-		this.drawColliders();
+		//this.drawColliders();
 	}
 }

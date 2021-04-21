@@ -82,7 +82,7 @@ module.exports = {
 				} else {
 					b = Array(this);
 				};
-
+				let colls = [];
 				if (a.length && b.length) {
 					for (var ak in a) {
 						let ainst = a[ak];
@@ -106,7 +106,7 @@ module.exports = {
 											y:bcol.y+binst.y,
 											width:bcol.width,
 											height:bcol.height
-										})) {return true;};
+										})) {colls.push(ainst)};
 									}
 								};
 
@@ -114,6 +114,7 @@ module.exports = {
 						}
 					};
 				};
+				if (colls.length) { return colls; }; 
 				return false;
 			}
 

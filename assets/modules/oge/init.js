@@ -123,6 +123,11 @@ class _GR {
 			ctx.translate(-(info.x-ctx.offset_x+info.dwidth/2), -(info.y-ctx.offset_y+info.dheight/2));
 		}
 
+		if (info.opacity !== 1) {
+			ctx.save();
+			ctx.globalAlpha = info.opacity;
+		};
+
 		ctx.drawImage(
 			info.image,
 
@@ -137,6 +142,10 @@ class _GR {
 			info.dheight
 		);
 		if (info.rotation) {  ctx.restore(); };
+		if (info.opacity !== 1) {
+			ctx.restore();
+			ctx.globalAlpha = 1;
+		};
 		return true;
 	};
 }

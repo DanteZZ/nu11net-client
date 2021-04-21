@@ -76,6 +76,7 @@ class router {
 	};
 
 	__powerOFF() { // Выключить устройство
+		if (this._status == 0) {return false;}
 		this.#_booted = false;
 		this.#_power = false;
 		this.#_proc.kill();

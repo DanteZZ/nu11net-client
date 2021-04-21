@@ -8,5 +8,8 @@
 			x:0,
 			y:0
 		});
+	},
+	_draw:function(){
+		//this.drawColliders();
 	}
 }

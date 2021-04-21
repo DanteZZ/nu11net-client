@@ -5,7 +5,9 @@
 
 	layers: {
 		game:{
-			type:"2d"
+			type:"2d",
+			width:1134,
+			height:950
 		},
 		gui:{
 			type:"2d"
@@ -15,8 +17,8 @@
 	instances: [
 		{
 			name:"hero",
-			x:156,
-			y:320
+			x:920,
+			y:815
 		}
 	],
 
@@ -32,45 +34,24 @@
 
 	_create:function() {
 
-		// Create Map
-		let map = [
-			[1,1,1,1,1,1,1,1,1,1],
-			[1,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,1],
-			[1,0,0,0,0,0,0,0,0,1],
-			[1,1,1,1,1,1,1,1,1,1]
-		];
-		for (var y in map) {
-			for (var x in map[y]) {
-				if (map[y][x]) {
-					this._oge.createInstance({
-						name:"wall",
-						x:x*96,
-						y:y*96
-					});
-				}
-			}
-		}
+		//80x815 0x324
 
 		//Create Devices
-		
+		this.devices = {};
 		for (var k in global._dv._device_list) {
 			let dev = global._dv._device_list[k];
-			this._oge.createInstance({
+			this.devices[dev._id] = this._oge.createInstance({
 				name:"device",
 				x:dev.__position.x,
 				y:dev.__position.y,
 				dev:dev
 			});
+			dev.__instance = this.devices[dev._id];
 		};
-
 	},
 
 	_draw:function() {
+
 		let ctx = this._oge._graph.getCanvas(this._oge.buffer.defaultLayer);
 		let gui = this._oge._graph.getCanvas("gui");
 
@@ -79,20 +60,29 @@
   		gui.fillText("Hello world", 10, 50);
 
 
-		ctx.fillStyle = "#3B474F";
+		ctx.fillStyle = "black";
 		ctx.fillRect(0,0, 5000, 5000);
 
-		ctx.beginPath();
-		ctx.fillStyle = "rgba(255,255,255,0.11)";
-		ctx.strokeStyle = "rgba(255,255,255,0.41)";
-		let tilesize=128;
-		ctx.fillRect(0-ctx.offset_x, 0-ctx.offset_y, this._oge.buffer.scene.layers.game.width, this._oge.buffer.scene.layers.game.height);
-		for (var y=0;y<this._oge.buffer.scene.layers.game.height/tilesize;y++) {
-			for (var x=0;x<this._oge.buffer.scene.layers.game.height/tilesize;x++) {
-				ctx.rect(0-ctx.offset_x+x*tilesize, 0-ctx.offset_y+y*tilesize, tilesize, tilesize);
-			};
-		}
-		ctx.stroke();
+		this._oge.drawBackground({
+			name:"room_0",
+			x:0,
+			y:0,
+		});
+
+		
+		for (var k in global._dv._connection_list) {
+			let cable = global._dv._connection_list[k];
+			let d0 = this.devices[cable[0].split("#")[0]];
+			let d1 = this.devices[cable[1].split("#")[0]];
+
+			ctx.beginPath();
+			ctx.moveTo(d0.x-ctx.offset_x,d0.y-ctx.offset_y-4);
+			ctx.lineWidth = 2;
+			ctx.strokeStyle = "grey";
+			ctx.lineTo(d1.x-ctx.offset_x,d1.y-ctx.offset_y-4); 
+			ctx.stroke();
+		};
+		
 	},
 
 	_update:function() {

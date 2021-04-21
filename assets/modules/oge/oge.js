@@ -28,10 +28,10 @@ class OGEngine {
 		this._rl.onReady(function(){this.onResourceLoaded(callback);});
 
 		this._em.emit("before_load",this.project);
+    this._rl.load();
 	}
 
 	onResourceLoaded(callback) {
-		global.console.log(this);
 		this._em.emit("project_load",this.project);
 		if (this.project.FPSLimit !== undefined) {this.FPSLimit = this.project.FPSLimit;};
 		this._em.emit("load");
@@ -111,13 +111,21 @@ class EventEmitter {
 class ResourceLoader {
     constructor(oge) {
     	this.oge = oge;
+      this.loadQueue = [];
     	global.resourceCache = {};
 	    global.loading = [];
 	    global.readyCallbacks = [];
     }
 
+    addToLoad(arr) {
+      for (var k in arr) {
+        this.loadQueue.push(arr[k]);
+      }
+    }
+
     // Load an image url or an array of image urls
-    load(urlOrArr) {
+    load(urlOrArr=false) {
+        if (!urlOrArr) {urlOrArr = this.loadQueue;};
         if(urlOrArr instanceof Array) {
         	for (var k in urlOrArr) {
         		this._load(urlOrArr[k]);

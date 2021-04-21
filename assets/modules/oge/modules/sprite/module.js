@@ -10,7 +10,11 @@ let fns = {
 	isSprite:function(name) {
 		if (this._sprites[name]) {return true};
 		return false;
-	}
+	},
+	spriteInfo:function(name) {
+		if (this._sprites[name]) {return this._sprites[name]};
+		return false;
+	},
 }
 
 
@@ -62,8 +66,7 @@ module.exports = {
 					sprlist.push(sprite.src);
 					this.regSprite(sprite);
 				};
-				global.console.log(sprlist);
-				this._rl.load(sprlist); // Resource Loading
+				this._rl.addToLoad(sprlist); // Resource Loading
 			};
 		});
 
@@ -126,7 +129,8 @@ module.exports = {
 					x:0,
 					y:0,
 					offset_x:0,
-					offset_y:0
+					offset_y:0,
+					opacity:1
 				};
 
 				info = Object.assign(inf,info);
