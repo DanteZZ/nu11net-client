@@ -3,6 +3,28 @@
 	status:-1,
 	mousehover:false,
 	clickable:true,
+	contextable:true,
+	contextmenu:{
+		"poweron":{
+			label: "Включить",
+			func: function(){
+				switch (this.dev._status) {
+					case 0: this.dev.__powerON(); break;
+					case 1: this.dev.__powerOFF(); break;
+				};
+			}
+		},
+		"poweroff":{
+			label: "Выключить",
+			func: function(){
+				switch (this.dev._status) {
+					case 0: this.dev.__powerON(); break;
+					case 1: this.dev.__powerOFF(); break;
+				};
+			},
+			disabled:true
+		}
+	},
 	title:"",
 	_create:function() {
 		this.setSpriteSpeed(0);
