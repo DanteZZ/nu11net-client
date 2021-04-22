@@ -60,15 +60,25 @@ module.exports = {
 				};
 			}
 
+			this.Instance.prototype.collideWith = function(a,b) {
+				return this.onCollide(this._oge.buffer.instances);
+			}
+
 			this.Instance.prototype.onCollide = function(a,b) {
 				if (!a) {return false;}
 
-				if (a.constructor == this._oge.Instance) {
-					a = Array(a);
-				} else if (this._oge.findInstances(a).length) {
-					a = this._oge.findInstances(a);
+				if (Array.isArray(a)) {
+					if (a[0].constructor !== this._oge.Instance) {
+						return false;
+					}
 				} else {
-					return false;
+					if (a.constructor == this._oge.Instance) {
+						a = Array(a);
+					} else if (this._oge.findInstances(a).length) {
+						a = this._oge.findInstances(a);
+					} else {
+						return false;
+					}
 				}
 
 				if (b) {
@@ -90,7 +100,7 @@ module.exports = {
 							let binst = b[bk];
 							
 							if (ainst.__colliders && binst.__colliders) {
-
+								if ((ainst == this) && (binst == this)) {continue;};
 								for (var ca in ainst.__colliders) {
 									for (var cb in binst.__colliders) {
 										let acol = ainst.__colliders[ca];
@@ -126,7 +136,7 @@ module.exports = {
 					for (var ck in inst.__colliders) {
 						col = inst.__colliders[ck];
 						if (col.solid) {
-							if (_onBoxMeeting({
+							if (this._oge._onBoxMeeting({
 								x:x,
 								y:y,
 								width:1,
@@ -154,7 +164,7 @@ module.exports = {
 						col = inst.__colliders[ck];
 						if (col.solid) {
 							for (var dist = 0; dist<size;dist++) {
-								if (_onBoxMeeting({
+								if (this._oge._onBoxMeeting({
 									x:this.x+x*dist,
 									y:this.y+y*dist,
 									width:1,

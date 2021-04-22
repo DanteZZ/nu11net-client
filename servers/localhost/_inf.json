@@ -3,7 +3,7 @@
 		"a1b2c3d4e5":{
 			"type":"router",
 			"name":"Компьютер 1",
-			"power":true,
+			"power":false,
 			"position": {"x":270,"y":699},
 			"boot":{
 				"priority":[]

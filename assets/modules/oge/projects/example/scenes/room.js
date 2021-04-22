@@ -16,9 +16,16 @@
 
 	instances: [
 		{
+			name:"cursor",
+			x:0,
+			y:0,
+			depth:99999
+		},
+		{
 			name:"hero",
 			x:920,
-			y:815
+			y:815,
+
 		}
 	],
 
@@ -33,6 +40,8 @@
 	defaultCam:"default",
 
 	_create:function() {
+
+		global.hovertext = "";
 
 		//80x815 0x324
 
@@ -55,9 +64,17 @@
 		let ctx = this._oge._graph.getCanvas(this._oge.buffer.defaultLayer);
 		let gui = this._oge._graph.getCanvas("gui");
 
-		gui.fillStyle = "#FFFFFF";
-		gui.font = "48px VGA";
-  		gui.fillText("Hello world", 10, 50);
+
+		if (global.hovertext) {
+			gui.fillStyle = "#FFFFFF";
+			gui.strokeStyle = 'black';
+			gui.lineWidth = 4;
+			gui.font = "24px VGA";
+	  		
+	  		gui.strokeText(global.hovertext, 16, 32);
+	  		gui.fillText(global.hovertext, 16, 32);
+		}
+		
 
 
 		ctx.fillStyle = "black";

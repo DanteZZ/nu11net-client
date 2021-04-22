@@ -28,6 +28,11 @@
 			speed:0.5,
 			center_x:37,
 			center_y:42
+		},
+		cursor: {
+			src:"/sprites/cursor.png",
+			center_x:0,
+			center_y:0
 		}
 	},
 	backgrounds:{
@@ -41,7 +46,8 @@
 	objects:{
 		hero: "/objects/hero.js",
 		wall: "/objects/wall.js",
-		device: "/objects/device.js"
+		device: "/objects/device.js",
+		cursor: "/objects/cursor.js"
 	},
 	cameras:{
 		default:{

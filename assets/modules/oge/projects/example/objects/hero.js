@@ -1,6 +1,6 @@
 {
 	sprite:"hero_right",
-	speed:40,
+	speed:50,
 	collide_with:null,
 	_create:function() {
 		this.createCollider({
@@ -13,15 +13,11 @@
 		});
 		this.setSpriteSpeed(0);
 
-		window.hero = this;
+		global.hero = this;
 		this._oge.buffer.camera.point = this;
 	},
 
 	_update:function() {
-		this.depth = this.y;
-
-		this.checkDeviceCollide();
-
 		if (this._oge.onKeyHold(68)) {
 			this.x+= parseInt(this.speed*deltaTime*10);
 		}
@@ -53,31 +49,8 @@
 		}
 	},
 
-	checkDeviceCollide:function() {
-		let dev = this.onCollide("device")
-
-		if (this.collide_with) {
-			this.collide_with.collided = false;
-			this.collide_with = null;
-		}
-
-		if (dev) {
-			dev[0].collided = true;
-			this.collide_with = dev[0];
-		};
-
-		if (this.collide_with && this._oge.onKeyPress(69)) {
-			dev = this.collide_with.dev;
-			if (dev._status == 0) {
-				dev.__powerON();
-			} else {
-				dev.__powerOFF();
-			};
-		}
-	},
-
 	_draw:function() {
-		if (this.sprite) {
+		if (this.sprite) {	
 			this.drawSprite({
 				sprite:this.sprite,
 				x:this.x,

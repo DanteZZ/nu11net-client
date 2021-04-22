@@ -109,13 +109,13 @@ module.exports = {
 
 			//Mouse
 			this.oge.doc.onmousedown = function(e) {
-				e.which = fixWhich(e);
+				e.which = global._oge.fixWhich(e);
 				key = e.which;
 				global._oge.buffer.mouse_keys[key] = "pressed";
 			};
 
 			this.oge.doc.onmouseup = function(e) {
-				e.which = fixWhich(e);
+				e.which = global._oge.fixWhich(e);
 				key = e.which;
 				global._oge.buffer.mouse_keys[key] = "released";
 			};
