@@ -6,8 +6,16 @@ class pc {
 	
 	#_booted = false;
 	_boot_storage = false;
-	
-	#_power = false; 
+	#_power = false;
+
+	__contextmenu = {
+		"check":{
+			label: "Перезагрузить ПК",
+			func: function() {
+				this.__restart();
+			}
+		}
+	}
 
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d);
@@ -77,16 +85,18 @@ class pc {
 	};
 
 	__powerOFF() { // Выключить устройство
+		if (this._status == 0) {return false;}
 		this.#_booted = false;
 		this.#_power = false;
 		this.#_proc.kill();
 		this.#_ctx = {};
 		this._cmd._clear();
+		this._status = 0;
 	};
 
 	__restart() {
-		this._powerOFF();
-		this._powerON();
+		this.__powerOFF();
+		this.__powerON();
 	};
 
 	#_boot = function(script) {
@@ -110,6 +120,7 @@ class pc {
 		});
 
 		this.#_booted = true;
+		this._status = 1;
 
 	};
 
@@ -147,12 +158,12 @@ class pc {
 			DEVICE
 		*/
 
-		this._cmd._regCat("devices"); // CAT
+		this._cmd._regCat("device"); // CAT
 		this._cmd._reg("device/restart",function(){
-			this.ctx._restart();
+			this.__restart();
 		},this);
 		this._cmd._reg("device/powerOFF",function(){
-			this.ctx._powerOFF();
+			this.__powerOFF();
 		},this);
 
 		/*
@@ -161,10 +172,10 @@ class pc {
 
 		this._cmd._regCat("interfaces"); // CAT
 		this._cmd._reg("interfaces/list",function(){
-			return this.ctx._interfacesList();
+			return this._interfacesList();
 		},this);
 		this._cmd._reg("interfaces/listbytype",function(d){
-			return this.ctx._interfacesList(d.type);
+			return this._interfacesList(d.type);
 		},this);
 	};
 }

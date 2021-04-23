@@ -1,6 +1,6 @@
 {
 	load:function() {
-		//setInterval(function(){$("#fps").text(oge.realFPS);},500);
+		
 	},
 
 	layers: {
@@ -8,6 +8,9 @@
 			type:"2d",
 			width:1134,
 			height:950
+		},
+		display:{
+			type:"2d"
 		},
 		gui:{
 			type:"2d"
@@ -41,7 +44,8 @@
 	_create:function() {
 
 		global.hovertext = "";
-
+		global.deviceDisplay = null;
+		global.lockgame = false;
 		//80x815 0x324
 
 		//Create Devices
@@ -58,22 +62,66 @@
 		};
 	},
 
+	_drawDisplay:function() {
+		let ctx = this._oge._graph.getCanvas("display");
+		ctx.fillStyle = "rgba(0,0,0,0.8)";
+		ctx.fillRect(0,0, 5000, 5000);
+		let cw = ctx.canvas.width;
+		let ch = ctx.canvas.height;
+		let dw = global.deviceDisplay.__width;
+		let dh = global.deviceDisplay.__height;
+		let dx = (cw-dw)/2;
+		let dy = (ch-dh)/2;
+		ctx.fillStyle = "black";
+		ctx.fillRect(dx, dy, dw, dh);
+		let img = global.deviceDisplay.__getImage();
+		if (img) {
+			ctx.drawImage(
+				img,
+
+				0,
+				0,
+				img.width,
+				img.height,
+
+				dx,
+				dy,
+				dw,
+				dh
+			);
+		};
+
+		let exitmsg = "CTR+ALT+HOME для выхода"
+
+		ctx.fillStyle = "#FFFFFF";
+		ctx.strokeStyle = 'black';
+		ctx.lineWidth = 4;
+		ctx.font = "16px VGA";
+  		
+  		ctx.strokeText(exitmsg, 16, ch-16);
+  		ctx.fillText(exitmsg, 16, ch-16);
+	},
+
 	_draw:function() {
 
 		let ctx = this._oge._graph.getCanvas(this._oge.buffer.defaultLayer);
 		let gui = this._oge._graph.getCanvas("gui");
+	
+		if (global.deviceDisplay) {
+			this._drawDisplay();
+		};
 
-
-		if (global.hovertext) {
-			gui.fillStyle = "#FFFFFF";
-			gui.strokeStyle = 'black';
-			gui.lineWidth = 4;
-			gui.font = "24px VGA";
-	  		
-	  		gui.strokeText(global.hovertext, 16, 32);
-	  		gui.fillText(global.hovertext, 16, 32);
-		}
-		
+		if (!global.deviceDisplay) {
+			if (global.hovertext) {
+				gui.fillStyle = "#FFFFFF";
+				gui.strokeStyle = 'black';
+				gui.lineWidth = 4;
+				gui.font = "24px VGA";
+		  		
+		  		gui.strokeText(global.hovertext, 16, 32);
+		  		gui.fillText(global.hovertext, 16, 32);
+			}
+		};
 
 
 		ctx.fillStyle = "black";
@@ -102,8 +150,10 @@
 	},
 
 	_update:function() {
-		//if (onKeyPress(49)) {setCamera("default");} 
-		//if (onKeyPress(50)) {setCamera("chelick");} 
+		if ((this._oge.onKeyPress(17) || this._oge.onKeyHold(17)) &&(this._oge.onKeyPress(18) || this._oge.onKeyHold(18)) && (this._oge.onKeyPress(36) || this._oge.onKeyHold(36))) {
+			global.deviceDisplay = null;
+			global.lockgame = false;
+		} 
 	}
 	
 }

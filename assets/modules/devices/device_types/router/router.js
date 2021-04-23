@@ -6,7 +6,16 @@ class router {
 	
 	#_booted = false;
 	_boot_storage = false;
-	#_power = false; 
+	#_power = false;
+
+	__contextmenu = {
+		"check":{
+			label: "Перезагрузить роутер",
+			func: function() {
+				this.__restart();
+			}
+		}
+	}
 
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d);
