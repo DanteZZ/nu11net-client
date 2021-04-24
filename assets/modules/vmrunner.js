@@ -27,6 +27,8 @@ function _regDefaultCommands() { // Регистрация команд устр
 	cmd._regCat("vm");
 	cmd._reg("vm/setCTX",function(d) {
 		ctx = d.context;
+		ctx.Math = Math;
+		ctx.setInterval = setInterval;
 		ctx.__vm = vmFuncs;
 		ctx = vm.createContext(ctx);
 		return true;
@@ -45,7 +47,7 @@ function _regDefaultCommands() { // Регистрация команд устр
 				type:"log",
 				data:"Empty context"
 			})
-
+			
 		};
 	});
 };
