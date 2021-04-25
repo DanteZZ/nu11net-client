@@ -26,7 +26,7 @@
 			}
 		},
 		"a5b4c3d2e1":{
-			"type":"router",
+			"type":"pc",
 			"name":"Роутер",
 			"position": {"x":420,"y":699},
 			"power":false,

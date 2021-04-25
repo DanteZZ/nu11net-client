@@ -1,12 +1,32 @@
 <script>
+	function onmsg(event) {
+		if (event.data.setpid) {
+			global._pid = event.data.pid;
+			global._poster = event.source;
+			cmd._setVM({_pid:event.data.pid});
+			cmd._setPoster(event.source);
+			global.pidset = true;
+		} else if (global.pidset) {
+			cmd._onMessage(event.data.data);
+		}
+	};
+	
 	const vm = require("vm");
-
 	delete require.cache[require.resolve("./commands.js")];
 	const cmd = require("./commands.js");
-	var ctx = {};
+	global.__csl = console;
+	ctx = {};
 
-	cmd._setProc(process);
-	process.on('message', function(msg){cmd._onMessage(msg)});
+	window.addEventListener("message", onmsg, false);
+
+	class _glframe {
+		constructor(width,height) {
+			let canvas = document.createElement("canvas");
+			canvas.width = width;
+			canvas.height = height;
+			return canvas;
+		}
+	}
 
 	const vmFuncs = { // Функции общения с железом
 		sendCommand: function(command,data={},callback=false,ctx=null) {return cmd._sendCommand(command,data,callback,ctx);},
@@ -30,6 +50,7 @@
 			ctx = d.context;
 			ctx.Math = Math;
 			ctx.setInterval = setInterval;
+			ctx._glframe = _glframe;
 			ctx.__vm = vmFuncs;
 			ctx = vm.createContext(ctx);
 			return true;
@@ -44,13 +65,10 @@
 				return true;
 			} else {
 				return false;
-				process.send({
-					type:"log",
-					data:"Empty context"
-				})
-				
+				cmd._sendError("Context/Script error");		
 			};
 		});
 	};
 	_regDefaultCommands();
+
 </script>

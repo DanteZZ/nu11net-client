@@ -1,3 +1,4 @@
+
 //----------------------
 // Load Kernel functions
 //----------------------
@@ -22,26 +23,31 @@ __vm.regCommand("sendShit",function(d){
 
 const _k = new _kernel();
 
-
 function getRandomInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
   return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
 };
 
+const GL = new _glframe(800,600);
+const GLCTX = GL.getContext("2d");
+
+
+
+
 var a = true;
 setInterval(function(){
-			let c = "red";
+	let c = "red";
 	let s = 32;
 	for (var x = 0; x<=20;x++) {
 		for (var y = 0; y<=20;y++) {
-
 			if (!a) { c = "blue";} else {c = "red";};
-
-			__vm.sendCommand("interfaces/display/display_a1b2c3d4e5/drawRect",{x:x*s,y:y*s,w:s,h:s,c:c});
+			GLCTX.fillStyle=c;
+			GLCTX.fillRect(x*s,y*s,s,s);
 			a = !a;
 		}
-	}
+	};
+	__vm.sendCommand("interfaces/display/display_a1b2c3d4e5/setFrame",GL.toDataURL());
 	
 }.bind(this),1000/30);
 

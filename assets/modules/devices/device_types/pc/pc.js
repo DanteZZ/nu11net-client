@@ -1,9 +1,6 @@
 class pc {
 	#_ctx = {};
-
-	#_fork = require('child_process').fork;
-	#_proc = false;
-	
+	#_vm = false;
 	#_booted = false;
 	_boot_storage = false;
 	#_power = false;
@@ -23,6 +20,7 @@ class pc {
 	};
 
 	__powerON() { // Включить устройство
+		this._status = 1;
 		if (this.#_power) {return false;} else {this.#_power = true; this.#_booted = false;};
 		if (this.__boot) { // Проверка BOOT накопителя
 			let b_list = [];
@@ -65,12 +63,7 @@ class pc {
 						let f = st._readData(st.__boot_file);
 						this._boot_storage = st;
 						if (f) {// Если файл boot есть на носителе, то пытаемся его запустить
-							this.#_boot(f); // пытаемся Бутнуть файл
-							if (this.#_booted) { // Если бут прошёл успешно, то отлично
-								break;
-							} else {
-								alert("Can't boot "+st.__boot_file)
-							};
+							this.#_boot(st.__boot_file,f); // пытаемся Бутнуть файл
 						}
 						
 					}
@@ -88,7 +81,7 @@ class pc {
 		if (this._status == 0) {return false;}
 		this.#_booted = false;
 		this.#_power = false;
-		this.#_proc.kill();
+		this.#_vm.remove();
 		this.#_ctx = {};
 		this._cmd._clear();
 		this._status = 0;
@@ -99,30 +92,38 @@ class pc {
 		this.__powerON();
 	};
 
-	#_boot = function(script) {
+	#_boot = function(path,script) {
 		let _device = this;
 
 		this._reloadInterfaceCommands();
 
 		this.#_reloadContext();
-		this.#_proc = this.#_fork('assets/modules/vmrunner.js');
-		this.#_proc.__device = this;
-		this._cmd._setProc(this.#_proc);
-		this._proc = this.#_proc;
-		this.#_proc.on('message', this._cmd._onMessage);
-		
-		this._cmd._sendCommand("vm/setCTX",{context:this.#_ctx},function(res){
-			if (res) {global.__csl.log("Device "+_device._id+": vm.context created");}
-		});
-		
-		this._cmd._sendCommand("vm/runScript",{script:script},function(res){
-			if (res) {global.__csl.log("Device "+_device._id+": boot file executed");}
-		});
+		global.vmrun.createVM(function(vm){
+			this.#_vm = vm;
+			this.#_vm.__device = this;
+			this._cmd._setVM(this.#_vm);
+			this._cmd._setPoster(this.#_vm.contentWindow);
+			this.#_vm.onmsg = this._cmd._onMessage;
+			
+			this._cmd._sendCommand("vm/setCTX",{context:this.#_ctx},function(res){
+				if (res) {global.__csl.log("Device "+_device._id+": vm.context created");}
+			});
+			
+			this._cmd._sendCommand("vm/runScript",{script:script},function(res){
+				if (res) {global.__csl.log("Device "+_device._id+": boot file executed");}
+			});
 
-		this.#_booted = true;
-		this._status = 1;
-
+			this.#_bootend(path,true);
+		},this);
 	};
+
+	#_bootend = function(path,res) {
+		if (res) {
+			this.#_booted = true;
+		} else {
+			global.__csl.error("Can't boot: "+path);
+		}
+	}
 
 	#_reloadContext = function() {
 		this.#_ctx = {

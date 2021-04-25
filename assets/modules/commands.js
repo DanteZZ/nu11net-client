@@ -3,10 +3,15 @@ class CMD {
 	#_events = {};
 	_cmdBuffer = {};
 	_cmdBuffNum = 0;
-	#_proc = false;
+	#_vm = false;
+	#_poster = false;
 	_main = false;
-	_setProc(proc) {
-		this.#_proc = proc;
+	_setVM(vm) {
+		this.#_vm = vm;
+	};
+
+	_setPoster(poster) {
+		this.#_poster = poster;
 	};
 
 	_clear() {
@@ -230,7 +235,7 @@ class CMD {
 	};
 
 	_sendCommand(command,data=false,callback=false,ctx=null) { // Отправить комманду в proc
-		if (!this.#_proc) { return false;};
+		if (!this.#_vm) { return false;};
 		let pay = {
             type:"command",
             command:command,
@@ -240,10 +245,10 @@ class CMD {
 			if (callback) { // Если есть коллбек, и нужно слушать ответ
 				this._cmdBuffer[this._cmdBuffNum] = {fn:callback,ctx:ctx}; // Записываем коллбек ожидания
 				pay.bufferId = this._cmdBuffNum;
-				this.#_proc.send(pay);
+				this.sendPost(pay);
 				this._cmdBuffNum++;
 			} else { // Если ответ не нужен
-				this.#_proc.send(pay);
+				this.sendPost(pay);
 			};
 			return true;
 		} else {
@@ -252,45 +257,63 @@ class CMD {
 	};
 
 	_sendResponse(data=false,bufferId=false) { // Отправить ответ в proc
-		if (!this.#_proc) { return false;};
+		if (!this.#_vm) { return false;};
 		let pay = {
             type:"response",
             data:data,
             bufferId:bufferId
         };
-        this.#_proc.send(pay);
+        this.sendPost(pay);
 	};
 
 	_sendEvent(event,data=false) { // Отправить Event в proc
-		if (!this.#_proc) { return false;};
+		if (!this.#_vm) { return false;};
 		let pay = {
             type:"event",
             event:event,
             data:data
         };
-        this.#_proc.send(pay);
+        this.sendPost(pay);
 		
 	};
 
 	_sendLog(data=false) { // Отправить ответ в proc
-		if (!this.#_proc) { return false;};
+		if (!this.#_vm) { return false;};
 		if (!this._main) {
 			let pay = {
 	            type:"log",
 	            data:data
 	        };
-			this.#_proc.send(pay);
+			this.sendPost(pay);
 		};
 	};
 
 	_sendError(data=false) { // Отправить ответ в proc
-		if (!this.#_proc) { return false;};
+		if (!this.#_vm) { return false;};
 		if (!this._main) {
 			let pay = {
 	            type:"error",
 	            data:data
 	        };
-	        this.#_proc.send(pay);
+	        this.sendPost(pay);
+		};
+	};
+
+	sendPost(pay) {
+
+		if (this._main) {
+			pay = {
+				pid:this.#_vm.pid,
+				data:pay
+			};
+		} else {
+			pay = {
+				pid:this.#_vm._pid,
+				data:pay
+			};
+		}
+		if (this.#_poster.postMessage !== undefined) {
+			this.#_poster.postMessage(pay); 
 		};
 	};
 }
