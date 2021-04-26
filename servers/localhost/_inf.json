@@ -22,6 +22,12 @@
 					"type":"display",
 					"width":800,
 					"height":600
+				},
+				"key_a1b2c3d4e5":{
+					"type":"keyboard"
+				},
+				"mouse_a1b2c3d4e5":{
+					"type":"mouse"
 				}
 			}
 		},

@@ -2,11 +2,17 @@ class display {
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d) // Инициализация интерфейса
 		this._image = new Image();
-		this._image.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAAAyCAYAAACqNX6+AAAAAklEQVR4AewaftIAAABlSURBVO3BAQ2AQADEsDHl7xwEIIAjWXtxuPnC4SIvkimSKZIpkimSKZIpkimSKZIpkimSKZIpkimSKZIpkimSKZIpkimSKZIpkimSKZIpkimSKZIpkimSJEmSJEmSJEmSJEnyAw9z4QI8J3KrTwAAAABJRU5ErkJggg=="
+		this._clearimage = new Image();
+		this._image.src = "";
+		this._clearimage.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY2BgYAAAAAQAAVzN/2kAAAAASUVORK5CYII=";
     };
 
 	__getImage = function() {
-		return this._image;
+		if (this.__device._status == 0) {
+			return this._clearimage;
+		} else {
+			return this._image;
+		}
 	};
 
     __isSee = function() {

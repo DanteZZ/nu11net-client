@@ -74,6 +74,8 @@
 		let dy = (ch-dh)/2;
 		ctx.fillStyle = "black";
 		ctx.fillRect(dx, dy, dw, dh);
+		global.deviceDisplay.__pos_x = dx;
+		global.deviceDisplay.__pos_y = dy;
 		let img = global.deviceDisplay.__getImage();
 		if (img) {
 			ctx.drawImage(

@@ -50,6 +50,7 @@ const _fs = require("fs"); // Работа с файловой системой
 const _cfg = requireUncached("assets/modules/config.js"); // Работа с конфигурационным файлом
 global._dv = requireUncached("assets/modules/devices/devices.js"); // Работа с девайсами
 global.__csl = console;
+global.__doc = document;
 global.vmrun = new _vmrun();
 global.__cfg = _cfg
 global.__connectedServer = {

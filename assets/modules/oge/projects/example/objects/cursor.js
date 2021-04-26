@@ -137,13 +137,13 @@
 			}
 		};
 
-		if (this.sprite) {
-			this.drawSprite({
+		if (this.sprite && !global.deviceDisplay) {
+			/*this.drawSprite({
 				sprite:this.sprite,
 				x:this.x-this._ctx.offset_x,
 				y:this.y-this._ctx.offset_y,
 				layer:"gui"
-			});
+			});*/
 		};
 	}
 }

@@ -32,23 +32,19 @@ function getRandomInt(min, max) {
 const GL = new _glframe(800,600);
 const GLCTX = GL.getContext("2d");
 
-
+mouse_x = 0;
+mouse_y = 0;
 
 
 var a = true;
 setInterval(function(){
-	let c = "red";
-	let s = 32;
-	for (var x = 0; x<=20;x++) {
-		for (var y = 0; y<=20;y++) {
-			if (!a) { c = "blue";} else {c = "red";};
-			GLCTX.fillStyle=c;
-			GLCTX.fillRect(x*s,y*s,s,s);
-			a = !a;
-		}
-	};
+	GLCTX.fillStyle="black";
+	GLCTX.fillRect(0,0,800,600);
+	GLCTX.fillStyle="white";
+	GLCTX.beginPath();
+	GLCTX.arc(mouse_x,mouse_y, 6, 0, 2 * Math.PI, false);
+	GLCTX.fill();
 	__vm.sendCommand("interfaces/display/display_a1b2c3d4e5/setFrame",GL.toDataURL());
-	
 }.bind(this),1000/30);
 
 
@@ -60,4 +56,29 @@ _k.initScript("kernel/interfaces/interfaces");
 
 __vm.listenEvent("interfaces/ethernet/eth0_a1b2c3d4e5/rx",function(d){
 	__vm.sendLog(["Router 1: i get ",d]);
+});
+
+__vm.listenEvent("interfaces/keyboard/key_a1b2c3d4e5/keydown",function(d){
+	__vm.sendLog(["keydown: ",d]);
+});
+
+__vm.listenEvent("interfaces/keyboard/key_a1b2c3d4e5/keyup",function(d){
+	__vm.sendLog(["keyup: ",d]);
+});
+
+__vm.listenEvent("interfaces/mouse/mouse_a1b2c3d4e5/mbdown",function(d){
+	__vm.sendLog(["mousedown: ",d]);
+});
+
+__vm.listenEvent("interfaces/mouse/mouse_a1b2c3d4e5/mbup",function(d){
+	__vm.sendLog(["mouseup: ",d]);
+});
+
+__vm.listenEvent("interfaces/mouse/mouse_a1b2c3d4e5/scroll",function(d){
+	__vm.sendLog(["scroll: ",d]);
+});
+
+__vm.listenEvent("interfaces/mouse/mouse_a1b2c3d4e5/move",function(d){
+	mouse_x = d.x;
+	mouse_y = d.y;
 });
