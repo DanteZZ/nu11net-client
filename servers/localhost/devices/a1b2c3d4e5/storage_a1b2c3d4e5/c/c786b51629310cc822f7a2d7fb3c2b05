@@ -1,10 +1,19 @@
-
 //----------------------
 // Load Kernel functions
 //----------------------
 
 class _kernel {
 	#_cmd_queue = []; // Очередь на выполнение команд
+	#_vars = {
+		paths: ["bin"],
+		init:"shell"
+	};
+	getVar(a) {
+		return this.#_vars[a];
+	};
+	setVar(a,b) {
+		return this.#_vars[a] = b;
+	};
 	initScript(path) {
 		__vm.sendCommand("interfaces/storage/"+__boot.storage+"/readdata",{path:path},function(d){
 			if (d !== false) {
@@ -12,35 +21,28 @@ class _kernel {
 			} else {
 				__vm.sendError("Undefined script: "+path);
 			};
-			
 		})
 	}
 }
 
-__vm.regCommand("sendShit",function(d){
-	__vm.sendCommand("interfaces/ethernet/eth0_a1b2c3d4e5/send",d);
-},this) 
+const ___k = new _kernel();
 
-const _k = new _kernel();
+//___k.initScript("kernel/proc");
+//___k.initScript("init");
 
-function getRandomInt(min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-  return Math.floor(Math.random() * (max - min)) + min; //Максимум не включается, минимум включается
-};
-
-const GL = new _glframe(800,600);
+const GL = new __glframe(800,600);
 const GLCTX = GL.getContext("2d");
 
 mouse_x = 0;
 mouse_y = 0;
 
-
 var a = true;
+GLCTX.fillStyle="black";
 setInterval(function(){
-	GLCTX.fillStyle="black";
+	
+	GLCTX.fillStyle="black"
 	GLCTX.fillRect(0,0,800,600);
-	GLCTX.fillStyle="white";
+	GLCTX.fillStyle="red";
 	GLCTX.lineWidth = 4;
 	GLCTX.font = "24px VGA";
 		
@@ -50,37 +52,6 @@ setInterval(function(){
 	GLCTX.fill();
 	__vm.sendCommand("interfaces/display/display_a1b2c3d4e5/setFrame",GL.toDataURL());
 }.bind(this),1000/30);
-
-
-//----------------------
-// Load Kernel modules
-//----------------------
-
-_k.initScript("kernel/interfaces/interfaces");
-
-__vm.listenEvent("interfaces/ethernet/eth0_a1b2c3d4e5/rx",function(d){
-	__vm.sendLog(["Router 1: i get ",d]);
-});
-
-__vm.listenEvent("interfaces/keyboard/key_a1b2c3d4e5/keydown",function(d){
-	__vm.sendLog(["keydown: ",d]);
-});
-
-__vm.listenEvent("interfaces/keyboard/key_a1b2c3d4e5/keyup",function(d){
-	__vm.sendLog(["keyup: ",d]);
-});
-
-__vm.listenEvent("interfaces/mouse/mouse_a1b2c3d4e5/mbdown",function(d){
-	__vm.sendLog(["mousedown: ",d]);
-});
-
-__vm.listenEvent("interfaces/mouse/mouse_a1b2c3d4e5/mbup",function(d){
-	__vm.sendLog(["mouseup: ",d]);
-});
-
-__vm.listenEvent("interfaces/mouse/mouse_a1b2c3d4e5/scroll",function(d){
-	__vm.sendLog(["scroll: ",d]);
-});
 
 __vm.listenEvent("interfaces/mouse/mouse_a1b2c3d4e5/move",function(d){
 	mouse_x = d.x;

@@ -32,7 +32,7 @@
 			}
 		},
 		"a5b4c3d2e1":{
-			"type":"pc",
+			"type":"router",
 			"name":"Роутер",
 			"position": {"x":420,"y":699},
 			"power":false,

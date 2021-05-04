@@ -1,4 +1,4 @@
-class _FS {
+class ___FS {
 	constructor(){
 		this.a = 10;
 	};
@@ -6,4 +6,4 @@ class _FS {
 		return this.a;
 	}
 };
-module.exports = _FS;
+const __FS = new ___FS();

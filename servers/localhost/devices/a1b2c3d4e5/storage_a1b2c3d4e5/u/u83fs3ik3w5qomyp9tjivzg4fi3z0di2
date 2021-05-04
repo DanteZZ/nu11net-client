@@ -1,9 +1,23 @@
-_k.proc = {
+___k.proc = {
 	list:Array(),
 	run:function(path,attrs) { // Запустить процесс
 		let ctx = {
-			__hw: __hw
+			__vm: __vm,
+			__
 		};
-		list.push__hw.__device._vm_create_thread(ctx);
+		list.push()
 	}
-}; 
+};
+
+__process = class {
+	#ctx = null;
+	constructor(path,attrs,actx = false) {
+		let ctx = {
+			__vm: __vm,
+			__: ___k
+		};
+		this.#ctx = __thread.mk(ctx);
+		
+		__thread.runScript()
+	}
+}

@@ -17,6 +17,7 @@
 	const cmd = require("./commands.js");
 	global.__csl = console;
 	ctx = {};
+	vmthreads = {};
 
 	window.addEventListener("message", onmsg, false);
 
@@ -42,8 +43,13 @@
 		unlistenEvent:function(id){return cmd._unlistenEvent(id)},
 		doEvent:function(event,data=false){return cmd._doEvent(event,data)},
 
-		runScript:function(script) {vm.runInContext(script,ctx);}
+		runScript:function(script) {vm.runInContext(script,ctx);},
 	};
+
+	const threadFuncs = {
+		mk:function(ctx) {return  vm.createContext(ctx); },
+		runScript:function(ctx,script) { try {vm.runInContext(script,ctx); return true;} catch (e) {return e;} }
+	}
 
 	function _regDefaultCommands() { // Регистрация команд устройства
 		cmd._regCat("vm");
@@ -51,8 +57,9 @@
 			ctx = d.context;
 			ctx.Math = Math;
 			ctx.setInterval = setInterval;
-			ctx._glframe = _glframe;
+			ctx.__glframe = _glframe;
 			ctx.__vm = vmFuncs;
+			ctx.__thread = threadFuncs;
 			ctx = vm.createContext(ctx);
 			return true;
 		});
