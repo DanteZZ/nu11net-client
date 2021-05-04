@@ -46,7 +46,6 @@ class mouse {
         if (((this._lastposx !== this._posx) || (this._lastposy !== this._posy)) && (move)) {
             this.__device._cmd._sendEvent(this._catf+"move",{x:this._posx,y:this._posy});
         };
-        
     }
 
     _fixWhich(e) {

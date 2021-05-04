@@ -41,6 +41,10 @@ setInterval(function(){
 	GLCTX.fillStyle="black";
 	GLCTX.fillRect(0,0,800,600);
 	GLCTX.fillStyle="white";
+	GLCTX.lineWidth = 4;
+	GLCTX.font = "24px VGA";
+		
+	GLCTX.fillText("initializing", 16, 32);
 	GLCTX.beginPath();
 	GLCTX.arc(mouse_x,mouse_y, 6, 0, 2 * Math.PI, false);
 	GLCTX.fill();
