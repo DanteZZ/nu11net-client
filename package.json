@@ -6,12 +6,20 @@
 	"height": 700,
 	"min_width": 900,
 	"min_height": 700,
+	"scripts": {
+		"start": "nw"
+	},
 	"webview": {
-	     "partitions": [
-	        {
-	          "name": "trusted",
-	          "accessible_resources": [ "<all_urls>" ]
-	        }
-	     ]
+		"partitions": [
+			{
+				"name": "trusted",
+				"accessible_resources": [
+					"<all_urls>"
+				]
+			}
+		]
+	},
+	"dependencies": {
+		"nw": "^0.61.0"
 	}
 }

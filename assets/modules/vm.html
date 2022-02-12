@@ -1,4 +1,9 @@
 <link rel="stylesheet" href="../styles/style.css">
+
+<div id="screen">
+
+</div>
+
 <script>
 	function onmsg(event) {
 		if (event.data.setpid) {
@@ -21,12 +26,11 @@
 
 	window.addEventListener("message", onmsg, false);
 
-	class _glframe {
+	window._SCREEN = document.getElementById("screen");
+
+	class _gl {
 		constructor(width,height) {
-			let canvas = document.createElement("canvas");
-			canvas.width = width;
-			canvas.height = height;
-			return canvas;
+			this._screen =_SCREEN;
 		}
 	}
 
@@ -57,7 +61,7 @@
 			ctx = d.context;
 			ctx.Math = Math;
 			ctx.setInterval = setInterval;
-			ctx.__glframe = _glframe;
+			ctx.__gl = _gl;
 			ctx.__vm = vmFuncs;
 			ctx.__thread = threadFuncs;
 			ctx = vm.createContext(ctx);
