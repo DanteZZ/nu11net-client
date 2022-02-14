@@ -18,11 +18,26 @@ class _kernel {
 		__vm.sendCommand("interfaces/storage/"+__boot.storage+"/readdata",{path},(d) => {
 			if (d !== false) {
 				__vm.runScript(d);
-				
 				res();
 			} else {
 				rej("Undefined script: "+path);
 				__vm.sendError("Undefined script: "+path);
+			};
+		})
+	});
+	importLibrary = (path, _imports={}) => new Promise((res,rej) => {
+		__vm.sendCommand("interfaces/storage/"+__boot.storage+"/readdata",{path},(d) => {
+			if (d !== false) {
+				const ctx = __thread.mk({exports:undefined, _imports});
+				try {
+					__thread.runScript(ctx,d);
+				} catch (e) {
+					rej(e);
+				}
+				res(ctx.exports);
+			} else {
+				rej("Undefined module: "+path);
+				__vm.sendError("Undefined module: "+path);
 			};
 		})
 	})
@@ -31,30 +46,17 @@ class _kernel {
 const ___k = new _kernel();
 
 const initModules = async () => {
-	await ___k.initScript("libs/fs");
 
-	const dirs = await __FS.scanDir("");
-	__vm.sendLog(dirs);
+	await ___k.initScript("libs/fs");
+	await ___k.initScript("sbin/shell");
+
+	await __CLI.runCommand("ls");
+	await __CLI.runCommand("lsd",["--r","--watch"]);
+	__vm.sendLog(__CLI);
+	
 }
 
 initModules();
-
-const { _screen, createElement } = new __gl();
-_screen.innerHTML = "123";
-
-//___k.initScript("libs/terminal");
-
-const termDOM = createElement("div");
-termDOM.id = "__terminal_app";
-_screen.append(termDOM);
-
-
-
-
-/*
-__vm.sendCommand("interfaces/storage/"+__boot.storage+"/writedata",{path:"libs/terminal", data:"Terminal"},function(d){
-	__vm.sendLog(d);
-})*/
 
 mouse_x = 0;
 mouse_y = 0;

@@ -42,10 +42,23 @@ class ___FS {
 			res(d);
 		})
 	})
+	getAttributes = (path,vol=null) => new Promise((res)=>{
+		__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/getattributes",{path},function(d){
+			res(d);
+		})
+	})
+	setAttributes = (path,attributes,vol=null) => new Promise((res)=>{
+		__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/setattributes",{path,attributes},function(d){
+			res(d);
+		})
+	})
 	rename = (oldpath,newpath,vol=null) => new Promise((res)=>{
 		__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/isdata",{oldpath,newpath},function(d){
 			res(d);
 		})
 	})
 };
-__FS = new ___FS();
+
+const __FS = new ___FS();
+
+const exports = __FS;

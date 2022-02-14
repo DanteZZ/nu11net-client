@@ -1,10 +1,7 @@
 ___k.proc = {
 	list:Array(),
 	run:function(path,attrs) { // Запустить процесс
-		let ctx = {
-			__vm: __vm,
-			__
-		};
+		
 		list.push()
 	}
 };
@@ -14,10 +11,12 @@ __process = class {
 	constructor(path,attrs,actx = false) {
 		let ctx = {
 			__vm: __vm,
-			__: ___k
+			import:___k.importLibrary,
+			_process: {
+				send: (str)=>__CLI.printLn(str)
+			}
 		};
 		this.#ctx = __thread.mk(ctx);
-		
 		__thread.runScript()
 	}
 }

@@ -1,0 +1,4 @@
+_initialize = async () => {
+    const fs = import("libs/fs");
+    _process.send(fs.scanDir(""))
+}

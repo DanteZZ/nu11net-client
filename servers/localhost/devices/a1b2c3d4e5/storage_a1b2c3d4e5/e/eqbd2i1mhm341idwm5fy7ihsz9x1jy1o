@@ -1,12 +1,43 @@
 class _SHELL {
     constructor() {
         this.$HISTORY = [];
-        this.$PATH = ["sbin"];
+        this.$PRINT = [];
+        this.$PATH = ["bin/"];
     }
 
-    runCommand(command,attributes) {
+    async runCommand(command,attributes=[]) {
+        const str = attributes.length > 0 ? command + " " + attributes.join(" ") : command
+        this.printLn(str);
+        this.$HISTORY.push(str);
+
+        const exec = await this.searchExec(command);
         
+        if (exec) {
+            return exec;
+        } else {
+            this.printLn("Undefined command");
+        }
+    };
+
+    printLn(string) {
+        this.$PRINT.push(string);
     }
+
+    async searchExec(name) { // Поиск исполняемого файла
+        let find = false;
+        for (var k in this.$PATH) {
+            const path = this.$PATH[k]+name;
+            const attrs = await __FS.getAttributes(path);
+            if (attrs?.exec) {
+                find = path;
+                break;
+            };
+        };
+        return find;
+    }
+
 }
 
-_CLI = new _SHELL();
+__CLI = new _SHELL();
+
+//exports = _CLI;

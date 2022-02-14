@@ -89,7 +89,7 @@ class storage {
 			let res = [];
 			for (var k in map["~"]) {
 				if (more) { // Если нужно получить доп.информацию
-					res.push({name:k,type:map["~"][k].t});
+					res.push({name:k,type:map["~"][k].t,attributes:(map["~"][k]?.attributes || {})});
 				} else {
 					res.push(k);
 				};
@@ -409,6 +409,25 @@ class storage {
 		}; 
 	};
 
+	_getAttributes(path) { //Получить аттрибуты
+		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
+		let map = this._getMapPath(path); // Получаем мапу нашего пути
+		return map?.attributes || {};
+	};
+
+	_setAttributes(path,attributes) { // Создать директорию
+		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
+		
+		if (this._getMapPath(path)) { // Если этот путь существует			
+			let map = this._getMapPath(path); // Получаем мапу нашего пути
+			map.attributes = attributes;
+			this.__writeMap(); // Обновляем MAP
+			return true; 
+		} else {
+			return false;
+		};
+	};
+
 	_rename(oldpath,newpath) {
 		if (["",".",".."].indexOf(oldpath) >= 0) {return false;} // Проверка на корневой каталог
 		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
@@ -504,6 +523,12 @@ class storage {
 		},this,false);
 		
 		/* ANOTHER */
+		cmd._reg(catf+"getattributes",function(d) {
+			return this._getAttributes(d.path);
+		},this,false);
+		cmd._reg(catf+"setattributes",function(d) {
+			return this._setAttributes(d.path,d.attributes);
+		},this,false);
 		cmd._reg(catf+"rename",function(d) {
 			return this.ctx._rename(d.oldpath,d.newpath);
 		},this,false);
