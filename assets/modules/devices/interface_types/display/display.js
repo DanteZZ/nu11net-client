@@ -15,6 +15,10 @@ class display {
 		}
 	};
 
+	__getScreen = function() {
+		return this.__device._getWV();
+	}
+
     __isSee = function() {
         if (global.deviceDisplay == this) {return true;} else {return false;};
     };

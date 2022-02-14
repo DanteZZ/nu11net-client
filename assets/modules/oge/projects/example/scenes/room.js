@@ -38,6 +38,8 @@
 		}
 	},
 
+	displayVW: null,
+
 	defaultLayer:"game",
 	defaultCam:"default",
 
@@ -63,6 +65,10 @@
 	},
 
 	_drawDisplay:function() {
+		const _vw = global?.deviceDisplay?.__getScreen() || null;
+
+		if (_vw !== this.displayVW) {this.displayVW = _vw;}
+
 		let ctx = this._oge._graph.getCanvas("display");
 		ctx.fillStyle = "rgba(0,0,0,0.8)";
 		ctx.fillRect(0,0, 5000, 5000);
@@ -72,6 +78,16 @@
 		let dh = global.deviceDisplay.__height;
 		let dx = (cw-dw)/2;
 		let dy = (ch-dh)/2;
+
+		if (_vw) {
+			_vw.style.display = "block";
+			_vw.style.zIndex = 999;
+			_vw.style.width = dw+"px";
+			_vw.style.height = dh+"px";
+			_vw.style.left = dx+"px"
+			_vw.style.top = dy+"px";
+		};
+
 		ctx.fillStyle = "black";
 		ctx.fillRect(dx, dy, dw, dh);
 		global.deviceDisplay.__pos_x = dx;
@@ -114,6 +130,7 @@
 		};
 
 		if (!global.deviceDisplay) {
+			if (this.displayVW) {this.displayVW.style.display="none"; this.displayVW = null;}
 			if (global.hovertext) {
 				gui.fillStyle = "#FFFFFF";
 				gui.strokeStyle = 'black';

@@ -1,8 +1,8 @@
+<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="../styles/style.css">
 
-<div id="screen">
-
-</div>
+<div id="screen"></div>
 
 <script>
 	function onmsg(event) {
@@ -27,11 +27,11 @@
 	window.addEventListener("message", onmsg, false);
 
 	window._SCREEN = document.getElementById("screen");
-
 	class _gl {
 		constructor(width,height) {
 			this._screen =_SCREEN;
 		}
+		createElement(d) {return document.createElement(d)}
 	}
 
 	const vmFuncs = { // Функции общения с железом
@@ -61,9 +61,11 @@
 			ctx = d.context;
 			ctx.Math = Math;
 			ctx.setInterval = setInterval;
+			ctx.setTimeout = setTimeout;
 			ctx.__gl = _gl;
 			ctx.__vm = vmFuncs;
 			ctx.__thread = threadFuncs;
+			ctx.global = {};
 			ctx = vm.createContext(ctx);
 			return true;
 		});

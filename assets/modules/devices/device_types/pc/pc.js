@@ -154,6 +154,10 @@ class pc {
 		return res;
 	}
 
+	_getWV() {
+		return this.#_vm;
+	}
+
 	_initCommands() { // Регистрация команд устройства
 		/*
 			DEVICE

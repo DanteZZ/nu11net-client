@@ -1,5 +1,12 @@
 class _SHELL {
+    constructor() {
+        this.$HISTORY = [];
+        this.$PATH = ["sbin"];
+    }
 
+    runCommand(command,attributes) {
+        
+    }
 }
 
 _CLI = new _SHELL();

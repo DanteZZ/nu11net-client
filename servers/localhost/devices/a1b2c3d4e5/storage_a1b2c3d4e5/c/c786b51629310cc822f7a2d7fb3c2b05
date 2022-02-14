@@ -14,23 +14,47 @@ class _kernel {
 	setVar(a,b) {
 		return this.#_vars[a] = b;
 	};
-	initScript(path) {
-		__vm.sendCommand("interfaces/storage/"+__boot.storage+"/readdata",{path:path},function(d){
+	initScript = (path) => new Promise ((res,rej)=> {
+		__vm.sendCommand("interfaces/storage/"+__boot.storage+"/readdata",{path},(d) => {
 			if (d !== false) {
 				__vm.runScript(d);
+				
+				res();
 			} else {
+				rej("Undefined script: "+path);
 				__vm.sendError("Undefined script: "+path);
 			};
 		})
-	}
+	})
 }
 
 const ___k = new _kernel();
 
-//___k.initScript("kernel/proc");
-//___k.initScript("init");
+const initModules = async () => {
+	await ___k.initScript("libs/fs");
 
-const GL = new __gl();
+	const dirs = await __FS.scanDir("");
+	__vm.sendLog(dirs);
+}
+
+initModules();
+
+const { _screen, createElement } = new __gl();
+_screen.innerHTML = "123";
+
+//___k.initScript("libs/terminal");
+
+const termDOM = createElement("div");
+termDOM.id = "__terminal_app";
+_screen.append(termDOM);
+
+
+
+
+/*
+__vm.sendCommand("interfaces/storage/"+__boot.storage+"/writedata",{path:"libs/terminal", data:"Terminal"},function(d){
+	__vm.sendLog(d);
+})*/
 
 mouse_x = 0;
 mouse_y = 0;
