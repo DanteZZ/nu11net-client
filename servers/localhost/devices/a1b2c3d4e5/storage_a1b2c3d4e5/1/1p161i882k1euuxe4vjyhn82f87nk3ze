@@ -1,0 +1,14 @@
+const CLI = _os.__CLI;
+
+const _initialize = async () => {
+    let path = _process.__attributes?.[0] || CLI.$PATH;
+    if (path == "/") {path = ""};
+    const fs = await _import("libs/fs");
+    const res = await fs.isDir(path);
+    if (res) {
+        CLI.$PATH = path;
+    } else {
+        _process.send("Unfined directory");
+    };
+    _process.exit();
+}

@@ -49,14 +49,14 @@ class _kernel {
 }
 
 const ___k = new _kernel();
-
+const { _screen, createElement } = new __gl();
 const initModules = async () => {
 
 	___k.FS = await ___k.importLibrary("libs/fs");
+	___k.EE = await ___k.importLibrary("libs/eventEmmiter");
 	await ___k.initScript("sbin/shell");
 	await ___k.initScript("kernel/proc");
-	await __CLI.runCommand("ls");
-	setTimeout(()=>{__vm.sendLog(__CLI); __vm.sendLog(___k.PROC.list.length);},2000)
+	___k.PROC.run("sbin/cli");
 	
 }
 

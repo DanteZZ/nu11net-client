@@ -12,21 +12,38 @@ body, html {
 	color:white;
 	height: 100%;
     width: 100%;
-    
-}
-canvas {
-	position:absolute;
+	position:relative;
 }
 
-body {
-	display:flex;
-	align-items:center;
-	justify-content: center;
+* {
+	font-family: inherit;
 }
+
+input,textarea,select {
+	background: none;
+	border:none;
+	outline:none;
+	color:inherit;
+}
+
 #screen {
 	width: 100%;
 	height:100%;
 	overflow:hidden;
+	position:relative;
+}
+
+pre {
+	margin:0px;
+	padding:0px;
+}
+
+form {
+	margin:0px;
+	padding:0px;
+}
+div, form, input, button {
+	box-sizing: border-box;
 }
 
 #app {

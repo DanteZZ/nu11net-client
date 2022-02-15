@@ -1,0 +1,105 @@
+/* IMPORTS */
+
+var ansi2html = null;
+
+const CLI = _os.__CLI;
+const { _screen, createElement } = new _os.__gl();
+
+/* HELPERS */
+
+/* APP */
+
+const _initialize = async () => {
+    ansi2html = await _import("libs/ansi");
+
+    const gui = _createGraphic();
+    await _screen.appendChild(gui.wrapper._getNode());
+    _registerLogic(gui);
+    onPrintUpdate();
+}
+
+
+/* HANDLERS */
+
+const onInputSend = async (_) => {
+    const str = _.input.getParam("value")
+    _os.__vm.sendLog(str);
+    let attributes = str.split(" ");
+    const command = attributes.shift();
+
+    _.input.setParam("value","")
+    
+    await CLI.runCommand(command,attributes);
+    _os.setTimeout(()=>{_os.__vm.sendLog(CLI);},1000);
+}
+
+const onPrintUpdate = (_) => {
+    const html = CLI.$PRINT.map(e=>ansi2html(e)).join("\n")
+    _.print.putHtml(html);
+    _.print.setParam("scrollTop",_.print.getParam("scrollHeight"));
+}
+
+/* FUNCS */
+
+const _registerLogic = (_) => {
+
+    _.wrapper.listEvent("submit",function(e){
+        onInputSend(_);
+        e.preventDefault();
+    })
+
+    _.input.listEvent("blur",function(e) {
+        _.input.focus();
+    })
+
+    CLI.listEvent("update",function() {
+        onPrintUpdate(_);
+    })
+}
+
+const _createGraphic = () => {
+    const _ = {
+        wrapper: createElement("form"),
+            print: createElement("pre"),
+            input_wrapper: createElement("div"),
+                input_prefix: createElement("div"),
+                input: createElement("input")
+    };
+
+    
+    // putting elements
+    _.input_wrapper.putElement(_.input_prefix);
+    _.input_wrapper.putElement(_.input);
+    _.wrapper.putElement(_.print);
+    _.wrapper.putElement(_.input_wrapper);
+    
+    // styling
+    _.wrapper.setStyles({
+        width:"100%",
+        height:"100%",
+        display:"flex",
+        "flex-direction":"column",
+        padding:"8px"
+    });
+    _.print.setStyles({
+        overflow:"hidden"
+    });
+    _.input_wrapper.setStyles({
+        display:"flex"
+    });
+    _.input_prefix.setStyles({
+        "margin-right":"8px"
+    });
+    _.input.setStyles({
+        "flex-grow":1,
+        "font-size":"1em",
+        padding:"0px",
+        "caret-color": "transparent"
+    });
+
+    // properties
+
+    _.input.setAttribute("autofocus","autofocus");
+    _.input_prefix.putText("$>");
+    return _;
+}

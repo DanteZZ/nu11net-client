@@ -2,9 +2,14 @@ class _SHELL {
     constructor() {
         this.$HISTORY = [];
         this.$PRINT = [];
-        this.$PATH = ["bin/"];
+        this.$PATHS = ["bin/", "sbin/"];
+        this.$EVENT = new ___k.EE(this);
+        this.$PATH = "";
     }
 
+    listEvent = (a,b) => this.$EVENT.on(a,b)
+    unlistEvent = (a,b) => this.$EVENT.removeListener(a,b)
+    
     async runCommand(command,attributes=[]) {
         const str = attributes.length > 0 ? command + " " + attributes.join(" ") : command
         this.printLn(str);
@@ -13,7 +18,7 @@ class _SHELL {
         const exec = await this.searchExec(command);
         
         if (exec) {
-            ___k.PROC.run(exec,attributes);
+           await ___k.PROC.run(exec,attributes);
         } else {
             this.printLn("Undefined command");
         }
@@ -21,12 +26,14 @@ class _SHELL {
 
     printLn(string) {
         this.$PRINT.push(string);
+        this.$EVENT.emit("update");
     }
 
     async searchExec(name) { // Поиск исполняемого файла
         let find = false;
-        for (var k in this.$PATH) {
-            const path = this.$PATH[k]+name;
+        const paths = [this.$PATH,...this.$PATHS];
+        for (var k in paths) {
+            const path = paths[k]+name;
             const attrs = await ___k.FS.getAttributes(path);
             if (attrs?.exec) {
                 find = path;
@@ -40,5 +47,3 @@ class _SHELL {
 }
 
 __CLI = new _SHELL();
-
-//exports = _CLI;

@@ -1,10 +1,10 @@
 ___k.PROC = {
 	list:[],
-	run:function(path,attrs) { // Запустить процесс
+	run: async function(path,attrs) { // Запустить процесс
 		const id = this.randomId();
 		const process = new __PROCESS(id,path,attrs);
 		this.list.push({ id, process });
-		process.init();
+		await process.init();
 	},
 	destroy:function(id) {
 		const ind = this.list.findIndex((e,i)=>e.id === id);

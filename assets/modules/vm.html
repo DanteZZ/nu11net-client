@@ -27,11 +27,74 @@
 	window.addEventListener("message", onmsg, false);
 
 	window._SCREEN = document.getElementById("screen");
+	
+	class ELEMENT {
+		#src = null
+		events = {}
+		constructor(tag) {
+			this.#src = document.createElement(tag);
+		}
+
+		listEvent(event,func) {
+			if (typeof this.events[event] !== "undefined") {
+				this.#src.removeEventListener(event,this.events[event]);
+			}
+
+			this.events[event] = function(e) {func(e)};
+			this.#src.addEventListener(event,this.events[event]);
+		}
+
+		unlistEvent(event) {
+			if (typeof this.events[event] !== "undefined") {
+				this.#src.removeEventListener(event,this.events[event]);
+			}
+			delete(this.events[event]);
+		}
+
+		setStyles(style) {
+			for (const property in style)
+			this.#src.style[property] = style[property];		
+		}
+
+		putElement(el) {
+			this.#src.appendChild(el._getNode());
+		}
+
+		putHtml(data) {
+			this.#src.innerHTML = data;
+		}
+
+		putText(data) {
+			this.#src.innerText = data;
+		}
+
+		_getNode() {
+			return this.#src;
+		}
+
+		getParam(param) {
+			return this.#src[param];
+		}
+		setParam(param,val) {
+			this.#src[param] = val;
+		}
+
+		focus() {
+			this.#src.focus();
+		}
+
+		blur() {
+			this.#src.blur();
+		}
+
+		setAttribute(a,b) {return this.#src.setAttribute(a,b);}
+	}
+	
 	class _gl {
 		constructor(width,height) {
 			this._screen =_SCREEN;
 		}
-		createElement(d) {return document.createElement(d)}
+		createElement = (tag) => new ELEMENT(tag)
 	}
 
 	const vmFuncs = { // Функции общения с железом
@@ -66,6 +129,7 @@
 			ctx.__vm = vmFuncs;
 			ctx.__thread = threadFuncs;
 			ctx.global = {};
+			ctx.console = __csl;
 			ctx = vm.createContext(ctx);
 			return true;
 		});
