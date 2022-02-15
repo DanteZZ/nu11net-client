@@ -2,6 +2,8 @@
 // Load Kernel functions
 //----------------------
 
+const ___ctx = this;
+
 class _kernel {
 	#_cmd_queue = []; // Очередь на выполнение команд
 	#_vars = {
@@ -14,8 +16,11 @@ class _kernel {
 	setVar(a,b) {
 		return this.#_vars[a] = b;
 	};
-	initScript = (path) => new Promise ((res,rej)=> {
-		__vm.sendCommand("interfaces/storage/"+__boot.storage+"/readdata",{path},(d) => {
+	getOSCtx() {
+		return ___ctx;
+	};
+	initScript = (path, vol) => new Promise ((res,rej)=> {
+		__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/readdata",{path},(d) => {
 			if (d !== false) {
 				__vm.runScript(d);
 				res();
@@ -25,10 +30,10 @@ class _kernel {
 			};
 		})
 	});
-	importLibrary = (path, _imports={}) => new Promise((res,rej) => {
-		__vm.sendCommand("interfaces/storage/"+__boot.storage+"/readdata",{path},(d) => {
+	importLibrary = (path,_imports={}, vol) => new Promise((res,rej) => {
+		__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/readdata",{path},(d) => {
 			if (d !== false) {
-				const ctx = __thread.mk({exports:undefined, _imports});
+				const ctx = __thread.mk({_os:___ctx, exports:undefined, _imports, __waitExport:true});
 				try {
 					__thread.runScript(ctx,d);
 				} catch (e) {
@@ -47,12 +52,11 @@ const ___k = new _kernel();
 
 const initModules = async () => {
 
-	await ___k.initScript("libs/fs");
+	___k.FS = await ___k.importLibrary("libs/fs");
 	await ___k.initScript("sbin/shell");
-
+	await ___k.initScript("kernel/proc");
 	await __CLI.runCommand("ls");
-	await __CLI.runCommand("lsd",["--r","--watch"]);
-	__vm.sendLog(__CLI);
+	setTimeout(()=>{__vm.sendLog(__CLI); __vm.sendLog(___k.PROC.list.length);},2000)
 	
 }
 

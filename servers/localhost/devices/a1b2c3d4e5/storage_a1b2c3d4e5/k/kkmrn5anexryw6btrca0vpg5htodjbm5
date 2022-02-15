@@ -1,4 +1,6 @@
 _initialize = async () => {
-    const fs = import("libs/fs");
-    _process.send(fs.scanDir(""))
+    const fs = await _import("libs/fs");
+    const res = await fs.scanDir("");
+    _process.send(res ? res.join("  ") : "Unfined directory");
+    _process.exit();
 }

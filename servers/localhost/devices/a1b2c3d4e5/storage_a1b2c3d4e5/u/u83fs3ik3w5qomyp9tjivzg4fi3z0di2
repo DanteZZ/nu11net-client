@@ -1,22 +1,51 @@
-___k.proc = {
-	list:Array(),
+___k.PROC = {
+	list:[],
 	run:function(path,attrs) { // Запустить процесс
-		
-		list.push()
+		const id = this.randomId();
+		const process = new __PROCESS(id,path,attrs);
+		this.list.push({ id, process });
+		process.init();
+	},
+	destroy:function(id) {
+		const ind = this.list.findIndex((e,i)=>e.id === id);
+		if (ind !== undefined) {
+			this.list.splice(ind,1);
+		}
+	},
+	randomId:function () {
+		let rand = 1000 - 0.5 + Math.random() * (2000 - 1000 + 1);
+		return Math.round(rand);
 	}
 };
 
-__process = class {
-	#ctx = null;
-	constructor(path,attrs,actx = false) {
+__PROCESS = class {
+	ctx = null;
+	#id = null;
+	#startScript = "try { _initialize(); } catch (e) { _os.__vm.sendError(e) }"
+
+	constructor(id,path,attrs) {
+		this.#id = id;
 		let ctx = {
-			__vm: __vm,
-			import:___k.importLibrary,
+			_import:___k.importLibrary,
+			_os:___k.getOSCtx(),
 			_process: {
-				send: (str)=>__CLI.printLn(str)
+				send: (str)=>__CLI.printLn(str),
+				exit: ()=>this.destroy(),
+				__id: id,
+				__attributes: attrs,
+				__path: path
 			}
 		};
-		this.#ctx = __thread.mk(ctx);
-		__thread.runScript()
+		this.ctx = __thread.mk(ctx);
+	}
+
+	async init() {
+		const script = await ___k.FS.readFile(this.ctx._process.__path);
+		__thread.runScript(this.ctx,script);
+		__thread.runScript(this.ctx,this.#startScript);
+	}
+
+	destroy() {
+		___k.PROC.destroy(this.#id);
 	}
 }

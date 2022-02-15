@@ -13,7 +13,7 @@ class _SHELL {
         const exec = await this.searchExec(command);
         
         if (exec) {
-            return exec;
+            ___k.PROC.run(exec,attributes);
         } else {
             this.printLn("Undefined command");
         }
@@ -27,12 +27,13 @@ class _SHELL {
         let find = false;
         for (var k in this.$PATH) {
             const path = this.$PATH[k]+name;
-            const attrs = await __FS.getAttributes(path);
+            const attrs = await ___k.FS.getAttributes(path);
             if (attrs?.exec) {
                 find = path;
                 break;
             };
         };
+        
         return find;
     }
 
