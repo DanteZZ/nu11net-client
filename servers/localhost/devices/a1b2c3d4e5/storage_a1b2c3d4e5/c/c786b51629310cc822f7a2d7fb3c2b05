@@ -33,7 +33,7 @@ class _kernel {
 	importLibrary = (path,_imports={}, vol) => new Promise((res,rej) => {
 		__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/readdata",{path},(d) => {
 			if (d !== false) {
-				const ctx = __thread.mk({_os:___ctx, exports:undefined, _imports, __waitExport:true});
+				const ctx = __thread.mk({_os:___ctx, exports:undefined, _imports, __waitExport:true, _import: ___k.importLibrary});
 				try {
 					__thread.runScript(ctx,d);
 				} catch (e) {

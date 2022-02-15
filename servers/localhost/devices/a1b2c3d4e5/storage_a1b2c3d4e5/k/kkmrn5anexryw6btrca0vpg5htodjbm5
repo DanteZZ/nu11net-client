@@ -2,7 +2,15 @@ const CLI = _os.__CLI;
 
 const _initialize = async () => {
     const fs = await _import("libs/fs");
-    const res = await fs.scanDir(CLI.$PATH,true);
+    const { buildPath, isAbsolute } = await _import("libs/path");
+    
+    const attrPath = _process.__attributes?.[0] || false;
+    let path = CLI.$PATH;
+    if (attrPath) {
+        path = isAbsolute(attrPath) ? attrPath : buildPath([CLI.$PATH,attrPath]);
+    }
+
+    const res = await fs.scanDir(path,true);
     _process.send(res ? res.map(e=>{
         switch (e.type) {
             case 0: return `[32m${e.name}[0m`; break;

@@ -4,12 +4,12 @@ class _SHELL {
         this.$PRINT = [];
         this.$PATHS = ["bin/", "sbin/"];
         this.$EVENT = new ___k.EE(this);
-        this.$PATH = "";
+        this.$PATH = "/";
     }
 
     listEvent = (a,b) => this.$EVENT.on(a,b)
     unlistEvent = (a,b) => this.$EVENT.removeListener(a,b)
-    
+    setPath = (path) => {this.$PATH = path; this.$EVENT.emit("update");}
     async runCommand(command,attributes=[]) {
         const str = attributes.length > 0 ? command + " " + attributes.join(" ") : command
         this.printLn(str);

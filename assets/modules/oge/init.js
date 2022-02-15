@@ -17,6 +17,7 @@ class _GR {
 		if (this.canvases[name]) {return false;};
 
 		let canvas = this.oge.doc.createElement("canvas");
+		canvas.className="_oge_canvas"
 		this.canvases[name] = canvas.getContext(context);
 		this.oge.doc.body.appendChild(canvas);
 		this.canvases[name].offset_x = 0;

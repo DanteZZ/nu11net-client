@@ -15,7 +15,7 @@ const _initialize = async () => {
     const gui = _createGraphic();
     await _screen.appendChild(gui.wrapper._getNode());
     _registerLogic(gui);
-    onPrintUpdate();
+    onPrintUpdate(gui);
 }
 
 
@@ -30,13 +30,13 @@ const onInputSend = async (_) => {
     _.input.setParam("value","")
     
     await CLI.runCommand(command,attributes);
-    _os.setTimeout(()=>{_os.__vm.sendLog(CLI);},1000);
 }
 
 const onPrintUpdate = (_) => {
     const html = CLI.$PRINT.map(e=>ansi2html(e)).join("\n")
     _.print.putHtml(html);
     _.print.setParam("scrollTop",_.print.getParam("scrollHeight"));
+    _.input_prefix.putText("$/"+CLI.$PATH+">");
 }
 
 /* FUNCS */
@@ -100,6 +100,5 @@ const _createGraphic = () => {
     // properties
 
     _.input.setAttribute("autofocus","autofocus");
-    _.input_prefix.putText("$>");
     return _;
 }

@@ -110,8 +110,6 @@
 
 		if (this.menu.opened) {
 			let i = 0;
-			
-
 			this._gui.fillStyle="rgba(0,0,0,0.8)";
 			this._gui.fillRect(
 				this.menu.obj.x-this._ctx.offset_x-this.menu.padding,

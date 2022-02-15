@@ -15,6 +15,12 @@ body, html {
 	position:relative;
 }
 
+body.game {
+	display:flex;
+	align-items:center;
+	justify-content:center;
+}
+
 * {
 	font-family: inherit;
 }
@@ -24,6 +30,10 @@ input,textarea,select {
 	border:none;
 	outline:none;
 	color:inherit;
+}
+
+._oge_canvas {
+	position:absolute;
 }
 
 #screen {

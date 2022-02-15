@@ -10,11 +10,11 @@ const _initialize = async () => {
         path = isAbsolute(attrPath) ? attrPath : buildPath([CLI.$PATH,attrPath]);
     }
 
-    const res = await fs.isDir(path);
+    const res = await fs.readFile(path);
     if (res) {
-        CLI.setPath(path);
+        _process.send(res);
     } else {
-        _process.send("Unfined directory");
+        _process.send("Unfined file");
     };
     _process.exit();
 }
