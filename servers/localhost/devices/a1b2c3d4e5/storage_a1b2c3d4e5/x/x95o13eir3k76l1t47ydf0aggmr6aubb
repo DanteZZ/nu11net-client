@@ -1,0 +1,38 @@
+/* SH */
+const CLI = _os.__CLI;
+
+const _initialize = async () => {
+    const fs = await _import("libs/fs");
+    const { buildPath, isAbsolute } = await _import("libs/path");
+    
+    const attrPath = _process.__attributes?.[0] || false;
+
+    let path = CLI.$PATH;
+    if (attrPath) {
+        path = isAbsolute(attrPath) ? attrPath : buildPath([CLI.$PATH,attrPath]);
+    }
+
+    const isFile = await fs.isFile(path);
+    let error = false;
+
+    if (isFile) {
+        const res = await fs.readFile(path);
+        if (res === false) {
+            error = "Can't run script "+path;
+        } else {
+            const strs = res.split("\n");
+            for (let k in strs) {
+                const str = strs[k];
+                let attributes = str.split(" ");
+                const command = attributes.shift();
+                await CLI.runCommand(command,attributes);
+            }
+        }
+    } else {
+        error = "Unfined path "+path;
+    };
+
+    if (error) { _process.send(error);}
+
+    _process.exit();
+}

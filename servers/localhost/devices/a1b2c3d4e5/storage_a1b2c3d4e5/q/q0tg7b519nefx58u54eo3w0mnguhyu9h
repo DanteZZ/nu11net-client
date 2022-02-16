@@ -24,10 +24,9 @@ const _initialize = async () => {
     const isExistNewFile =  await fs.isFile(newpath);
 
     let error = false;
-    _process.send(`Renaming: [${oldpath}] -> [${newpath}]`);
+    
     if ((isExistOldDir || isExistOldFile) && !(isExistNewDir || isExistNewFile)) {
         const res = await fs.rename(oldpath,newpath);
-        
         if (res === false) {error = true;};
     } else {
         error = true;

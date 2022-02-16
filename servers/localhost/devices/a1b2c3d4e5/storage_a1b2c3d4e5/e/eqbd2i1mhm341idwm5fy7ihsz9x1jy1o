@@ -30,6 +30,11 @@ class _SHELL {
         this.$EVENT.emit("update");
     }
 
+    clear() {
+        this.$PRINT = [];
+        this.$EVENT.emit("update");
+    }
+
     async searchExec(name) { // Поиск исполняемого файла
         let find = false;
         const paths = [this.$PATH,...this.$PATHS];
