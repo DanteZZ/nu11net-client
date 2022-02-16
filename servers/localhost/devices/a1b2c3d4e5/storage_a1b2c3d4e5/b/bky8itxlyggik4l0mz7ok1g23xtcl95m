@@ -23,7 +23,6 @@ const _initialize = async () => {
 
 const onInputSend = async (_) => {
     const str = _.input.getParam("value")
-    _os.__vm.sendLog(str);
     let attributes = str.split(" ");
     const command = attributes.shift();
 
@@ -34,9 +33,10 @@ const onInputSend = async (_) => {
 
 const onPrintUpdate = (_) => {
     const html = CLI.$PRINT.map(e=>ansi2html(e)).join("\n")
+    const prefix = ansi2html(`[32mroot@${CLI.$PCNAME}[0m:[34m${CLI.$PATH}[0m$`)
     _.print.putHtml(html);
     _.print.setParam("scrollTop",_.print.getParam("scrollHeight"));
-    _.input_prefix.putText("$/"+CLI.$PATH+">");
+    _.input_prefix.putHtml(prefix);
 }
 
 /* FUNCS */
@@ -45,6 +45,11 @@ const _registerLogic = (_) => {
 
     _.wrapper.listEvent("submit",function(e){
         onInputSend(_);
+        e.preventDefault();
+    })
+    _.print.listEvent("wheel",function(e){
+        const delta = e.deltaY || e.detail || e.wheelDelta;
+        _.print.setParam("scrollTop",_.print.getParam("scrollTop")+delta);
         e.preventDefault();
     })
 
@@ -79,13 +84,17 @@ const _createGraphic = () => {
         height:"100%",
         display:"flex",
         "flex-direction":"column",
-        padding:"8px"
+        padding:"8px",
+        color: "#f7f7f7",
+        "background-color":"#151515"
     });
     _.print.setStyles({
-        overflow:"hidden"
+        overflow:"hidden",
+        color:"#d6d5d4"
     });
     _.input_wrapper.setStyles({
-        display:"flex"
+        display:"flex",
+        "padding-top":"4px"
     });
     _.input_prefix.setStyles({
         "margin-right":"8px"
@@ -94,7 +103,7 @@ const _createGraphic = () => {
         "flex-grow":1,
         "font-size":"1em",
         padding:"0px",
-        "caret-color": "transparent"
+        "caret-color": "#d6d5d4"
     });
 
     // properties

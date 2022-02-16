@@ -76,24 +76,24 @@
   , 27: { invert: false }
   , 29: { strikethrough: false }
   , 30: { color: 'black' }
-  , 31: { color: 'red' }
-  , 32: { color: 'green' }
-  , 33: { color: 'yellow' }
-  , 34: { color: 'blue' }
-  , 35: { color: 'magenta' }
-  , 36: { color: 'cyan' }
-  , 37: { color: 'white' }
+  , 31: { color: '#db2d20' }
+  , 32: { color: '#01a252' }
+  , 33: { color: '#fded02' }
+  , 34: { color: '#01a0e4' }
+  , 35: { color: '#a16a94' }
+  , 36: { color: '#b5e4f4' }
+  , 37: { color: '#a5a2a2' }
   , 39: { color: null }
   , 40: { background: 'black' }
-  , 41: { background: 'red' }
-  , 42: { background: 'green' }
-  , 43: { background: 'yellow' }
-  , 44: { background: 'blue' }
-  , 45: { background: 'magenta' }
-  , 46: { background: 'cyan' }
-  , 47: { background: 'white' }
+  , 41: { background: '#db2d20' }
+  , 42: { background: '#01a252' }
+  , 43: { background: '#fded02' }
+  , 44: { background: '#01a0e4' }
+  , 45: { background: '#a16a94' }
+  , 46: { background: '#b5e4f4' }
+  , 47: { background: '#a5a2a2' }
   , 49: { background: null }
   }
 
 
-exports = ansi2html;
+exports = async () => ansi2html;

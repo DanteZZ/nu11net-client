@@ -1,5 +1,4 @@
-/* TOUCH */
-
+/* RM */
 const CLI = _os.__CLI;
 
 const _initialize = async () => {
@@ -8,24 +7,26 @@ const _initialize = async () => {
     
     const attrPath = _process.__attributes?.[0] || false;
 
-    if (!attrPath) {
-        _process.send("Undefined name");
-        _process.exit();
-        return null;
-    }
-
     let path = CLI.$PATH;
     if (attrPath) {
         path = isAbsolute(attrPath) ? attrPath : buildPath([CLI.$PATH,attrPath]);
     }
 
-    const isDir = await fs.isDir(buildPath([path,".."]));
     const isFile = await fs.isFile(path);
+    const isDir = await fs.isDir(path);
+    let error = false;
 
-    if (isDir && !isFile) {
-        await fs.writeFile(path);
+    if (isFile) {
+        const res = await fs.rmFile(path);
+        if (res === false) { error = "Can't remove file"+path; }
+    } else if (isDir) {
+        const res = await fs.rmDir(path);
+        if (res === false) { error = "Can't remove dir "+path; }
     } else {
-        _process.send("Cant touch file: "+path);
+        error = "Unfined path "+path;
     };
+
+    if (error) { _process.send(error);}
+
     _process.exit();
 }

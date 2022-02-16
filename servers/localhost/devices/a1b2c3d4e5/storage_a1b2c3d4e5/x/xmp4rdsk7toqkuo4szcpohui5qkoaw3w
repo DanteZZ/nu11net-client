@@ -1,0 +1,30 @@
+/* EXECMOD */
+const CLI = _os.__CLI;
+
+const _initialize = async () => {
+    const fs = await _import("libs/fs");
+    const { buildPath, isAbsolute } = await _import("libs/path");
+    
+    const attrMod = _process.__attributes?.[0] || false;
+    const attrPath = _process.__attributes?.[1] || false;
+
+    if (!attrPath || (["on","off"].indexOf(attrMod) < 0)) {
+        _process.send("[31mError:[0m Please, print [32m\"execmod [on/off] [filepath]\" [0m");
+        _process.exit();
+        return null;
+    }
+
+    let path = CLI.$PATH;
+    if (attrPath) {
+        path = isAbsolute(attrPath) ? attrPath : buildPath([CLI.$PATH,attrPath]);
+    }
+
+    const res = await fs.isFile(path);
+    if (res) {
+        const attrs = await fs.getAttributes(path);
+        await fs.setAttributes(path,{...attrs,exec:(attrMod === "on")});
+    } else {
+        _process.send("Unfined file");
+    };
+    _process.exit();
+}

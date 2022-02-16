@@ -1,4 +1,4 @@
-/* TOUCH */
+/* MKDIR */
 
 const CLI = _os.__CLI;
 
@@ -20,12 +20,12 @@ const _initialize = async () => {
     }
 
     const isDir = await fs.isDir(buildPath([path,".."]));
-    const isFile = await fs.isFile(path);
+    const isExist = await fs.isDir(path);
 
-    if (isDir && !isFile) {
-        await fs.writeFile(path);
+    if (isDir && !isExist) {
+        await fs.mkDir(path);
     } else {
-        _process.send("Cant touch file: "+path);
+        _process.send("Cant create directory: "+path);
     };
     _process.exit();
 }

@@ -31,4 +31,4 @@ class EventEmitter {
   }
 };
 
-exports = EventEmitter;
+exports = async () => EventEmitter

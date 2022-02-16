@@ -1,3 +1,4 @@
+/* CAT */
 const CLI = _os.__CLI;
 
 const _initialize = async () => {
@@ -11,7 +12,7 @@ const _initialize = async () => {
     }
 
     const res = await fs.readFile(path);
-    if (res) {
+    if (res !== false) {
         _process.send(res);
     } else {
         _process.send("Unfined file");

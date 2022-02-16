@@ -39,7 +39,7 @@ class _kernel {
 				} catch (e) {
 					rej(e);
 				}
-				res(ctx.exports);
+				res(ctx.exports());
 			} else {
 				rej("Undefined module: "+path);
 				__vm.sendError("Undefined module: "+path);

@@ -25,8 +25,8 @@ const buildPath = (segments) => {
 const isAbsolute = (path) => path.slice(0,1) == "/"
 const encodePath = (path) => isAbsolutePath(path) ? path.slice(1) : path
 
-exports = {
+exports = async () =>({
     buildPath,
     isAbsolute,
     encodePath
-}
+})

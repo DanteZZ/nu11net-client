@@ -5,6 +5,7 @@ class _SHELL {
         this.$PATHS = ["bin/", "sbin/"];
         this.$EVENT = new ___k.EE(this);
         this.$PATH = "/";
+        this.$PCNAME = "pc";
     }
 
     listEvent = (a,b) => this.$EVENT.on(a,b)
