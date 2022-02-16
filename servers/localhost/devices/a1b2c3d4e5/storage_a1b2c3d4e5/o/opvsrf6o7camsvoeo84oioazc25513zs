@@ -66,8 +66,9 @@ class ___FS {
 		})
 	})
 	rename = (oldpath,newpath,vol=null) => new Promise((res)=>{
-		path = this._encodePath(path);
-		_os.__vm.sendCommand("interfaces/storage/"+(vol || _os.__boot.storage)+"/isdata",{oldpath,newpath},function(d){
+		oldpath = this._encodePath(oldpath);
+		newpath = this._encodePath(newpath);
+		_os.__vm.sendCommand("interfaces/storage/"+(vol || _os.__boot.storage)+"/rename",{oldpath,newpath},function(d){
 			res(d);
 		})
 	})

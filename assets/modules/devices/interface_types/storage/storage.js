@@ -530,7 +530,7 @@ class storage {
 			return this._setAttributes(d.path,d.attributes);
 		},this,false);
 		cmd._reg(catf+"rename",function(d) {
-			return this.ctx._rename(d.oldpath,d.newpath);
+			return this._rename(d.oldpath,d.newpath);
 		},this,false);
 	}
 }
