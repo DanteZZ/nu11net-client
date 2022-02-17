@@ -1,19 +1,46 @@
 /* IMPORTS */
 
 var ansi2html = null;
+var _input = null;
+var gui = null;
 
+let screen = _process.getScreenOwn();
 const CLI = _os.__CLI;
-const { _screen, createElement } = new _os.__gl();
+const { createElement } = _os.__gl;
+
+let isBlocked = false;
 
 /* HELPERS */
 
 /* APP */
 
-const _initialize = async () => {
-    ansi2html = await _import("libs/ansi");
 
-    const gui = _createGraphic();
-    await _screen.appendChild(gui.wrapper._getNode());
+_screenOwnHandler = (proc) => {
+    proc.listEvent("exit",()=>{
+        _os.setTimeout(()=>{
+            screen = _process.getScreenOwn();
+            if (!screen) {
+                _process.exit();
+                return false;
+            } else {
+                screen.setScreen(gui.wrapper._getNode());
+            };
+        },1)
+    });
+    return true;
+}
+
+_initialize = async () => {
+    ansi2html = await _import("libs/ansi");
+    _input = await _import("libs/input");
+
+    gui = _createGraphic();
+    if (!screen) {
+        _process.exit();
+        return false;
+    } else {
+        await screen.setScreen(gui.wrapper._getNode());
+    };
     _registerLogic(gui);
     onPrintUpdate(gui);
 }
@@ -37,15 +64,39 @@ const onPrintUpdate = (_) => {
     _.print.putHtml(html);
     _.print.setParam("scrollTop",_.print.getParam("scrollHeight"));
     _.input_prefix.putHtml(prefix);
+    if (CLI.$RUNNING) {
+        setBlockInput(_,true)
+    } else {
+        setBlockInput(_,false)
+    }
+}
+
+const setBlockInput = (_,a) => {
+    isBlocked=a
+    if (a) {
+        _.input.blur();
+        _.input_wrapper.setStyles({opacity:0});
+    } else {
+        _.input.focus();
+        _.input_wrapper.setStyles({opacity:1});
+    };
 }
 
 /* FUNCS */
 
 const _registerLogic = (_) => {
-
+    _input.listEvent("keydown",function(e){
+        const key = e.which || e.keyCode;
+        const ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false);
+        if (key === 67 && ctrl) {
+            CLI.abort();
+        }
+    })
     _.wrapper.listEvent("submit",function(e){
-        onInputSend(_);
-        e.preventDefault();
+        if (!isBlocked) {
+            onInputSend(_);
+            e.preventDefault();
+        }
     })
     _.print.listEvent("wheel",function(e){
         const delta = e.deltaY || e.detail || e.wheelDelta;
@@ -54,7 +105,15 @@ const _registerLogic = (_) => {
     })
 
     _.input.listEvent("blur",function(e) {
-        _.input.focus();
+        if (!isBlocked) {
+            _.input.focus();
+        }
+    })
+
+    _.input.listEvent("focus",function(e) {
+        if (isBlocked) {
+            _.input.blur();
+        }
     })
 
     CLI.listEvent("update",function() {

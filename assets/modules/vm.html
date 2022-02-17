@@ -16,6 +16,39 @@
 			cmd._onMessage(event.data.data);
 		}
 	};
+
+	class EventEmitter {
+		constructor(bind) {
+			this.events = {};
+			this._bind = bind;
+		}
+		listEvent(event, listener) {
+			if (typeof this.events[event] !== 'object') {
+				this.events[event] = [];
+			}
+			this.events[event].push(listener);
+			return () => this.removeListener(event, listener);
+		}
+		unlistEvent(event, listener) {
+			if (typeof this.events[event] === 'object') {
+				const idx = this.events[event].indexOf(listener);
+				if (idx > -1) {
+				this.events[event].splice(idx, 1);
+				}
+			}
+		}
+		emit(event, ...args) {
+			if (typeof this.events[event] === 'object') {
+			this.events[event].forEach(listener => listener.apply(this._bind, args));
+			}
+		}
+		once(event, listener) {
+			const remove = this.on(event, (...args) => {
+				remove();
+				listener.apply(this._bind, args);
+			});
+		}
+	};
 	
 	const vm = require("vm");
 	delete require.cache[require.resolve("./commands.js")];
@@ -26,8 +59,28 @@
 
 	window.addEventListener("message", onmsg, false);
 
-	window._SCREEN = document.getElementById("screen");
 	
+	/*     INPUT     */
+	window._INPUT = new EventEmitter();
+
+	//Keyboard
+	document.addEventListener("keydown", handler => {
+		_INPUT.emit("keydown",handler)
+	});
+	document.addEventListener("keypress", handler => {
+		_INPUT.emit("keypress",handler)
+	});
+	document.addEventListener("keyup", handler => {
+		_INPUT.emit("keyup",handler)
+	});
+
+	//Mouse
+	document.onmousedown = function(e) {_INPUT.emit("mousedown",e)};
+	document.onmouseup   = function(e) {_INPUT.emit("mouseup",e)};
+	document.onmousemove = function(e) {_INPUT.emit("mousemove",e)};
+
+	/*     GRAPHIC     */
+	window._SCREEN = document.getElementById("screen");
 	class ELEMENT {
 		#src = null
 		events = {}
@@ -126,6 +179,7 @@
 			ctx.setInterval = setInterval;
 			ctx.setTimeout = setTimeout;
 			ctx.__gl = _gl;
+			ctx._input = _INPUT;
 			ctx.__vm = vmFuncs;
 			ctx.__thread = threadFuncs;
 			ctx.global = {};

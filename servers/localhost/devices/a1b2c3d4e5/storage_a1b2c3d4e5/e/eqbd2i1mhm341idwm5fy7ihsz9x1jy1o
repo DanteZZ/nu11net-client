@@ -1,4 +1,5 @@
 class _SHELL {
+    #SCREEN_OWNER = null;
     constructor() {
         this.$HISTORY = [];
         this.$PRINT = [];
@@ -6,11 +7,28 @@ class _SHELL {
         this.$EVENT = new ___k.EE(this);
         this.$PATH = "/";
         this.$PCNAME = "pc";
+        this.$RUNNING = null;
     }
 
     listEvent = (a,b) => this.$EVENT.on(a,b)
     unlistEvent = (a,b) => this.$EVENT.removeListener(a,b)
     setPath = (path) => {this.$PATH = path; this.$EVENT.emit("update");}
+    setScreenOwner = (proc) => {
+        const res = !this.#SCREEN_OWNER ? true : this.#SCREEN_OWNER.useScreen(proc);
+        if (res) {
+            this.#SCREEN_OWNER = proc;
+            this.#SCREEN_OWNER.listEvent("exit",()=>{ this.#SCREEN_OWNER = null });
+            return true;
+        };
+        return false;
+    }
+    scr = () => this.#SCREEN_OWNER
+    setScreen = (proc,screen) => {
+        if (proc == this.#SCREEN_OWNER) {
+            _screen.innerHTML = "";
+            _screen.appendChild(screen);
+        }
+    }
     async runCommand(command,attributes=[]) {
         const str = attributes.length > 0 ? command + " " + attributes.join(" ") : command
         this.printLn(str);
@@ -19,11 +37,32 @@ class _SHELL {
         const exec = await this.searchExec(command);
         
         if (exec) {
-           await ___k.PROC.run(exec,attributes);
+            const proc = await ___k.PROC.init(exec,attributes);
+            
+            if (proc.isHup()) {
+                if (!this.$RUNNING) { this._setRunning(proc); };
+                try {
+                    await proc.run();
+                    this._setRunning(null);
+                } catch (e) {
+                    this.printLn(e?.toString() || "Unknown Error");
+                }
+            } else {
+                proc.run();
+            }
         } else {
-            this.printLn("Undefined command");
+            this.printLn("Unknown command");
         }
     };
+
+    _setRunning(a) {
+        this.$RUNNING = a;
+        this.$EVENT.emit("update");
+    }
+
+    abort() {
+        this._setRunning(null);
+    }
 
     printLn(string) {
         this.$PRINT.push(string);

@@ -167,7 +167,7 @@ class pc {
 		this._cmd._reg("device/restart",function(){
 			this.__restart();
 		},this);
-		this._cmd._reg("device/powerOFF",function(){
+		this._cmd._reg("device/poweroff",function(){
 			this.__powerOFF();
 		},this);
 

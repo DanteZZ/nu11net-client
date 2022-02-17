@@ -1,0 +1,1 @@
+exports = async () => _os._input;

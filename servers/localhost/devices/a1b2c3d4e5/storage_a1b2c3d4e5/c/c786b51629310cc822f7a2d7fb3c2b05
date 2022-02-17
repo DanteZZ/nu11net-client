@@ -3,7 +3,7 @@
 //----------------------
 
 const ___ctx = this;
-
+const { _screen, createElement } = new __gl();
 class _kernel {
 	#_cmd_queue = []; // Очередь на выполнение команд
 	#_vars = {
@@ -17,7 +17,7 @@ class _kernel {
 		return this.#_vars[a] = b;
 	};
 	getOSCtx() {
-		return ___ctx;
+		return {...___ctx,__gl:{ createElement }};
 	};
 	initScript = (path, vol) => new Promise ((res,rej)=> {
 		__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/readdata",{path},(d) => {
@@ -33,7 +33,7 @@ class _kernel {
 	importLibrary = (path,_imports={}, vol) => new Promise((res,rej) => {
 		__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/readdata",{path},(d) => {
 			if (d !== false) {
-				const ctx = __thread.mk({_os:___ctx, exports:undefined, _imports, __waitExport:true, _import: ___k.importLibrary});
+				const ctx = __thread.mk({_os:this.getOSCtx(), exports:undefined, _imports, __waitExport:true, _import: ___k.importLibrary});
 				try {
 					__thread.runScript(ctx,d);
 				} catch (e) {
@@ -49,14 +49,14 @@ class _kernel {
 }
 
 const ___k = new _kernel();
-const { _screen, createElement } = new __gl();
 const initModules = async () => {
 
 	___k.FS = await ___k.importLibrary("libs/fs");
 	___k.EE = await ___k.importLibrary("libs/eventEmmiter");
 	await ___k.initScript("sbin/shell");
 	await ___k.initScript("kernel/proc");
-	___k.PROC.run("sbin/cli");
+	const cli = await ___k.PROC.init("sbin/cli",[],false);
+	cli.run();
 	
 }
 

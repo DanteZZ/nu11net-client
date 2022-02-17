@@ -1,10 +1,12 @@
 ___k.PROC = {
 	list:[],
-	run: async function(path,attrs) { // Запустить процесс
+	init: async function(path,attrs, isHup = true) { // Запустить процесс
 		const id = this.randomId();
 		const process = new __PROCESS(id,path,attrs);
 		this.list.push({ id, process });
+		process.setHupMode(isHup);
 		await process.init();
+		return process;
 	},
 	destroy:function(id) {
 		const ind = this.list.findIndex((e,i)=>e.id === id);
@@ -21,7 +23,6 @@ ___k.PROC = {
 __PROCESS = class {
 	ctx = null;
 	#id = null;
-	#startScript = "try { _initialize(); } catch (e) { _os.__vm.sendError(e) }"
 
 	constructor(id,path,attrs) {
 		this.#id = id;
@@ -31,6 +32,13 @@ __PROCESS = class {
 			_process: {
 				send: (str)=>__CLI.printLn(str),
 				exit: ()=>this.destroy(),
+				setHupMode: (a)=>this.ctx._process.__hupMode=a,
+				hupMode: ()=>this.ctx._process.__hupMode,
+				getScreenOwn: ()=>{
+					const res = __CLI.setScreenOwner(this);
+					return res ? {setScreen:(screen)=>__CLI.setScreen(this,screen)} : false
+				},
+				__hupMode:true,
 				__id: id,
 				__attributes: attrs,
 				__path: path
@@ -39,13 +47,27 @@ __PROCESS = class {
 		this.ctx = __thread.mk(ctx);
 	}
 
+	isHup() {return this.ctx._process.__hupMode }
+	setHupMode(a) {this.ctx._process.__hupMode=a }
+
 	async init() {
+		const ee = await ___k.importLibrary("libs/eventEmmiter");
+		this.$EE = new ee;
 		const script = await ___k.FS.readFile(this.ctx._process.__path);
 		__thread.runScript(this.ctx,script);
-		__thread.runScript(this.ctx,this.#startScript);
 	}
 
-	destroy() {
+	listEvent(a,b) {return this.$EE.on(a,b)}
+	unlistEvent(a,b) {return this.$EE.removeListener(a,b)}
+
+	run() {
+		return this.ctx._initialize();
+	}
+
+	useScreen(proc) { return this.ctx?._screenOwnHandler ? this.ctx?._screenOwnHandler(proc) : false }
+
+	async destroy() {
+		this.$EE.emit("exit");
 		___k.PROC.destroy(this.#id);
 	}
 }
