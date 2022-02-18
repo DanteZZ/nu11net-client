@@ -1,4 +1,0 @@
-const CLI = _os.__CLI
-_initialize = () => {
-	CLI.printLn(Object.keys(_process).join(", "));
-}
