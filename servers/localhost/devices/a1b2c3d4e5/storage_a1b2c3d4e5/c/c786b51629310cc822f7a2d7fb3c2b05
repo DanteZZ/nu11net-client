@@ -55,7 +55,7 @@ const initModules = async () => {
 	___k.EE = await ___k.importLibrary("libs/eventEmmiter");
 	await ___k.initScript("sbin/shell");
 	await ___k.initScript("kernel/proc");
-	const cli = await ___k.PROC.init("sbin/cli",[],false);
+	const cli = await ___k.PROC.init(__CLI,"sbin/cli",[],false);
 	cli.run();
 	
 }

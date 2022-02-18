@@ -1,13 +1,14 @@
 ___k.PROC = {
 	list:[],
-	init: async function(path,attrs, isHup = true) { // Запустить процесс
+	init: async function(cli=null,path,attrs, isHup = true) { // Запустить процесс
 		const id = this.randomId();
-		const process = new __PROCESS(id,path,attrs);
+		const process = new __PROCESS(id,path,attrs, cli);
 		this.list.push({ id, process });
 		process.setHupMode(isHup);
 		await process.init();
 		return process;
 	},
+	clearInit: async function(path,attrs,isHup) {return await this.init(null,path,attrs,isHup)},
 	destroy:function(id) {
 		const ind = this.list.findIndex((e,i)=>e.id === id);
 		if (ind !== undefined) {
@@ -24,19 +25,31 @@ __PROCESS = class {
 	ctx = null;
 	#id = null;
 
-	constructor(id,path,attrs) {
+	constructor(id,path,attrs, cli=null) {
 		this.#id = id;
 		let ctx = {
 			_import:___k.importLibrary,
 			_os:___k.getOSCtx(),
 			_process: {
-				send: (str)=>__CLI.printLn(str),
+				std: {
+					write: (a)=>this.$EE.emit("stdout",a),
+					read: (a) => { // Ловец ввода сообщений, возвращающий ремувер
+						this.listEvent("stdin",a)
+						return ()=>{ this.unlistEvent("stdin",a) }
+					},
+					clear: cli ? cli.clear : ()=>{},
+					_cli: {
+						run: (command,attributes) => cli ? cli?.runCommand(command,attributes) : ()=>{},
+						setPath:(p)=>cli ? cli.setPath(this,p) : ()=>{}
+					}
+				},
+				$path: cli ? cli.$PATH : "/",
 				exit: ()=>this.destroy(),
 				setHupMode: (a)=>this.ctx._process.__hupMode=a,
 				hupMode: ()=>this.ctx._process.__hupMode,
-				getScreenOwn: ()=>{
-					const res = __CLI.setScreenOwner(this);
-					return res ? {setScreen:(screen)=>__CLI.setScreen(this,screen)} : false
+				getOutOwn: ()=>{
+					const res = __CLI.setOwner(this);
+					return res ? { screen: {setScreen:(screen)=>__CLI.setScreen(this,screen)}, CLI: cli } : false
 				},
 				__hupMode:true,
 				__id: id,
@@ -46,6 +59,8 @@ __PROCESS = class {
 		};
 		this.ctx = __thread.mk(ctx);
 	}
+
+	getId() {return this.#id}
 
 	isHup() {return this.ctx._process.__hupMode }
 	setHupMode(a) {this.ctx._process.__hupMode=a }
@@ -59,6 +74,15 @@ __PROCESS = class {
 
 	listEvent(a,b) {return this.$EE.on(a,b)}
 	unlistEvent(a,b) {return this.$EE.removeListener(a,b)}
+
+	onStdOut(a) { // Ловец вывода сообщений, возвращающий ремувер
+		this.listEvent("stdout",a)
+		return ()=>{ this.unlistEvent("stdout",a) }
+	}
+
+	stdIn(a) { // Ввод сообщений
+		this.$EE.emit("stdin",a);
+	}
 
 	run() {
 		return this.ctx._initialize();

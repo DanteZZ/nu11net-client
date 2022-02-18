@@ -1,10 +1,10 @@
 /* CODE */
 
-/* IMPORTS */
 var gui, _input, openedFile, fs, buildPath, isAbsolute, changed, openedText, status = null;
 
-const CLI = _os.__CLI;
+/* IMPORTS */
 const { createElement } = _os.__gl;
+const _path = _process.$path;
 
 /* HELPERS */
 
@@ -16,7 +16,7 @@ _initialize = async () => {
     fs = await _import("libs/fs");
     
     gui = _createGraphic();
-    const screen = _process.getScreenOwn();
+    const { screen } = _process.getOutOwn();
     if (!screen) {
         _process.exit();
         return false;
@@ -29,7 +29,7 @@ _initialize = async () => {
     /* CHECK FILE */
     const attrPath = _process.__attributes?.[0] || false;
     if (attrPath) {
-      path = isAbsolute(attrPath) ? attrPath : buildPath([CLI.$PATH,attrPath]);
+      path = isAbsolute(attrPath) ? attrPath : buildPath([_path,attrPath]);
       const has = await openFile(path);
       if (!has) { changed = true; }
     }

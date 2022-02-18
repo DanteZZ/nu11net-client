@@ -4,8 +4,10 @@ var ansi2html = null;
 var _input = null;
 var gui = null;
 
-let screen = _process.getScreenOwn();
-const CLI = _os.__CLI;
+let { screen, CLI } = _process.getOutOwn();
+
+const _std = _process.std;
+const _path = _process.$path;
 const { createElement } = _os.__gl;
 
 let isBlocked = false;
@@ -16,7 +18,10 @@ let isBlocked = false;
 
 _screenOwnHandler = (proc) => {
     proc.listEvent("exit",()=>{
-        screen = _process.getScreenOwn();
+        const own = _process.getOutOwn();
+        screen = own.screen;
+        CLI = own.CLI;
+        
         if (!screen) {
             _process.exit();
             return false;

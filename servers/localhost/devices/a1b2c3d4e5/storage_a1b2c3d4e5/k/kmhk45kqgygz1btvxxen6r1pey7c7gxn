@@ -1,21 +1,22 @@
 /* CAT */
-const CLI = _os.__CLI;
+const _std = _process.std;
+const _path = _process.$path;
 
 _initialize = async () => {
     const fs = await _import("libs/fs");
     const { buildPath, isAbsolute } = await _import("libs/path");
     
     const attrPath = _process.__attributes?.[0] || false;
-    let path = CLI.$PATH;
+    let path = _path;
     if (attrPath) {
-        path = isAbsolute(attrPath) ? attrPath : buildPath([CLI.$PATH,attrPath]);
+        path = isAbsolute(attrPath) ? attrPath : buildPath([_path,attrPath]);
     }
 
     const res = await fs.readFile(path);
     if (res !== false) {
-        _process.send(res);
+        _std.write(res);
     } else {
-        _process.send("Unfined file");
+        _std.write("Unfined file");
     };
     _process.exit();
 }

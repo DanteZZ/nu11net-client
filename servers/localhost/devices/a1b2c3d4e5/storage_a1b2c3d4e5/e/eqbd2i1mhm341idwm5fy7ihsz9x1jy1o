@@ -1,5 +1,5 @@
 class _SHELL {
-    #SCREEN_OWNER = null;
+    #OWNER = null;
     constructor() {
         this.$HISTORY = [];
         this.$PRINT = [];
@@ -12,23 +12,38 @@ class _SHELL {
 
     listEvent = (a,b) => this.$EVENT.on(a,b)
     unlistEvent = (a,b) => this.$EVENT.removeListener(a,b)
-    setPath = (path) => {this.$PATH = path; this.$EVENT.emit("update");}
-    setScreenOwner = (proc) => {
-        const res = !this.#SCREEN_OWNER ? true : this.#SCREEN_OWNER.useScreen(proc);
+    
+    setPath = async (proc,path) => {
+        if (this.#OWNER) {
+            const res = this.#OWNER?.askCommand ? await this.#OWNER?.askCommand("setPath",proc,{path}) : true;
+            if (!res) {return false;}
+        };
+        this.$PATH = path;
+        this.$EVENT.emit("update");
+        return true;
+    }
+
+    setOwner = (proc) => {
+        const res = !this.#OWNER ? true : this.#OWNER.useScreen(proc);
         if (res) {
-            this.#SCREEN_OWNER = proc;
-            this.#SCREEN_OWNER.listEvent("destroy",()=>{ this.#SCREEN_OWNER = null });
+            this.#OWNER = proc;
+            this.#OWNER.listEvent("destroy",()=>{ this.#OWNER = null });
             return true;
         };
         return false;
     }
-    scr = () => this.#SCREEN_OWNER
+    scr = () => this.#OWNER
     setScreen = (proc,screen) => {
-        if (proc == this.#SCREEN_OWNER) {
+        if (proc == this.#OWNER) {
             _screen.innerHTML = "";
             _screen.appendChild(screen);
         }
     }
+
+    onStd = (e) => { // Ловец ответов
+        this.printLn(e);
+    }
+
     async runCommand(command,attributes=[]) {
         const str = attributes.length > 0 ? command + " " + attributes.join(" ") : command
         this.printLn(str);
@@ -37,13 +52,18 @@ class _SHELL {
         const exec = await this.searchExec(command);
         
         if (exec) {
-            const proc = await ___k.PROC.init(exec,attributes);
-            
+            const proc = await ___k.PROC.init(this,exec,attributes);
             if (proc.isHup()) {
+                
+                const stdrm = proc.onStdOut(this.onStd);
+                proc.listEvent("destroy",()=>{
+                    this._setRunning(null);
+                    stdrm();
+                });
+
                 if (!this.$RUNNING) { this._setRunning(proc); };
                 try {
                     await proc.run();
-                    this._setRunning(null);
                 } catch (e) {
                     this.printLn(e?.toString() || "Unknown Error");
                 }
@@ -61,6 +81,8 @@ class _SHELL {
     }
 
     abort() {
+        this.printLn("Process abort #"+this.$RUNNING.getId());
+        this.$RUNNING.destroy();
         this._setRunning(null);
     }
 

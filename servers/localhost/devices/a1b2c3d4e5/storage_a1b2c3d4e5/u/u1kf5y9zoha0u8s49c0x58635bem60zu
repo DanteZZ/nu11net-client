@@ -1,7 +1,5 @@
 /* MKDIR */
 
-const CLI = _os.__CLI;
-
 _initialize = async () => {
     const fs = await _import("libs/fs");
     const { buildPath, isAbsolute } = await _import("libs/path");
@@ -9,14 +7,14 @@ _initialize = async () => {
     const attrPath = _process.__attributes?.[0] || false;
 
     if (!attrPath) {
-        _process.send("Undefined name");
+        _std.write("Undefined name");
         _process.exit();
         return null;
     }
 
-    let path = CLI.$PATH;
+    let path = _path;
     if (attrPath) {
-        path = isAbsolute(attrPath) ? attrPath : buildPath([CLI.$PATH,attrPath]);
+        path = isAbsolute(attrPath) ? attrPath : buildPath([_path,attrPath]);
     }
 
     const isDir = await fs.isDir(buildPath([path,".."]));
@@ -25,7 +23,7 @@ _initialize = async () => {
     if (isDir && !isExist) {
         await fs.mkDir(path);
     } else {
-        _process.send("Cant create directory: "+path);
+        _std.write("Cant create directory: "+path);
     };
     _process.exit();
 }

@@ -1,6 +1,7 @@
 /* TOUCH */
 
-const CLI = _os.__CLI;
+const _std = _process.std;
+const _path = _process.$path;
 
 _initialize = async () => {
     const fs = await _import("libs/fs");
@@ -9,14 +10,14 @@ _initialize = async () => {
     const attrPath = _process.__attributes?.[0] || false;
 
     if (!attrPath) {
-        _process.send("Undefined name");
+        _std.write("Undefined name");
         _process.exit();
         return null;
     }
 
-    let path = CLI.$PATH;
+    let path = _path;
     if (attrPath) {
-        path = isAbsolute(attrPath) ? attrPath : buildPath([CLI.$PATH,attrPath]);
+        path = isAbsolute(attrPath) ? attrPath : buildPath([_path,attrPath]);
     }
 
     const isDir = await fs.isDir(buildPath([path,".."]));
@@ -25,7 +26,7 @@ _initialize = async () => {
     if (isDir && !isFile) {
         await fs.writeFile(path);
     } else {
-        _process.send("Cant touch file: "+path);
+        _std.write("Cant touch file: "+path);
     };
     _process.exit();
 }

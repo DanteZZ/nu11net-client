@@ -1,18 +1,19 @@
 /* LS */
-const CLI = _os.__CLI;
+const _std = _process.std;
+const _path = _process.$path;
 
 _initialize = async () => {
     const fs = await _import("libs/fs");
     const { buildPath, isAbsolute } = await _import("libs/path");
     
     const attrPath = _process.__attributes?.[0] || false;
-    let path = CLI.$PATH;
+    let path = _path;
     if (attrPath) {
-        path = isAbsolute(attrPath) ? attrPath : buildPath([CLI.$PATH,attrPath]);
+        path = isAbsolute(attrPath) ? attrPath : buildPath([_path,attrPath]);
     }
 
-    const res = await fs.scanDir(path,true);
-    _process.send(res ? res.map(e=>{
+     const res = await fs.scanDir(path,true);
+    _std.write(res ? res.map(e=>{
         switch (e.type) {
             case 0: return `[32m${e.name}[0m`; break;
             case 1: 
@@ -25,5 +26,6 @@ _initialize = async () => {
             default: e.name;
         }
     }).join("  ") : "Unfined directory");
-    _process.exit();
+    
+	_process.exit();
 }

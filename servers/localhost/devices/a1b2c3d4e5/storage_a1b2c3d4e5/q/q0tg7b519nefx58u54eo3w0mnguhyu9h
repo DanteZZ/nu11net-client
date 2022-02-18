@@ -1,6 +1,7 @@
 /* RENAME */
 
-const CLI = _os.__CLI;
+const _std = _process.std;
+const _path = _process.$path;
 
 _initialize = async () => {
     const fs = await _import("libs/fs");
@@ -10,13 +11,13 @@ _initialize = async () => {
     const attrNewPath = _process.__attributes?.[1] || false;
 
     if (!attrOldPath || !attrNewPath) {
-        _process.send("[31mError:[0m Please, print [32m\"rename [oldpath] [nepath]\" [0m");
+        _std.write("[31mError:[0m Please, print [32m\"rename [oldpath] [nepath]\" [0m");
         _process.exit();
         return null;
     }
 
-    const oldpath = isAbsolute(attrOldPath) ? attrOldPath : buildPath([CLI.$PATH,attrOldPath]);
-    const newpath = isAbsolute(attrNewPath) ? attrNewPath : buildPath([CLI.$PATH,attrNewPath]);
+    const oldpath = isAbsolute(attrOldPath) ? attrOldPath : buildPath([_path,attrOldPath]);
+    const newpath = isAbsolute(attrNewPath) ? attrNewPath : buildPath([_path,attrNewPath]);
 
     const isExistOldDir =   await fs.isDir(oldpath);
     const isExistOldFile =  await fs.isFile(oldpath);
@@ -33,7 +34,7 @@ _initialize = async () => {
     };
 
     if (error) {
-        _process.send(`Can't rename. Check pathes: [${oldpath}] -> [${newpath}]`);
+        _std.write(`Can't rename. Check pathes: [${oldpath}] -> [${newpath}]`);
     }
     _process.exit();
 }
