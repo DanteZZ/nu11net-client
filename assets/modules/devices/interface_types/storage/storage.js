@@ -311,6 +311,7 @@ class storage {
 			let mapf = this._getMapPath(mapf_p);
 			let p = ""; // Будущий путь файла
 			let hash = "" // Будущий хеш
+			let attributes = {} //Будущие аттрибуты
 			if (!mapf) { // Если такого файла не существует, и нет директории с таким же названием, начинаем создавать файл
 				do { // Генерим незанятый хеш
 					hash = this.#_randomHash();
@@ -331,6 +332,7 @@ class storage {
 				};
 			} else if (mapf.t !== 0) { //Если такой файл уже существует
 				hash = mapf['~'];
+				attributes = mapf?.['attributes'] || {};
 				p = this.#__pth.join(this.#__dir(),mapf['~'].substr(0, 1),mapf['~']);
 				p = p.replace(/\\/g, "/");
 			} else { // Если это директория
@@ -338,7 +340,7 @@ class storage {
 			};
 			this.#__fs.writeFileSync(p,data);
 			if (typeof(map["~"]) !== "object") {map["~"] = {};};
-				map["~"][_file] = {"t":1,"~":hash};
+				map["~"][_file] = {"t":1,"~":hash,attributes};
 			this.__writeMap(); // Обновляем MAP
 		} else { // Если такой директории нет
 			return false;
@@ -361,6 +363,7 @@ class storage {
 			let mapf = this._getMapPath(mapf_p);
 			let p = ""; // Будущий путь файла
 			let hash = "" // Будущий хеш
+			let attributes = {} //Будущие аттрибуты
 			if (!mapf) { // Если такого файла не существует, и нет директории с таким же названием, начинаем создавать файл
 				do { // Генерим незанятый хеш
 					hash = this.#_randomHash();
@@ -382,12 +385,13 @@ class storage {
 			} else if (mapf.t !== 0) { //Если такой файл уже существует
 				p = this.#__pth.join(this.#__dir(),mapf['~'].substr(0, 1),mapf['~']);
 				hash = mapf['~'];
+				attributes = mapf?.['attributes'] || {};
 				p = p.replace(/\\/g, "/");
 			} else { // Если это директория
 				func(false);
 			};
 			if (typeof(map["~"]) !== "object") {map["~"] = {};};
-				map["~"][_file] = {"t":1,"~":hash};
+				map["~"][_file] = {"t":1,"~":hash,attributes};
 			this.__writeMap();
 			this.#__fs.writeFile(p,data,function(err){
 				func(true);
