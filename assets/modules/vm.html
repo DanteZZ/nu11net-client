@@ -85,7 +85,7 @@
 		#src = null
 		events = {}
 		constructor(tag) {
-			this.#src = document.createElement(tag);
+			this.#src = typeof (tag) == "object" ? tag : document.createElement(tag);
 		}
 
 		listEvent(event,func) {
@@ -123,6 +123,14 @@
 
 		_getNode() {
 			return this.#src;
+		}
+
+		getChildrens() {
+			return [...this.#src?.children]?.map(e => new ELEMENT(e)) || [];
+		}
+
+		getChildNodes() {
+			return [...this.#src?.childNodes]?.map(e => new ELEMENT(e)) || [];
 		}
 
 		getParam(param) {

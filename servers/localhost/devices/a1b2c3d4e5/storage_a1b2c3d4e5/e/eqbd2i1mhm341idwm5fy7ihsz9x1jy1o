@@ -17,7 +17,7 @@ class _SHELL {
         const res = !this.#SCREEN_OWNER ? true : this.#SCREEN_OWNER.useScreen(proc);
         if (res) {
             this.#SCREEN_OWNER = proc;
-            this.#SCREEN_OWNER.listEvent("exit",()=>{ this.#SCREEN_OWNER = null });
+            this.#SCREEN_OWNER.listEvent("destroy",()=>{ this.#SCREEN_OWNER = null });
             return true;
         };
         return false;

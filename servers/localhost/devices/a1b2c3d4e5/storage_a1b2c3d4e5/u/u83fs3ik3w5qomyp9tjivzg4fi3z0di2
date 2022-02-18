@@ -67,6 +67,10 @@ __PROCESS = class {
 	useScreen(proc) { return this.ctx?._screenOwnHandler ? this.ctx?._screenOwnHandler(proc) : false }
 
 	async destroy() {
+		if (this?.ctx?._exiting) {
+			await this?.ctx?._exiting();
+		};
+		this.$EE.emit("destroy");
 		this.$EE.emit("exit");
 		___k.PROC.destroy(this.#id);
 	}

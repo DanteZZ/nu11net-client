@@ -14,18 +14,16 @@ let isBlocked = false;
 
 /* APP */
 
-
 _screenOwnHandler = (proc) => {
     proc.listEvent("exit",()=>{
-        _os.setTimeout(()=>{
-            screen = _process.getScreenOwn();
-            if (!screen) {
-                _process.exit();
-                return false;
-            } else {
-                screen.setScreen(gui.wrapper._getNode());
-            };
-        },1)
+        screen = _process.getScreenOwn();
+        if (!screen) {
+            _process.exit();
+            return false;
+        } else {
+            screen.setScreen(gui.wrapper._getNode());
+            gui.input.focus();
+        };
     });
     return true;
 }
@@ -43,6 +41,15 @@ _initialize = async () => {
     };
     _registerLogic(gui);
     onPrintUpdate(gui);
+}
+
+_exiting = async () => {
+    _input.unlistEvent("keydown",onKeyDownGlobal)
+    _.wrapper.unlistEvent("submit",onSubmit)
+    _.print.unlistEvent("wheel",onWheel)
+    _.input.unlistEvent("blur",onBlur)
+    _.input.unlistEvent("focus",onFocus)
+    CLI.unlistEvent("update",onUpdate)
 }
 
 
@@ -84,41 +91,45 @@ const setBlockInput = (_,a) => {
 
 /* FUNCS */
 
-const _registerLogic = (_) => {
-    _input.listEvent("keydown",function(e){
-        const key = e.which || e.keyCode;
-        const ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false);
-        if (key === 67 && ctrl) {
-            CLI.abort();
-        }
-    })
-    _.wrapper.listEvent("submit",function(e){
-        if (!isBlocked) {
-            onInputSend(_);
-            e.preventDefault();
-        }
-    })
-    _.print.listEvent("wheel",function(e){
-        const delta = e.deltaY || e.detail || e.wheelDelta;
-        _.print.setParam("scrollTop",_.print.getParam("scrollTop")+delta);
+const onKeyDownGlobal = e => {
+    const key = e.which || e.keyCode;
+    const ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false);
+    if (key === 67 && ctrl) {
+        CLI.abort();
+    }
+}
+const onSubmit = e => {
+    if (!isBlocked) {
+        onInputSend(gui);
         e.preventDefault();
-    })
+    }
+}
+const onWheel = () => {
+    const delta = e.deltaY || e.detail || e.wheelDelta;
+    gui.print.setParam("scrollTop",gui.print.getParam("scrollTop")+delta);
+    e.preventDefault();
+}
+const onBlur = () => {
+    if (!isBlocked) {
+        gui.input.focus();
+    }
+}
+const onFocus = () => {
+    if (isBlocked) {
+        gui.input.blur();
+    }
+}
+const onUpdate = () => {
+    onPrintUpdate(gui);
+}
 
-    _.input.listEvent("blur",function(e) {
-        if (!isBlocked) {
-            _.input.focus();
-        }
-    })
-
-    _.input.listEvent("focus",function(e) {
-        if (isBlocked) {
-            _.input.blur();
-        }
-    })
-
-    CLI.listEvent("update",function() {
-        onPrintUpdate(_);
-    })
+const _registerLogic = (_) => {
+    _input.listEvent("keydown",onKeyDownGlobal)
+    _.wrapper.listEvent("submit",onSubmit)
+    _.print.listEvent("wheel",onWheel)
+    _.input.listEvent("blur",onBlur)
+    _.input.listEvent("focus",onFocus)
+    CLI.listEvent("update",onUpdate)
 }
 
 const _createGraphic = () => {
