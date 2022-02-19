@@ -21,7 +21,7 @@ _initialize = async () => {
         _process.exit();
         return false;
     } else {
-        await screen.setScreen(gui.wrapper._getNode());
+        await screen.setScreen(gui.wrapper);
     };
 
     _registerLogic(gui)

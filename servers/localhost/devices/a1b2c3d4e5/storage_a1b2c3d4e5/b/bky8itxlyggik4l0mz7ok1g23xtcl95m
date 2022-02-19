@@ -26,7 +26,7 @@ _screenOwnHandler = (proc) => {
             _process.exit();
             return false;
         } else {
-            screen.setScreen(gui.wrapper._getNode());
+            screen.setScreen(gui.wrapper);
             gui.input.focus();
         };
     });
@@ -42,7 +42,7 @@ _initialize = async () => {
         _process.exit();
         return false;
     } else {
-        await screen.setScreen(gui.wrapper._getNode());
+        await screen.setScreen(gui.wrapper);
     };
     _registerLogic(gui);
     onPrintUpdate(gui);

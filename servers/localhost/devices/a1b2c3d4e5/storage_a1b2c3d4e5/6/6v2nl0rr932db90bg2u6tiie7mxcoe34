@@ -1,7 +1,7 @@
 /* CLEAR */
-const CLI = _os.__CLI;
+const _std = _process.std;
 
 _initialize = async () => {
-    CLI.clear();
+    _std._cli.clear();
     _process.exit();
 }

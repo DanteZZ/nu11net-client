@@ -80,7 +80,6 @@
 	document.onmousemove = function(e) {_INPUT.emit("mousemove",e)};
 
 	/*     GRAPHIC     */
-	window._SCREEN = document.getElementById("screen");
 	class ELEMENT {
 		#src = null
 		events = {}
@@ -111,6 +110,10 @@
 
 		putElement(el) {
 			this.#src.appendChild(el._getNode());
+		}
+
+		clear() {
+			this.#src.innerHTML = "";
 		}
 
 		putHtml(data) {
@@ -150,9 +153,11 @@
 
 		setAttribute(a,b) {return this.#src.setAttribute(a,b);}
 	}
+
+	window._SCREEN = new ELEMENT(document.getElementById("screen"));
 	
 	class _gl {
-		constructor(width,height) {
+		constructor() {
 			this._screen =_SCREEN;
 		}
 		createElement = (tag) => new ELEMENT(tag)

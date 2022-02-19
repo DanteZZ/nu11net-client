@@ -40,17 +40,15 @@ __PROCESS = class {
 					clear: cli ? cli.clear : ()=>{},
 					_cli: {
 						run: (command,attributes) => cli ? cli?.runCommand(command,attributes) : ()=>{},
-						setPath:(p)=>cli ? cli.setPath(this,p) : ()=>{}
+						setPath:(p)=>cli ? cli.setPath(this,p) : ()=>{},
+						clear:()=>cli ? cli.clear(this) : ()=>{},
 					}
 				},
 				$path: cli ? cli.$PATH : "/",
 				exit: ()=>this.destroy(),
 				setHupMode: (a)=>this.ctx._process.__hupMode=a,
 				hupMode: ()=>this.ctx._process.__hupMode,
-				getOutOwn: ()=>{
-					const res = __CLI.setOwner(this);
-					return res ? { screen: {setScreen:(screen)=>__CLI.setScreen(this,screen)}, CLI: cli } : false
-				},
+				getOutOwn: ()=>cli ? cli.setOwner(this) : false,
 				__hupMode:true,
 				__id: id,
 				__attributes: attrs,
