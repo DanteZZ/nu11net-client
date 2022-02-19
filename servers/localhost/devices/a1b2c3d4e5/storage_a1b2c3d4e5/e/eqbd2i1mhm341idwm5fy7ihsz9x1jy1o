@@ -4,7 +4,7 @@ exports = async () => {
     class _SHELL {
         #OWNER = null;
         #SCREEN = null;
-    
+        #PROMPT = null;
         constructor(screen) {
             this.$HISTORY = [];
             this.$PRINT = [];
@@ -19,6 +19,11 @@ exports = async () => {
         listEvent = (a,b) => this.$EVENT.on(a,b)
         unlistEvent = (a,b) => this.$EVENT.removeListener(a,b)
         
+        prompt = (a) => new Promise((res,rej)=>{
+            this.#PROMPT = {text:a,res,rej};
+            this.$EVENT.emit("prompt",a);
+        })
+
         setPath = async (proc,path) => {
             if (this.#OWNER) {
                 const res = this.#OWNER?.askCommand ? await this.#OWNER?.askCommand("setPath",proc,{path}) : true;
@@ -63,7 +68,11 @@ exports = async () => {
         onStd = (e) => { // Ловец ответов
             this.printLn(e);
         }
-    
+        
+        sendPrompt = (a) => {
+            this.#PROMPT.res(a);
+        }
+
         async runCommand(command,attributes=[]) {
             const str = attributes.length > 0 ? command + " " + attributes.join(" ") : command
             this.printLn(str);
@@ -113,7 +122,8 @@ exports = async () => {
     
         async searchExec(name) { // Поиск исполняемого файла
             let find = false;
-            const paths = [this.$PATH,...this.$PATHS];
+				let p = this.$PATH.slice(-1) == "/" ? this.$PATH : this.$PATH+"/";
+            const paths = [p,...this.$PATHS];
             for (var k in paths) {
                 const path = paths[k]+name;
                 const attrs = await _fs.getAttributes(path);

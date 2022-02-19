@@ -37,7 +37,7 @@ __PROCESS = class {
 						this.listEvent("stdin",a)
 						return ()=>{ this.unlistEvent("stdin",a) }
 					},
-					clear: cli ? cli.clear : ()=>{},
+					prompt: (a) => cli ? cli.prompt(a) : false,
 					_cli: {
 						run: (command,attributes) => cli ? cli?.runCommand(command,attributes) : ()=>{},
 						setPath:(p)=>cli ? cli.setPath(this,p) : ()=>{},

@@ -1,8 +1,6 @@
 /* IMPORTS */
 
-var ansi2html = null;
-var _input = null;
-var gui = null;
+var ansi2html, _input, gui, _prompt = null;
 
 let { screen, CLI } = _process.getOutOwn();
 
@@ -30,6 +28,7 @@ _screenOwnHandler = (proc) => {
             gui.input.focus();
         };
     });
+    screen = null;
     return true;
 }
 
@@ -55,6 +54,7 @@ _exiting = async () => {
     _.input.unlistEvent("blur",onBlur)
     _.input.unlistEvent("focus",onFocus)
     CLI.unlistEvent("update",onUpdate)
+    CLI.unlistEvent("prompt",onPrompt)
 }
 
 
@@ -62,24 +62,28 @@ _exiting = async () => {
 
 const onInputSend = async (_) => {
     const str = _.input.getParam("value")
-    let attributes = str.split(" ");
-    const command = attributes.shift();
-
+    if (_prompt) {
+        CLI.sendPrompt(str);
+        _prompt = null;
+        onUpdate();
+    } else {
+        let attributes = str.split(" ");
+        const command = attributes.shift();
+        await CLI.runCommand(command,attributes);
+    }
     _.input.setParam("value","")
-    
-    await CLI.runCommand(command,attributes);
 }
 
 const onPrintUpdate = (_) => {
     const html = CLI.$PRINT.map(e=>ansi2html(e)).join("\n")
-    const prefix = ansi2html(`[32mroot@${CLI.$PCNAME}[0m:[34m${CLI.$PATH}[0m$`)
+    const prefix = ansi2html(_prompt || `[32mroot@${CLI.$PCNAME}[0m:[34m${CLI.$PATH}[0m$`)
     _.print.putHtml(html);
     _.print.setParam("scrollTop",_.print.getParam("scrollHeight"));
     _.input_prefix.putHtml(prefix);
-    if (CLI.$RUNNING) {
-        setBlockInput(_,true)
-    } else {
+    if (!CLI.$RUNNING || _prompt) {
         setBlockInput(_,false)
+    } else {
+        setBlockInput(_,true)
     }
 }
 
@@ -97,10 +101,12 @@ const setBlockInput = (_,a) => {
 /* FUNCS */
 
 const onKeyDownGlobal = e => {
-    const key = e.which || e.keyCode;
-    const ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false);
-    if (key === 67 && ctrl) {
-        CLI.abort();
+    if (screen && !_prompt) {
+        const key = e.which || e.keyCode;
+        const ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false);
+        if (key === 67 && ctrl) {
+            CLI.abort();
+        }
     }
 }
 const onSubmit = e => {
@@ -127,6 +133,10 @@ const onFocus = () => {
 const onUpdate = () => {
     onPrintUpdate(gui);
 }
+const onPrompt = (text) => {
+    _prompt = text;
+    onUpdate();
+}
 
 const _registerLogic = (_) => {
     _input.listEvent("keydown",onKeyDownGlobal)
@@ -135,6 +145,7 @@ const _registerLogic = (_) => {
     _.input.listEvent("blur",onBlur)
     _.input.listEvent("focus",onFocus)
     CLI.listEvent("update",onUpdate)
+    CLI.listEvent("prompt",onPrompt)
 }
 
 const _createGraphic = () => {

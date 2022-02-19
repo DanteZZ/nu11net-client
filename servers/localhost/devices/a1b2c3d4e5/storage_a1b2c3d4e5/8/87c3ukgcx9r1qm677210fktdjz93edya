@@ -1,4 +1,5 @@
   function ansi2html(str) {
+    if (typeof(str) !== "string") {return JSON.stringify(str);};
     var props = {}
       , open = false
 

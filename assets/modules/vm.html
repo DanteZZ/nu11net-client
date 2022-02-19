@@ -109,7 +109,7 @@
 		}
 
 		putElement(el) {
-			this.#src.appendChild(el._getNode());
+			this.#src.appendChild(el.#_getNode());
 		}
 
 		clear() {
@@ -124,7 +124,7 @@
 			this.#src.innerText = data;
 		}
 
-		_getNode() {
+		#_getNode = function() {
 			return this.#src;
 		}
 
@@ -181,7 +181,7 @@
 
 	const threadFuncs = {
 		mk:function(ctx) {return  vm.createContext(ctx); },
-		runScript:function(ctx,script) { try {vm.runInContext(script,ctx); return true;} catch (e) {return e;} }
+		runScript:function(ctx,script) { try {vm.runInContext(script,ctx); return true;} catch (e) { throw e;} }
 	}
 
 	function _regDefaultCommands() { // Регистрация команд устройства

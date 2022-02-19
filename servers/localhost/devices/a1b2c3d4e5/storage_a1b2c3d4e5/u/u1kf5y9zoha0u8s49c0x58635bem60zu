@@ -1,5 +1,8 @@
 /* MKDIR */
 
+const _path = _process.$path;
+const _std = _process.std;
+
 _initialize = async () => {
     const fs = await _import("libs/fs");
     const { buildPath, isAbsolute } = await _import("libs/path");
