@@ -1,5 +1,6 @@
 class CMD {
 	#_commands = {};
+	#_selfCommands = {};
 	#_events = {};
 	_cmdBuffer = {};
 	_cmdBuffNum = 0;
@@ -21,17 +22,17 @@ class CMD {
 		this._cmdBuffNum = 0;
 	}; 
 
-	_commands() {
-		return this.#_commands;
+	_commands(self=false) {
+		return self ? this.#_selfCommands : this.#_commands;
 	}
 
 	/*
 		COMMANDS
 	*/
-	_reg(command,func,ctx=null,async = false) { // Зарегистрировать комманду
+	_reg(command,func,ctx=null,async = false,self=false) { // Зарегистрировать комманду
 		let p = command.split("/");
 		let n = p.pop(); // Название создаваемой команды
-		let ct = this.#_commands; // Текущий директория поиска
+		let ct = self ? this.#_selfCommands : this.#_commands; // Текущий директория поиска
 		for (var k in p) {
 			if (ct[p[k]]) {
 				ct = ct[p[k]]
@@ -45,17 +46,17 @@ class CMD {
 			ctx:ctx
 		};
 		if (ctx==null) {
-			ct[n].fn = ct[n].fn.bind({});
+			ct[n].fn = ct[n].fn?.bind({});
 		} else {
-			ct[n].fn = ct[n].fn.bind(ct[n].ctx);
+			ct[n].fn = ct[n].fn?.bind(ct[n].ctx);
 		};
 		return true;
 	};
 
-	_regCat(name) {
+	_regCat(name,self=false) {
 		let p = name.split("/");
 		let n = p.pop(); // Название создаваемой категории
-		let ct = this.#_commands; // Текущий директория поиска
+		let ct = self ? this.#_selfCommands : this.#_commands; // Текущий директория поиска
 		for (var k in p) {
 			if (ct[p[k]]) {
 				ct = ct[p[k]]
@@ -68,10 +69,10 @@ class CMD {
 		return true;
 	};
 
-	_remove(name) {
+	_remove(name,self=false) {
 		let p = name.split("/");
 		let n = p.pop(); // Название искаемой команды
-		let ct = this.#_commands; // Текущий директория поиска
+		let ct = self ? this.#_selfCommands : this.#_commands; // Текущий директория поиска
 		for (var k in p) {
 			if (ct[p[k]]) {
 				ct = ct[p[k]]
@@ -84,10 +85,10 @@ class CMD {
 		return false;
 	};
 
-	_is(name) {
+	_is(name, self=false) {
 		let p = name.split("/");
 		let n = p.pop(); // Название искаемой команды
-		let ct = this.#_commands; // Текущий директория поиска
+		let ct = self ? this.#_selfCommands : this.#_commands; // Текущий директория поиска
 		for (var k in p) {
 			if (ct[p[k]]) {
 				ct = ct[p[k]]
@@ -103,6 +104,28 @@ class CMD {
 	_get(name) {
 		return this._is(name);
 	};
+
+	// SELF
+
+	_regSelf(command,func,ctx=null,async = false) {
+		return this._reg(command,func,ctx,async,true);
+	}
+
+	_regSelfCat(name) {
+		return this._regCat(name,true);
+	}
+
+	_removeSelf(name) {
+		return this._remove(name,true);
+	}
+
+	_isSelf(name) {
+		return this._is(name,true);
+	}
+
+	_getSelf(name) {
+		return this._isSelf(name);
+	}
 
 	/*
 		EVENTS
@@ -236,6 +259,21 @@ class CMD {
 
 	_sendCommand(command,data=false,callback=false,ctx=null) { // Отправить комманду в proc
 		if (!this.#_vm) { return false;};
+		const self = this._getSelf(command);
+		
+		if (self) {
+			if (callback) {
+				if (self.async) {
+					self.fn(data,callback)
+				} else {
+					callback(self.fn(data))
+				}
+			} else {
+				self.fn(data);
+			}
+			return true;
+		}
+		
 		let pay = {
             type:"command",
             command:command,
@@ -300,7 +338,7 @@ class CMD {
 	};
 
 	sendPost(pay) {
-
+		
 		if (this._main) {
 			pay = {
 				pid:this.#_vm.pid,

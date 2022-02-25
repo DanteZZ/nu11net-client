@@ -1,9 +1,8 @@
 /* CODE */
 
-var gui, _input, openedFile, fs, buildPath, isAbsolute, changed, openedText, status = null;
+var gui, _input, openedFile, fs, buildPath, isAbsolute, changed, openedText, status, _gr = null;
 
 /* IMPORTS */
-const { createElement } = _os.__gl;
 const _path = _process.$path;
 
 /* HELPERS */
@@ -12,10 +11,13 @@ const _path = _process.$path;
 
 _initialize = async () => {
     var { buildPath, isAbsolute } = await _import("libs/path");
+    _gr = await _import("libs/graphic");
+
     _input = await _import("libs/input");
     fs = await _import("libs/fs");
+
+    gui = await _createGraphic();
     
-    gui = _createGraphic();
     const { screen } = _process.getOutOwn();
     if (!screen) {
         _process.exit();
@@ -27,6 +29,8 @@ _initialize = async () => {
     _registerLogic(gui)
 
     /* CHECK FILE */
+
+    
     const attrPath = _process.__attributes?.[0] || false;
     if (attrPath) {
       path = isAbsolute(attrPath) ? attrPath : buildPath([_path,attrPath]);
@@ -164,16 +168,16 @@ const _registerLogic = (_) => {
   gui.editor_wrapper.listEvent("wheel",onWheel);
 }
 
-const _createGraphic = () => {
+const _createGraphic = async () => {
     const _ = {
-      wrapper: createElement("div"),
-        top_line: createElement("div"),
-        editor_wrapper: createElement("div"),
-          editor: createElement("textarea"),
-          lines: createElement("div"),
-        bottom_line: createElement("div"),
+      wrapper: await _gr.createElement("div"),
+        top_line: await _gr.createElement("div"),
+        editor_wrapper: await _gr.createElement("div"),
+          editor: await _gr.createElement("textarea"),
+          lines: await _gr.createElement("div"),
+        bottom_line: await _gr.createElement("div"),
     };
-    // contenteditable="true" spellcheck="false"
+
     _.editor.setAttribute("spellcheck","false");
     _.editor.setAttribute("codeName",`_${_process.__id}_tedit`);
 

@@ -65,8 +65,12 @@ exports = async () => {
             return false;
         }
     
-        onStd = (e) => { // Ловец ответов
-            this.printLn(e);
+        onStd = ({msg,type="print",proc}) => { // Ловец ответов
+            switch (type) {
+                case "print": this.printLn(msg,proc); break;
+                case "clearln": this.clearInLn(proc); break;
+                case "clear": this.clearIn(proc); break;
+            }
         }
         
         sendPrompt = (a) => {
@@ -75,13 +79,13 @@ exports = async () => {
 
         async runCommand(command,attributes=[]) {
             const str = attributes.length > 0 ? command + " " + attributes.join(" ") : command
-            this.printLn(str);
+            this.printLn(str,true);
             this.$HISTORY.push(str);
     
             const exec = await this.searchExec(command);
             
             if (exec) {
-                const proc = await _os.___k.PROC.init(this,exec,attributes);
+                const proc = await _os.___k().PROC.init(this,exec,attributes);
                 if (proc.isHup()) {
                     
                     const stdrm = proc.onStdOut(this.onStd);
@@ -94,13 +98,13 @@ exports = async () => {
                     try {
                         await proc.run();
                     } catch (e) {
-                        this.printLn(e?.toString() || "Unknown Error");
+                        this.printLn(e?.toString() || "Unknown Error",true);
                     }
                 } else {
                     proc.run();
                 }
             } else {
-                this.printLn("Unknown command");
+                this.printLn("Unknown command",true);
             }
         };
     
@@ -110,14 +114,40 @@ exports = async () => {
         }
     
         abort() {
-            this.printLn("Proccess abort #"+this.$RUNNING.getId());
+            this.printLn("Proccess abort #"+this.$RUNNING.getId(),true);
             this.$RUNNING.destroy();
             this._setRunning(null);
         }
     
-        printLn(string) {
-            this.$PRINT.push(string);
-            this.$EVENT.emit("update");
+        printLn(msg,proc) {
+            if ( proc ) {
+                this.$PRINT.push({msg,proc});
+                this.$EVENT.emit("update");
+            }
+        }
+    
+        clearInLn(proc) {
+            if (proc) {
+                let clear = false;
+                this.$PRINT = this.$PRINT.reverse().filter(e=>{
+                    if ((e?.proc === proc) && !clear) {
+                        clear = true;
+                        return false;
+                    }
+                    return true;
+                }).reverse();
+            }
+        }
+    
+        clearIn(proc) {
+            if (proc) {
+                this.$PRINT = this.$PRINT.filter(e=>{
+                    if (e?.proc === proc) {
+                        return false;
+                    }
+                    return true;
+                });
+            }
         }
     
         async searchExec(name) { // Поиск исполняемого файла

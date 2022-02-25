@@ -1,12 +1,11 @@
 /* IMPORTS */
 
-var ansi2html, _input, gui, _prompt = null;
+var ansi2html, _input, gui, _prompt, _gr = null;
 
 let { screen, CLI } = _process.getOutOwn();
 
 const _std = _process.std;
 const _path = _process.$path;
-const { createElement } = _os.__gl;
 
 let isBlocked = false;
 
@@ -35,8 +34,9 @@ _screenOwnHandler = (proc) => {
 _initialize = async () => {
     ansi2html = await _import("libs/ansi");
     _input = await _import("libs/input");
+    _gr = await _import("libs/graphic");
 
-    gui = _createGraphic();
+    gui = await _createGraphic();
     if (!screen) {
         _process.exit();
         return false;
@@ -75,7 +75,7 @@ const onInputSend = async (_) => {
 }
 
 const onPrintUpdate = (_) => {
-    const html = CLI.$PRINT.map(e=>ansi2html(e)).join("\n")
+    const html = CLI.$PRINT.map(e=>ansi2html(e.msg)).join("\n")
     const prefix = ansi2html(_prompt || `[32mroot@${CLI.$PCNAME}[0m:[34m${CLI.$PATH}[0m$`)
     _.print.putHtml(html);
     _.print.setParam("scrollTop",_.print.getParam("scrollHeight"));
@@ -148,13 +148,13 @@ const _registerLogic = (_) => {
     CLI.listEvent("prompt",onPrompt)
 }
 
-const _createGraphic = () => {
+const _createGraphic = async () => {
     const _ = {
-        wrapper: createElement("form"),
-            print: createElement("pre"),
-            input_wrapper: createElement("div"),
-                input_prefix: createElement("div"),
-                input: createElement("input")
+        wrapper: await _gr.createElement("form"),
+            print: await _gr.createElement("pre"),
+            input_wrapper: await _gr.createElement("div"),
+                input_prefix: await _gr.createElement("div"),
+                input: await _gr.createElement("input")
     };
 
     

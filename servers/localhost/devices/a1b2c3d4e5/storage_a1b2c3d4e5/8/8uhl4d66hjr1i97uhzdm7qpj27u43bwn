@@ -1,6 +1,6 @@
 const _std = _process.std;
 
 _initialize = async () => {
-	_std.write(JSON.stringify(Object.keys(_os),null,"\t"))
-	_process.exit();
+	_std.write(JSON.stringify(Object.keys(_os.___k().PROC),"\n",4))
+	//_process.exit();
 }

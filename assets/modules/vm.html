@@ -1,5 +1,6 @@
 <meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link rel="stylesheet" href="../styles/style.css">
 
 <div id="screen"></div>
@@ -184,19 +185,36 @@
 		runScript:function(ctx,script) { try {vm.runInContext(script,ctx); return true;} catch (e) { throw e;} }
 	}
 
+	function _regDisplay() {
+		cmd._regSelfCat("display");
+		cmd._regSelf("display/getscreen",function() {return window._SCREEN},this)
+		cmd._regSelf("display/createelement",function(tag) {return new ELEMENT(tag)},this)
+	}
+
+	function _regInput() {
+		cmd._regSelfCat("input");
+		cmd._regSelf("input/get",function() {return window._INPUT},this)
+	}
+
+	function _regVm() {
+		cmd._regSelfCat("vm");
+		cmd._regSelf("vm/interfaces",function() {return window._INTERFACES},this)
+	}
+
 	function _regDefaultCommands() { // Регистрация команд устройства
+		_regDisplay();
+		_regInput();
+		_regVm();
+
 		cmd._regCat("vm");
 		cmd._reg("vm/setCTX",function(d) {
 			ctx = d.context;
+			if (ctx.__interfaces) {window._INTERFACES = ctx.__interfaces;}
 			ctx.Math = Math;
 			ctx.setInterval = setInterval;
 			ctx.setTimeout = setTimeout;
-			ctx.__gl = _gl;
-			ctx._input = _INPUT;
 			ctx.__vm = vmFuncs;
 			ctx.__thread = threadFuncs;
-			ctx.global = {};
-			ctx.console = __csl;
 			ctx = vm.createContext(ctx);
 			return true;
 		});

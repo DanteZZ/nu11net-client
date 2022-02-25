@@ -1,24 +1,27 @@
+const _list = []
+
+const _randomId = () => {
+	let rand = 1000 - 0.5 + Math.random() * (2000 - 1000 + 1);
+	return Math.round(rand);
+}
+
+const _destroy = (id) => {
+	const ind = _list.findIndex((e,i)=>e.id === id);
+	if (ind !== undefined) {
+		_list.splice(ind,1);
+	}
+}
+
 ___k.PROC = {
-	list:[],
 	init: async function(cli=null,path,attrs, isHup = true) { // Запустить процесс
-		const id = this.randomId();
+		const id = _randomId();
 		const process = new __PROCESS(id,path,attrs, cli);
-		this.list.push({ id, process });
+		_list.push({ id, process });
 		process.setHupMode(isHup);
 		await process.init();
 		return process;
 	},
 	clearInit: async function(path,attrs,isHup) {return await this.init(null,path,attrs,isHup)},
-	destroy:function(id) {
-		const ind = this.list.findIndex((e,i)=>e.id === id);
-		if (ind !== undefined) {
-			this.list.splice(ind,1);
-		}
-	},
-	randomId:function () {
-		let rand = 1000 - 0.5 + Math.random() * (2000 - 1000 + 1);
-		return Math.round(rand);
-	}
 };
 
 __PROCESS = class {
@@ -28,11 +31,13 @@ __PROCESS = class {
 	constructor(id,path,attrs, cli=null) {
 		this.#id = id;
 		let ctx = {
-			_import:___k.importLibrary,
+			_import:importLibrary,
 			_os:___k.getOSCtx(),
 			_process: {
 				std: {
-					write: (a)=>this.$EE.emit("stdout",a),
+					write: (msg)=>this.$EE.emit("stdout",{msg,proc:this.getId(),type:"print"}),
+					clearLn: ()=>this.$EE.emit("stdout",{proc:this.getId(),type:"clearln"}),
+					clear: ()=>this.$EE.emit("stdout",{proc:this.getId(),type:"clear"}),
 					read: (a) => { // Ловец ввода сообщений, возвращающий ремувер
 						this.listEvent("stdin",a)
 						return ()=>{ this.unlistEvent("stdin",a) }
@@ -64,9 +69,9 @@ __PROCESS = class {
 	setHupMode(a) {this.ctx._process.__hupMode=a }
 
 	async init() {
-		const ee = await ___k.importLibrary("libs/eventEmmiter");
+		const ee = await importLibrary("libs/eventEmmiter");
 		this.$EE = new ee;
-		const script = await ___k.FS.readFile(this.ctx._process.__path);
+		const script = await FS.readFile(this.ctx._process.__path);
 		__thread.runScript(this.ctx,script);
 	}
 
@@ -94,6 +99,6 @@ __PROCESS = class {
 		};
 		this.$EE.emit("destroy");
 		this.$EE.emit("exit");
-		___k.PROC.destroy(this.#id);
+		_destroy(this.#id);
 	}
 }

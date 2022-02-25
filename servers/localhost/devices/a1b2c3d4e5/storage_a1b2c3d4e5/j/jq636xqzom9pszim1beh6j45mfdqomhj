@@ -1,0 +1,8 @@
+exports = async () => {
+	const vm = await _import("libs/vm");
+	return {
+		createElement: tag => new Promise(res=>vm.sendCommand("display/createelement",tag,(el)=>{
+			res(el);
+		}))
+	};
+}
