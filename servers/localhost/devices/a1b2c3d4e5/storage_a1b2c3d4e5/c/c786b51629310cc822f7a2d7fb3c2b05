@@ -20,6 +20,7 @@ class _kernel {
 			Math,
 			setInterval,
 			setTimeout,
+			__thread,
 			___k:()=>this
 		};
 	};
