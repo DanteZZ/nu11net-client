@@ -105,8 +105,9 @@ const setBlockInput = (_,a) => {
 const getHelp = async () => {
     let p = gui.input.getParam("value").split(" ").pop();
     let search = null;
-
+    let absolute = true;
     if (!__path.isAbsolute(p)) {
+        absolute = false;
         p = __path.buildPath(
             [
                 CLI.$PATH,
@@ -141,7 +142,9 @@ const getHelp = async () => {
     endres.pop();
     endres.push(res);
 
-    gui.input.setParam("value",endres.join(" "));
+    gui.input.setParam("value",endres.join(" ")
+        .replace(absolute ? "" : "/"+__path.encodePath(CLI.$PATH)+"/", "")
+        .replace(absolute ? "" : "/"+__path.encodePath(CLI.$PATH), ""));
 }
 
 const updateHistoryPoint = (up=null) => {
