@@ -20,8 +20,8 @@
 				},
 				"display_a1b2c3d4e5":{
 					"type":"display",
-					"width":1280,
-					"height":720
+					"width":800,
+					"height":600
 				},
 				"key_a1b2c3d4e5":{
 					"type":"keyboard"

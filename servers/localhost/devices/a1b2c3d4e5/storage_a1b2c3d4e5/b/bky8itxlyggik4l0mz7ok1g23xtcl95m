@@ -1,6 +1,7 @@
 /* IMPORTS */
 
 var ansi2html, _input, gui, _prompt, _gr = null;
+var historyPoint = 0;
 
 let { screen, CLI } = _process.getOutOwn();
 
@@ -70,8 +71,8 @@ const onInputSend = async (_) => {
         let attributes = str.split(" ");
         const command = attributes.shift();
         await CLI.runCommand(command,attributes);
-    }
-    _.input.setParam("value","")
+    };
+    updateHistoryPoint();
 }
 
 const onPrintUpdate = (_) => {
@@ -100,14 +101,40 @@ const setBlockInput = (_,a) => {
 
 /* FUNCS */
 
+const updateHistoryPoint = (up=null) => {
+    if (up === null) { // clear
+        historyPoint = CLI?.$HISTORY.length;
+    } else if (up === true) { // up
+        historyPoint -= 1;
+    } else { // down
+        historyPoint += 1;
+    }
+    if (historyPoint > CLI?.$HISTORY.length) {historyPoint = CLI?.$HISTORY.length;}
+    if (historyPoint < 0) {historyPoint = 0};
+
+    gui.input.setParam("value", CLI?.$HISTORY?.[historyPoint] || "");
+}
+
 const onKeyDownGlobal = e => {
     if (screen && !_prompt) {
         const key = e.which || e.keyCode;
         const ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false);
-        if (key === 67 && ctrl) {
+        if (key === 67 && ctrl) { // CTRL + C
             CLI.abort();
-        }
+            e.preventDefault();
+        };
+
+        if (key === 38) { // UP
+            updateHistoryPoint(true);
+            e.preventDefault();
+        };
+
+        if (key === 40) { // DOWN
+            updateHistoryPoint(false);
+            e.preventDefault();
+        };
     }
+    
 }
 const onSubmit = e => {
     if (!isBlocked) {
