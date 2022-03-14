@@ -23,10 +23,12 @@ const buildPath = (segments) => {
   }
 
 const isAbsolute = (path) => path.slice(0,1) == "/"
-const encodePath = (path) => isAbsolutePath(path) ? path.slice(1) : path
+const isEnding = (path) => path.slice(-1) == "/"
+const encodePath = (path) => isAbsolute(path) ? path.slice(1) : path
 
 exports = async () =>({
     buildPath,
     isAbsolute,
+	 isEnding,
     encodePath
 })

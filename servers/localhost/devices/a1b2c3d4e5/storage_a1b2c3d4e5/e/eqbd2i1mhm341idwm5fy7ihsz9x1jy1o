@@ -1,6 +1,7 @@
 exports = async () => {
     const _ee = await _import("libs/eventEmmiter");
     const _fs = await _import("libs/fs");
+    const _path = await _import("libs/path");
     class _SHELL {
         #OWNER = null;
         #SCREEN = null;
@@ -33,6 +34,8 @@ exports = async () => {
             this.$EVENT.emit("update");
             return true;
         }
+
+        getHelps = async (path) => await _fs.scanDir(path) 
 
         clear = async (proc) => {
             if (this.#OWNER) {
@@ -152,10 +155,10 @@ exports = async () => {
     
         async searchExec(name) { // Поиск исполняемого файла
             let find = false;
-				let p = this.$PATH.slice(-1) == "/" ? this.$PATH : this.$PATH+"/";
+			let p = this.$PATH.slice(-1) == "/" ? this.$PATH : this.$PATH+"/";
             const paths = [p,...this.$PATHS];
             for (var k in paths) {
-                const path = paths[k]+name;
+                const path = _path.encodePath(paths[k]+name);
                 const attrs = await _fs.getAttributes(path);
                 if (attrs?.exec) {
                     find = path;

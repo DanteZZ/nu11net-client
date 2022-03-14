@@ -1,6 +1,6 @@
 /* IMPORTS */
 
-var ansi2html, _input, gui, _prompt, _gr = null;
+var ansi2html, _input, gui, _prompt, _gr, __path = null;
 var historyPoint = 0;
 
 let { screen, CLI } = _process.getOutOwn();
@@ -36,6 +36,7 @@ _initialize = async () => {
     ansi2html = await _import("libs/ansi");
     _input = await _import("libs/input");
     _gr = await _import("libs/graphic");
+    __path = await _import("libs/path");
 
     gui = await _createGraphic();
     if (!screen) {
@@ -101,6 +102,48 @@ const setBlockInput = (_,a) => {
 
 /* FUNCS */
 
+const getHelp = async () => {
+    let p = gui.input.getParam("value").split(" ").pop();
+    let search = null;
+
+    if (!__path.isAbsolute(p)) {
+        p = __path.buildPath(
+            [
+                CLI.$PATH,
+                p,
+                (
+                    __path.isEnding(p) && p.length > 1
+                        ? "/" 
+                        : "."
+                )
+            ]
+        );
+    };
+    
+    if (!__path.isEnding(p)) {
+        p = p.split("/");
+        search = p.pop();
+        p = __path.buildPath(p);
+    };
+    
+    let res = await CLI.getHelps(__path.buildPath([p]));
+
+    if (search && res) {
+        res = res.find(e=>e.substr(0,search.length) == search);
+        res = __path.buildPath([p,(res || search)])
+    } else if (res) {
+        res = __path.buildPath([p,res[0]]);
+    } else {
+        res = p;
+    };
+
+    const endres = gui.input.getParam("value").split(" ");
+    endres.pop();
+    endres.push(res);
+
+    gui.input.setParam("value",endres.join(" "));
+}
+
 const updateHistoryPoint = (up=null) => {
     if (up === null) { // clear
         historyPoint = CLI?.$HISTORY.length;
@@ -121,6 +164,11 @@ const onKeyDownGlobal = e => {
         const ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false);
         if (key === 67 && ctrl) { // CTRL + C
             CLI.abort();
+            e.preventDefault();
+        };
+
+        if (key === 9) { // TAB
+            getHelp();
             e.preventDefault();
         };
 
