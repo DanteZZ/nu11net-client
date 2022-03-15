@@ -201,15 +201,19 @@
 		cmd._regSelf("vm/interfaces",function() {return window._INTERFACES},this)
 	}
 
+	function hasInterface(name) { return window._INTERFACES?.find(e=>e?.type == name) ? true : false}
+
 	function _regDefaultCommands() { // Регистрация команд устройства
-		_regDisplay();
-		_regInput();
 		_regVm();
 
 		cmd._regCat("vm");
 		cmd._reg("vm/setCTX",function(d) {
 			ctx = d.context;
 			if (ctx.__interfaces) {window._INTERFACES = ctx.__interfaces;}
+
+			if (hasInterface("display")) { _regDisplay(); }
+			if (hasInterface("input")) { _regInput(); }
+
 			ctx.Math = Math;
 			ctx.setInterval = setInterval;
 			ctx.setTimeout = setTimeout;

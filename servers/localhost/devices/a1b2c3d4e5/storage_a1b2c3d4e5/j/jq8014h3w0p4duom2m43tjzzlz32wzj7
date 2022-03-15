@@ -1,5 +1,0 @@
-_k.ethernet = {
-	list: function() {
-		return _k.interfaces.getByType("ethernet");
-	}
-}; 
