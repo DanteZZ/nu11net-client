@@ -1,0 +1,40 @@
+/* SYSTEM_DAEMON */
+const _std = _process.std;
+const _list = [];
+var _proc, _fs = null;
+var daemons = [];
+
+_initialize = async () => {
+	_proc = await _import("libs/process");
+	_fs = await _import("libs/fs");
+	await start();
+	//_process.exit(); 
+}
+
+_exiting = async () => {
+	_list.forEach(p=>p?.destroy())
+}
+
+const start = async () => {
+	await updateDaemonList();
+	const ids = {}
+	_proc.list().forEach(i =>ids[i.path] = i.id);
+	for (var i in daemons) {
+		const d = daemons[i];
+		if (!ids[d.path]) {
+			try {
+				const p = await _proc.init(d.path,d?.attributes || [],false);
+				_list.push(p);
+				p.run();
+			} catch (e) {
+				_std.write(e.toString());
+			}
+		};
+	};
+	return true;
+}
+
+const updateDaemonList = async () => {
+	daemons = JSON.parse(await _fs.readFile("kernel/daemon/init"));
+	return daemons;
+};

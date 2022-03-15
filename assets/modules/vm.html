@@ -40,7 +40,7 @@
 		}
 		emit(event, ...args) {
 			if (typeof this.events[event] === 'object') {
-			this.events[event].forEach(listener => listener.apply(this._bind, args));
+				this.events[event].forEach(listener => {try {listener.apply(this._bind, args)} catch (e) {}})
 			}
 		}
 		once(event, listener) {

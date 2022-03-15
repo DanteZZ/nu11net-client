@@ -61,7 +61,7 @@ class storage {
 	_getMapPath(path) {
 		if (!this.__mapped) {this.#__err("0x000101","Unmapped storage"); return false;};
 		if (path) {
-			let _pt = path.split("/");
+			let _pt = typeof path == "string" ? path?.split("/") : [];
 			let res = {"~":this.__map};
 			for (var k in _pt) {
 				let _p = _pt[k];

@@ -15,13 +15,30 @@ const _destroy = (id) => {
 ___k.PROC = {
 	init: async function(cli=null,path,attrs, isHup = true) { // Запустить процесс
 		const id = _randomId();
-		const process = new __PROCESS(id,path,attrs, cli);
-		_list.push({ id, process });
-		process.setHupMode(isHup);
-		await process.init();
-		return process;
+		const has = await FS.isFile(path)
+		if (has) {
+			const process = new __PROCESS(id,path,attrs, cli);
+			_list.push({ id, process });
+			process.setHupMode(isHup);
+			await process.init();
+			return process;
+		} else {
+			throw new Error("Undefined path");
+		}
 	},
 	clearInit: async function(path,attrs,isHup) {return await this.init(null,path,attrs,isHup)},
+	list: ()=> _list.map(e=>({
+		id:e.id,
+		path:e.process.ctx._process.__path,
+		attrubites:e.process.ctx._process.__attributes,
+		hup:e.process.ctx._process.__hupMode,
+		mem:e.process._mem()
+	})),
+	kill: async (id) => {
+		let p = _list.find(e=>e.id == id);
+		if (p) {await p.process.destroy(); return true;};
+		return false;
+	}
 };
 
 __PROCESS = class {
@@ -61,6 +78,40 @@ __PROCESS = class {
 			}
 		};
 		this.ctx = __thread.mk(ctx);
+	}
+
+	_mem() {
+		let object = this.ctx;
+		var objectList = [];
+		var stack = [ object ];
+		var bytes = 0;
+	
+		while ( stack.length ) {
+			var value = stack.pop();
+	
+			if ( typeof value === 'boolean' ) {
+				bytes += 4;
+			}
+			else if ( typeof value === 'string' ) {
+				bytes += value.length * 2;
+			}
+			else if ( typeof value === 'number' ) {
+				bytes += 8;
+			}
+			else if
+			(
+				typeof value === 'object'
+				&& objectList.indexOf( value ) === -1
+			)
+			{
+				objectList.push( value );
+	
+				for( var i in value ) {
+					stack.push( value[ i ] );
+				}
+			}
+		}
+		return bytes;
 	}
 
 	getId() {return this.#id}

@@ -36,7 +36,7 @@ class _kernel {
 	};
 }
 
-const ___k = new _kernel();
+this.___k = new _kernel();
 
 const initScript = (path, vol) => new Promise ((res,rej)=> {
 	__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/readdata",{path},(d) => {
@@ -84,16 +84,10 @@ const initModules = async () => {
 		
 		const cli = await ___k.PROC.init(shell,"sbin/cli",[],false);
 		cli.run();
+		const daemon = await ___k.PROC.init(shell,"kernel/system_daemon",[],false);
+		daemon.run();
+
 	} catch (e) {__vm.sendLog(e.toString())}
 }
 
 initModules();
-
-
-mouse_x = 0;
-mouse_y = 0;
-
-__vm.listenEvent("interfaces/mouse/mouse_a1b2c3d4e5/move",function(d){
-	mouse_x = d.x;
-	mouse_y = d.y;
-});
