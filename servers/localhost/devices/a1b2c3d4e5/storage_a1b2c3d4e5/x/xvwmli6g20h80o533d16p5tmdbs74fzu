@@ -1,6 +1,8 @@
 exports = async () => {
 	return {
 		sendCommand:_os.___k().sendCommand,
+		listenEvent:_os.___k().listenEvent,
+		unlistenEvent:_os.___k().unlistenEvent,
 		getBoot:()=>_os.___k().getVar("boot_storage"),
 		getInterfaces: () => new Promise(res=>_os.___k().sendCommand("vm/interfaces",null,(el)=>{
 			res(el);

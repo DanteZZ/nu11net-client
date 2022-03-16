@@ -1,0 +1,81 @@
+/* NETWORK */
+const _std = _process.std;
+
+var _vm, 
+	_fs, 
+	_conf, 
+	defEth,
+	rmEvPort = null;
+
+const eventRm = {
+	rx:[]
+}
+const events = {
+	rx:{}
+}
+const ports = {};
+
+_initialize = async () => {
+	_vm = await _import("libs/vm");
+	_fs = await _import("libs/fs");
+	try {
+		_conf = JSON.parse(await _fs.readFile("/kernel/network_conf/network"));
+	} catch (e) {
+		//_std.write("Error in network file [ /kernel/network_conf/network ]");
+		_std.write("Error in network file [ /kernel/network_conf/network ]");
+		_process.exit(); 
+	}
+	if (setDefaultEth()) {
+		await start();
+	}
+}
+
+_exiting = async () => {
+	eventRm.rx.forEach(i=>_vm.unlistenEvent(i))
+}
+
+const setDefaultEth = () => {
+	let first = false;
+	for (let name in _conf) {
+		if (!first) {first = name;};
+		const eth = _conf[name];
+		if (eth?.default) {
+			defEth = name;
+			return true;
+		}
+	};
+	if (!defEth && first) {
+		defEth = first;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+const start = async () => {
+	for (let name in _conf) { // Reg RX Events
+		events.rx[name] = (data) => onRX(name,data);
+		eventRm.rx[name] = _vm.listenEvent(`interfaces/ethernet/${defEth}/rx`,events.rx[name]);
+	};
+	rmEvPort = _std.read(stdin);
+	_std.write(`Listening ${Object.keys(events.rx).join(", ")}`);
+}
+
+const stdin = ({type,payload:{port=0,receiver=()=>{}}}) => {
+	if (type == "take_port") {
+		if (ports[port]) {
+			throw new Error("Port unavailable");
+		} else {
+			ports[port] = receiver;
+			return () => { delete ports[port]; }
+		}
+	};
+}
+
+const onRX = (eth,data) => {
+	if (data.port && data.data) {
+		if (ports[port]) { ports[port](data.data,_conf[eth]); }
+	};
+	//_std.write("Message from Port: "+eth);
+	//_std.write(JSON.stringify(data));
+}

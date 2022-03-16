@@ -32,7 +32,8 @@ ___k.PROC = {
 		path:e.process.ctx._process.__path,
 		attrubites:e.process.ctx._process.__attributes,
 		hup:e.process.ctx._process.__hupMode,
-		mem:e.process._mem()
+		mem:e.process._mem(),
+		stdIn:e.process.ctx._process.std.in
 	})),
 	kill: async (id) => {
 		let p = _list.find(e=>e.id == id);
@@ -59,12 +60,13 @@ __PROCESS = class {
 						this.listEvent("stdin",a)
 						return ()=>{ this.unlistEvent("stdin",a) }
 					},
+					in: this.stdIn,
 					prompt: (a) => cli ? cli.prompt(a) : false,
 					_cli: {
 						run: (command,attributes) => cli ? cli?.runCommand(command,attributes) : ()=>{},
 						setPath:(p)=>cli ? cli.setPath(this,p) : ()=>{},
 						clear:()=>cli ? cli.clear(this) : ()=>{},
-					}
+					},
 				},
 				$path: cli ? cli.$PATH : "/",
 				exit: ()=>this.destroy(),

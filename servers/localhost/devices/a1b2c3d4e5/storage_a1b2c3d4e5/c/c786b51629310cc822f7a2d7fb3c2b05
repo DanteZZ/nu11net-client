@@ -34,6 +34,17 @@ class _kernel {
 			return __vm.sendCommand(name,data,cb,ctx);
 		}
 	};
+	listenEvent = (name,func,ctx) => {
+		const blacklist = [];
+		if (blacklist.indexOf(name) > -1) {
+			return false;
+		} else {
+			return __vm.listenEvent(name,func,ctx);
+		}
+	};
+	unlistenEvent = (id) => {
+		return __vm.unlistenEvent(id);
+	};
 }
 
 this.___k = new _kernel();
