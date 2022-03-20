@@ -1,5 +1,9 @@
 const _list = []
 
+const STD_PRINT = "print";
+const STD_CLEARLN = "clearln";
+const STD_CLEAR = "clear";
+
 const _randomId = () => {
 	let rand = 1000 - 0.5 + Math.random() * (2000 - 1000 + 1);
 	return Math.round(rand);
@@ -49,13 +53,13 @@ __PROCESS = class {
 	constructor(id,path,attrs, cli=null) {
 		this.#id = id;
 		let ctx = {
-			_import:importLibrary,
+			_import:(path,other, vol) => importLibrary(path,{_process:this,...other},vol),
 			_os:___k.getOSCtx(),
 			_process: {
 				std: {
-					write: (msg)=>this.$EE.emit("stdout",{msg,proc:this.getId(),type:"print"}),
-					clearLn: ()=>this.$EE.emit("stdout",{proc:this.getId(),type:"clearln"}),
-					clear: ()=>this.$EE.emit("stdout",{proc:this.getId(),type:"clear"}),
+					write: (msg)=>this.$EE.emit("stdout",{type:STD_PRINT,msg,proc:this.getId()}),
+					clearLn: ()=>this.$EE.emit("stdout",{type:STD_CLEARLN,proc:this.getId()}),
+					clear: ()=>this.$EE.emit("stdout",{type:STD_CLEAR,proc:this.getId()}),
 					read: (a) => { // Ловец ввода сообщений, возвращающий ремувер
 						this.listEvent("stdin",a)
 						return ()=>{ this.unlistEvent("stdin",a) }
@@ -136,7 +140,8 @@ __PROCESS = class {
 		return ()=>{ this.unlistEvent("stdout",a) }
 	}
 
-	stdIn(a) { // Ввод сообщений
+	stdIn = (a) => { // Ввод сообщений
+		console.log(a);
 		this.$EE.emit("stdin",a);
 	}
 

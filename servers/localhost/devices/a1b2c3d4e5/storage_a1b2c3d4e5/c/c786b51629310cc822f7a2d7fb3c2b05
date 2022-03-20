@@ -21,6 +21,7 @@ class _kernel {
 			setInterval,
 			setTimeout,
 			__thread,
+			console,
 			___k:()=>this
 		};
 	};
@@ -61,10 +62,10 @@ const initScript = (path, vol) => new Promise ((res,rej)=> {
 	})
 });
 
-this.importLibrary = (path,_imports={}, vol) => new Promise((res,rej) => {
+this.importLibrary = (path,other, vol) => new Promise((res,rej) => {
 	__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/readdata",{path},(d) => {
 		if (d !== false) {
-			const ctx = __thread.mk({_os:___k.getOSCtx(), exports:undefined, __waitExport:true, _import: importLibrary});
+			const ctx = __thread.mk({_os:___k.getOSCtx(), exports:undefined, __waitExport:true, _import: importLibrary, ...other});
 			try {
 				__thread.runScript(ctx,d);
 			} catch (e) {

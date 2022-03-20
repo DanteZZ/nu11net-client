@@ -1,4 +1,12 @@
 /* NETWORK */
+
+const STD_TAKEPORT = "take_port";
+const STD_SENDPCKG = "send_package";
+const STD_RESPPCKG = "response_package";
+
+const PROTO_TCP = "TCP";
+const PROTO_UDP = "UDP";
+
 const _std = _process.std;
 
 var _vm, 
@@ -21,7 +29,6 @@ _initialize = async () => {
 	try {
 		_conf = JSON.parse(await _fs.readFile("/kernel/network_conf/network"));
 	} catch (e) {
-		//_std.write("Error in network file [ /kernel/network_conf/network ]");
 		_std.write("Error in network file [ /kernel/network_conf/network ]");
 		_process.exit(); 
 	}
@@ -61,21 +68,31 @@ const start = async () => {
 	_std.write(`Listening ${Object.keys(events.rx).join(", ")}`);
 }
 
-const stdin = ({type,payload:{port=0,receiver=()=>{}}}) => {
-	if (type == "take_port") {
-		if (ports[port]) {
-			throw new Error("Port unavailable");
-		} else {
-			ports[port] = receiver;
-			return () => { delete ports[port]; }
+const stdin = ({type,port = 0,protocol=PROTO_TCP,receiver=()=>{},onSuccess,onError}) => {
+	switch (type) {
+		case STD_TAKEPORT: 
+			if (ports[port]) {
+				
+				onError && onError("Port unavailable");
+			} else {
+				ports[port] = {protocol,receiver};
+				onSuccess && onSuccess(() => { delete ports[port]; });
+			}
+		break;
+		case STD_SENDPCKG:
+			// SENDING
+		break;
+	}
+}
+
+const onRX = (eth,{port,data}) => {
+	if (port && data) {
+		if (ports?.[port]) {
+			ports[port].receiver(data,_conf[eth]);
 		}
 	};
 }
 
-const onRX = (eth,data) => {
-	if (data.port && data.data) {
-		if (ports[port]) { ports[port](data.data,_conf[eth]); }
-	};
-	//_std.write("Message from Port: "+eth);
-	//_std.write(JSON.stringify(data));
+const TX = async (eth,data,protocol) => {
+
 }

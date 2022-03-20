@@ -1,0 +1,27 @@
+/* CHAT */
+const _std = _process.std;
+var _proc, _remover = null;
+
+_initialize = async () => {
+	_proc = await _import("libs/process");
+	const netw = _proc.list().find(e=>e.path == "kernel/network");
+	const http = (port,rec) => new Promise((res,rej) =>
+		netw.stdIn({
+			type:"take_port",
+			port:port,
+			receiver:rec,
+			onSuccess:res,
+			onError:rej
+		})
+	);
+	const _remover = await http(8080,receiver)
+	_std.write(typeof(_remover));
+}
+
+_exiting = async () => {
+	_remover && _remover();
+}
+
+const receiver = (d) => {
+	_std.write(JSON.stringify(d));
+};

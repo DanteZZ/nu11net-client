@@ -214,6 +214,7 @@
 			if (hasInterface("display")) { _regDisplay(); }
 			if (hasInterface("input")) { _regInput(); }
 
+			ctx.console = window.console;
 			ctx.Math = Math;
 			ctx.setInterval = setInterval;
 			ctx.setTimeout = setTimeout;
