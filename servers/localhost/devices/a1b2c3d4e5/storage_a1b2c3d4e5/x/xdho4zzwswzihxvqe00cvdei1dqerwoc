@@ -1,0 +1,9 @@
+/* LOOPBACK */
+
+_initialize = async () => {
+	const _vm = await _import("libs/vm");
+	await _vm.commands.regCat(`interfaces/ethernet/lo`);
+	await _vm.commands.reg(`interfaces/ethernet/lo/send`,(d)=>{
+		_vm.commands.doEvent(`interfaces/ethernet/lo/rx`,d);
+	},this);
+}

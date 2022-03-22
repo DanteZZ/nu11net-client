@@ -10,10 +10,10 @@ exports = async () => {
 
 		init = async () => {
 			this.remover = await _netw.takePort(this.port,this.receiver);
-			_os.console.log(this);
 		}
 		close = () => this?.remover()
-		get = (address,data,headers) => _netw.sendPackage(address,{data,headers},"TCP")
+		get = (address,data,headers={}) => _netw.sendPackage(address,{data,headers},"TCP")
+		send = (address,data,headers={}) => _netw.sendPackage(address,{data,headers},"UDP")
 	}
 	return SRV;
 }

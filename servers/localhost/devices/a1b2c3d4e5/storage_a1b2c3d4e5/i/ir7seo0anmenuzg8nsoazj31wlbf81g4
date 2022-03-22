@@ -11,7 +11,8 @@ const _std = _process.std;
 
 var _vm, 
 	_fs, 
-	_conf, 
+	_cidr,
+	_conf,
 	defEth,
 	rmEvPort = null;
 
@@ -26,6 +27,7 @@ const ports = {};
 _initialize = async () => {
 	_vm = await _import("libs/vm");
 	_fs = await _import("libs/fs");
+	_cidr = await _import("libs/cidr");
 	try {
 		_conf = JSON.parse(await _fs.readFile("/kernel/network_conf/network"));
 	} catch (e) {
@@ -40,6 +42,16 @@ _initialize = async () => {
 _exiting = async () => {
 	eventRm.rx.forEach(i=>_vm.unlistenEvent(i))
 }
+
+const getHost = (url) => /^(?:\w+\:\/\/)?([^\/]+)([^\?]*)\??(.*)$/.exec(url)[1]
+const getEth = (ip) => {
+	for (let name in _conf) {
+		if (_cidr.checkIp(ip,_conf[name].ip)) {
+			return name;
+		}
+	};
+	return defEth;
+};
 
 const setDefaultEth = () => {
 	let first = false;
@@ -62,13 +74,23 @@ const setDefaultEth = () => {
 const start = async () => {
 	for (let name in _conf) { // Reg RX Events
 		events.rx[name] = (data) => onRX(name,data);
-		eventRm.rx[name] = _vm.listenEvent(`interfaces/ethernet/${defEth}/rx`,events.rx[name]);
+		eventRm.rx[name] = _vm.listenEvent(`interfaces/ethernet/${name}/rx`,events.rx[name]);
 	};
 	rmEvPort = _std.read(stdin);
 	_std.write(`Listening ${Object.keys(events.rx).join(", ")}`);
 }
 
-const stdin = ({type,port = 0,protocol=PROTO_TCP,receiver=()=>{},onSuccess,onError}) => {
+const stdin = async ({
+		type,
+		port = 0,
+		protocol=PROTO_TCP,
+		receiver=()=>{},
+		onSuccess,
+		onError,
+
+		address,
+		data
+	}) => {
 	switch (type) {
 		case STD_TAKEPORT: 
 			if (ports[port]) {
@@ -80,12 +102,23 @@ const stdin = ({type,port = 0,protocol=PROTO_TCP,receiver=()=>{},onSuccess,onErr
 			}
 		break;
 		case STD_SENDPCKG:
-			// SENDING
+			const eth = getEth(getHost(address).split(":")[0]);
+			if (eth) { // Если есть порт по которому стучаться
+				switch (protocol) {
+					case PROTO_UDP:
+						_vm.sendCommand(`interfaces/ethernet/${eth}/send`,{protocol,address,data});
+						return true;
+					break;
+				}
+			} else {
+				return false;
+			};
 		break;
 	}
 }
 
-const onRX = (eth,{port,data}) => {
+const onRX = (eth,{address,data}) => {
+	const port = getHost(address).split(":")[1];
 	if (port && data) {
 		if (ports?.[port]) {
 			ports[port].receiver(data,_conf[eth]);

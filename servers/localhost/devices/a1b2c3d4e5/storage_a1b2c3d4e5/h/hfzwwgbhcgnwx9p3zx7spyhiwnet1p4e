@@ -1,10 +1,18 @@
 /* CHAT */
 const _std = _process.std;
 var server, http = null;
+var _hosts, _fs = null;
 
 _initialize = async () => {
 	server = await _import("libs/server");
+	_fs = await _import("libs/fs");
+	_hosts = await _import("libs/hosts");
+
 	http = new server(8080,receiver);
+
+	const hosts = new _hosts(await _fs.readFile("/etc/hosts"));
+	_std.write(JSON.stringify(hosts));
+	//http.send("127.0.0.1:8080","heheh")
 }
 
 _exiting = async () => {

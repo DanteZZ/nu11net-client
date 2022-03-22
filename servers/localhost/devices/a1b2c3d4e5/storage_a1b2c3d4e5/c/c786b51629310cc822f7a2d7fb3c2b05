@@ -46,6 +46,9 @@ class _kernel {
 	unlistenEvent = (id) => {
 		return __vm.unlistenEvent(id);
 	};
+	doEvent = (e,data) => {
+		return __vm.doEvent(e,data);
+	};
 }
 
 this.___k = new _kernel();

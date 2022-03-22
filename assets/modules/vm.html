@@ -175,7 +175,7 @@
 
 		listenEvent:function(event,func = ()=>{},ctx=null){return cmd._listenEvent(event,func,ctx)},
 		unlistenEvent:function(id){return cmd._unlistenEvent(id)},
-		doEvent:function(event,data=false){return cmd._doEvent(event,data)},
+		doEvent:function(event,data=false,self=false){return cmd._doEvent(event,data,self)},
 
 		runScript:function(script) {vm.runInContext(script,ctx);},
 	};
@@ -198,7 +198,14 @@
 
 	function _regVm() {
 		cmd._regSelfCat("vm");
-		cmd._regSelf("vm/interfaces",function() {return window._INTERFACES},this)
+		cmd._regSelfCat("vm/commands");
+		cmd._regSelf("vm/interfaces",function() {return window._INTERFACES},this);
+		cmd._regSelf("vm/commands/regCat",({path})=>cmd._regSelfCat(path),this);
+		cmd._regSelf("vm/commands/reg",({path,handler,ctx})=>cmd._regSelf(path,handler,ctx),this);
+		cmd._regSelf("vm/commands/doEvent",({event,data})=>{
+			console.log("cmdDoEv",event,data);
+			return cmd._doEvent(event,data,true)
+		},this);
 	}
 
 	function hasInterface(name) { return window._INTERFACES?.find(e=>e?.type == name) ? true : false}

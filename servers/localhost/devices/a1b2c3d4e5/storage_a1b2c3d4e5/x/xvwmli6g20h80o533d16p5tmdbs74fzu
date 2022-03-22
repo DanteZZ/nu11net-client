@@ -3,9 +3,21 @@ exports = async () => {
 		sendCommand:_os.___k().sendCommand,
 		listenEvent:_os.___k().listenEvent,
 		unlistenEvent:_os.___k().unlistenEvent,
+		doEvent:_os.___k().doEvent,
 		getBoot:()=>_os.___k().getVar("boot_storage"),
-		getInterfaces: () => new Promise(res=>_os.___k().sendCommand("vm/interfaces",null,(el)=>{
+		getInterfaces: () => new Promise(res=>_os.___k().sendCommand("vm/interfaces",null,		(el)=>{
 			res(el);
-		}))
+		})),
+		commands: {
+			reg: (path,handler,ctx) => new Promise(res=>
+				_os.___k().sendCommand("vm/commands/reg",{path,handler,ctx}, (el)=>{
+					res(el);
+				})),
+			regCat: (path) => new Promise(res=>
+				_os.___k().sendCommand("vm/commands/regCat",{path}, (el)=>{
+					res(el);
+				})),
+			doEvent:(event,data)=>_os.___k().sendCommand("vm/commands/doEvent",{event,data})
+		}
 	};
 }

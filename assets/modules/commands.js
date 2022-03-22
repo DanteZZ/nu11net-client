@@ -2,6 +2,7 @@ class CMD {
 	#_commands = {};
 	#_selfCommands = {};
 	#_events = {};
+	#_selfEvents = {};
 	_cmdBuffer = {};
 	_cmdBuffNum = 0;
 	#_vm = false;
@@ -131,8 +132,9 @@ class CMD {
 		EVENTS
 	*/
 	_listenEvent(event,func = ()=>{},ctx=null) { // Прослушивать Event
-		if (!this.#_events[event]) { // Если в массиве Event'ов такого ещё не прослушивалось
-			this.#_events[event] = [];
+		const evvs = this.#_events;
+		if (!evvs[event]) { // Если в массиве Event'ов такого ещё не прослушивалось
+			evvs[event] = [];
 		};
 		let p = {
 			fn: func,
@@ -143,24 +145,28 @@ class CMD {
 		} else {
 			p.fn = p.fn.bind(p.ctx);
 		};
-		this.#_events[event].push(p);
-		return event+"#"+(this.#_events[event].length-1);
+		evvs[event].push(p);
+		return event+"#"+(evvs[event].length-1);
 	};
 	_unlistenEvent(id) { // Перестать прослушивать Event
+		const evvs = this.#_events;
 		let p = id.split("#");
 		let event = p[0];
 		id = p[1];
-		if (typeof(this.#_events[event][id]) == "object") {// Если такой Event существует
-			this.#_events[event][id] = null;
+		if (typeof(evvs[event][id]) == "object") {// Если такой Event существует
+			evvs[event][id] = null;
 			return true;
 		} else {
 			return false;
 		}
 	};
 	_doEvent(event,data=false) {
-		if (typeof(this.#_events[event]) == "object") {
-			for (var k in this.#_events[event]) {
-				let ev = this.#_events[event][k];
+		const evvs = this.#_events;
+		console.log(event,evvs);
+		if (typeof(evvs[event]) == "object") {
+			
+			for (var k in evvs[event]) {
+				let ev = evvs[event][k];
 				if (ev.fn) {
 					try {
 						ev.fn(data,ev.ctx);

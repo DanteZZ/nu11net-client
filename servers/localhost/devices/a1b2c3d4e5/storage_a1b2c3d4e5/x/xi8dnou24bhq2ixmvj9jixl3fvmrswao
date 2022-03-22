@@ -1,5 +1,8 @@
 [
 	{
+		"path":"kernel/lo"
+	},
+	{
 		"path":"kernel/network"
 	}
 ]
