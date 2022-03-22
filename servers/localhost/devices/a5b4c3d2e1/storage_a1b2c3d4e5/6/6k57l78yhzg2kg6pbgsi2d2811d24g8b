@@ -1,0 +1,30 @@
+exports = async () => {
+	const _proc = await _import("libs/process");
+	const netw = _proc.list().find(e=>e.path == "kernel/network");
+
+	const takePort = (port,rec) => new Promise((res,rej) =>
+		netw.stdIn({
+			type:"take_port",
+			port:port,
+			receiver:rec,
+			onSuccess:res,
+			onError:rej
+		})
+	);
+
+	const sendPackage = (address,data,protocol) => new Promise((res,rej) =>
+		netw.stdIn({
+			type:"send_package",
+			address,
+			data,
+			protocol,
+			onSuccess:res,
+			onError:rej
+		})
+	);
+
+	return {
+		takePort,
+		sendPackage,
+	}
+}

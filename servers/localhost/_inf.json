@@ -29,6 +29,36 @@
 			}
 		},
 		"a5b4c3d2e1":{
+			"type":"pc",
+			"name":"Компьютер 2",
+			"power":false,
+			"position": {"x":590,"y":816},
+			"boot":{
+				"priority":[]
+			},
+			"interfaces":{
+				"eth0_a1b2c3d4e5":{
+					"type":"ethernet",
+					"mac":"A1:B2:C3:D4:E5:F6"
+				},
+				"storage_a1b2c3d4e5":{
+					"type":"storage",
+					"size":2048,
+					"boot_file":"kernel/init"
+				},
+				"display_a1b2c3d4e5":{
+					"type":"display",
+					"width":800,
+					"height":600
+				},
+				"input_a1b2c3d4e5":{
+					"type":"input"
+				}
+			}
+		}
+	},
+	"old_devices":{
+		"a5b4c3d2e1":{
 			"type":"router",
 			"name":"Роутер",
 			"position": {"x":420,"y":699},

@@ -1,0 +1,4 @@
+exports = async () => {
+    const vm = await _import("libs/vm");
+    return new Promise(res=>{vm.sendCommand("input/get",null,(e)=>res(e))});
+};

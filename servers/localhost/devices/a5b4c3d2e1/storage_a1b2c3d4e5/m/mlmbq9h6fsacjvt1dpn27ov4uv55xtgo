@@ -1,0 +1,86 @@
+/* SYSTEM_DAEMON */
+const _std = _process.std;
+const _list = [];
+var _proc, _fs = null;
+var daemons = [];
+
+_initialize = async () => {
+	_proc = await _import("libs/process");
+	_fs = await _import("libs/fs");
+	if (!_process.__hupMode) {
+		await start();
+	} else {
+		const command = _process.__attributes?.[0] || false;
+		const started = _proc.list().find(i=>i.path == _process.__path && !i.hup);
+		switch (command) {
+			case "start":
+				if (!started) {
+					await runDaemon();
+				} else {
+					_std.write("Daemon already worked.");
+				};
+			break;
+			case "restart":
+				if (started) {
+					_std.write("Shutting down daemon...");
+					await _proc.kill(started.id);
+				}
+				await runDaemon();
+			break;
+			case "stop":
+				if (started) {
+					_std.write("Shutting down daemon...");
+					await _proc.kill(started.id);
+					_std.write("Daemon is stopped.");
+				} else {
+					_std.write("Daemon already stopped.");
+				}
+			break;
+			default:
+				_std.write("Please, run system_daemon without hup mode");
+			break;
+		};
+		_process.exit(); 
+	};
+}
+
+_exiting = async () => {
+	_list.forEach(p=>p?.destroy())
+}
+
+const runDaemon = async () => {
+	_std.write("Starting system daemon...");
+	try {
+		const p = await _proc.init(null,_process.__path,[],false);
+		await p.run();
+		_std.write("Daemon is worked.");
+	} catch (e) {
+		_std.write("Error while starting services.");
+		_std.write(e.toString());
+	};
+}
+
+const start = async () => {
+	await updateDaemonList();
+	const ids = {}
+	_proc.list().forEach(i =>ids[i.path] = i.id);
+	for (var i in daemons) {
+		const d = daemons[i];
+		if (!ids[d.path]) {
+			try {
+				_std.write(d.path);
+				const p = await _proc.init(null,d.path,d?.attributes || [],false);
+				_list.push(p);
+				p.run();
+			} catch (e) {
+				_std.write(e.toString());
+			}
+		};
+	};
+	return true;
+}
+
+const updateDaemonList = async () => {
+	daemons = JSON.parse(await _fs.readFile("kernel/daemon/init"));
+	return daemons;
+};

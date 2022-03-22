@@ -109,7 +109,7 @@
 			);
 		};
 
-		let exitmsg = "CTR+ALT+HOME для выхода"
+		let exitmsg = "CTR+ALT+F9 для выхода"
 
 		ctx.fillStyle = "#FFFFFF";
 		ctx.strokeStyle = 'black';
@@ -169,7 +169,7 @@
 	},
 
 	_update:function() {
-		if ((this._oge.onKeyPress(17) || this._oge.onKeyHold(17)) &&(this._oge.onKeyPress(18) || this._oge.onKeyHold(18)) && (this._oge.onKeyPress(36) || this._oge.onKeyHold(36))) {
+		if ((this._oge.onKeyPress(17) || this._oge.onKeyHold(17)) &&(this._oge.onKeyPress(18) || this._oge.onKeyHold(18)) && (this._oge.onKeyPress(120) || this._oge.onKeyHold(120))) {
 			global.deviceDisplay = null;
 			global.lockgame = false;
 		} 

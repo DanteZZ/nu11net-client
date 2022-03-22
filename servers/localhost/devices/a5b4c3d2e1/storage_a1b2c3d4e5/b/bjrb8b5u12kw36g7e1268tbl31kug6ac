@@ -1,0 +1,240 @@
+/* CODE */
+
+var gui, _input, openedFile, fs, buildPath, isAbsolute, changed, openedText, status, _gr = null;
+
+/* IMPORTS */
+const _path = _process.$path;
+
+/* HELPERS */
+
+/* APP */
+
+_initialize = async () => {
+    var { buildPath, isAbsolute } = await _import("libs/path");
+    _gr = await _import("libs/graphic");
+
+    _input = await _import("libs/input");
+    fs = await _import("libs/fs");
+
+    gui = await _createGraphic();
+    
+    const { screen } = _process.getOutOwn();
+    if (!screen) {
+        _process.exit();
+        return false;
+    } else {
+        await screen.setScreen(gui.wrapper);
+    };
+
+    _registerLogic(gui)
+
+    /* CHECK FILE */
+
+    
+    const attrPath = _process.__attributes?.[0] || false;
+    if (attrPath) {
+      path = isAbsolute(attrPath) ? attrPath : buildPath([_path,attrPath]);
+      const has = await openFile(path);
+      if (!has) { changed = true; }
+    }
+
+    updateLines();
+    updateStatus();
+    gui.editor.focus();
+}
+
+_exiting = async () => {
+  _input.unlistEvent("keydown",onKeyDownGlobal);
+  gui.editor.unlistEvent("keydown",onKeyDown);
+  gui.editor.unlistEvent("keyup",onKeyUp);
+  gui.editor.unlistEvent("scroll",onScroll);
+  gui.editor_wrapper.unlistEvent("wheel",onWheel);
+}
+
+openFile = async (path) => {
+  const file = await fs.readFile(path);
+  updateOpenedFile(path);
+  if (file) {
+    gui.editor.setParam("value",file);
+    openedText = `${file}`;
+    return true;
+  };
+  return false;
+}
+
+saveFile = async () => {
+  if (openedFile) {
+    const res = await fs.writeFile(openedFile,gui.editor.getParam("value"));
+    if (res) {
+      status = "File saved successfully ["+openedFile+"]";
+      changed = false;
+    } else {
+      status = "File to save file ["+openedFile+"]";
+    }
+
+    updateStatus();
+  }
+}
+
+const updateOpenedFile = (path) => {
+  openedFile = path;
+  changed = false;
+  updateStatus();
+}
+
+const updateStatus = () => {
+  if (status) {
+    gui.bottom_line.putText(status);
+    _os.setTimeout(()=>{
+      status = null;
+      updateStatus();
+    },1500)
+  } else {
+    const commands = [
+      "Save: [Ctrl+S]",
+      "Exit: [Ctrl+W]"
+    ];
+    gui.bottom_line.putText(commands.join("  "));
+  }
+  gui.top_line.putText("Opened file: "+(openedFile || "<new>")+(changed ? "*" : ""));
+}
+
+const updateLines = () => {
+  const count = gui.editor.getParam("value").split(/\r|\r\n|\n/).length;
+  let html = "";
+  for (let i = 1; i <= count; i++) {
+    html += `<div>${i}</div>`;
+  };
+  gui.lines.putHtml(html);
+}
+
+
+const onKeyDownGlobal = (e) => {
+  const key = e.which || e.keyCode;
+  const ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false);
+
+  if (key === 87 && ctrl) { //Ctrl + W
+      _process.exit();
+  }
+
+  if (key === 83 && ctrl) { //Ctrl + W
+    saveFile();
+  }
+}
+
+const onKeyDown = (e) => {
+  if (!changed) {
+    if (gui.editor.getParam("value") !== openedText) {
+      changed = true;
+      updateStatus();
+    }
+  }
+
+  if (e.which === 9) {
+    const el = e.target;
+    let val = el.value,
+    start = el.selectionStart,
+    end = el.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    el.value = val.substring(0, start) + '\t' + val.substring(end);
+
+    // put caret at right position again
+    el.selectionStart = el.selectionEnd = start + 1;
+    e.preventDefault();
+  }
+}
+
+const onKeyUp = () => {
+  updateLines();
+}
+
+const onWheel = (e) => {
+  const delta = e.deltaY || e.detail || e.wheelDelta;
+  const scrl = gui.editor.getParam("scrollTop")+delta;
+  gui.editor.setParam("scrollTop",scrl);
+  e.preventDefault();
+}
+
+const onScroll = () => {
+  gui.lines.setParam("scrollTop",gui.editor.getParam("scrollTop"));
+}
+
+const _registerLogic = (_) => {
+  _input.listEvent("keydown",onKeyDownGlobal);
+  gui.editor.listEvent("keydown",onKeyDown);
+  gui.editor.listEvent("keyup",onKeyUp);
+  gui.editor.listEvent("scroll",onScroll);
+  gui.editor_wrapper.listEvent("wheel",onWheel);
+}
+
+const _createGraphic = async () => {
+    const _ = {
+      wrapper: await _gr.createElement("div"),
+        top_line: await _gr.createElement("div"),
+        editor_wrapper: await _gr.createElement("div"),
+          editor: await _gr.createElement("textarea"),
+          lines: await _gr.createElement("div"),
+        bottom_line: await _gr.createElement("div"),
+    };
+
+    _.editor.setAttribute("spellcheck","false");
+    _.editor.setAttribute("codeName",`_${_process.__id}_tedit`);
+
+    _.editor_wrapper.putElement(_.lines);
+    _.editor_wrapper.putElement(_.editor);
+    _.wrapper.putElement(_.top_line);
+    _.wrapper.putElement(_.editor_wrapper);
+    _.wrapper.putElement(_.bottom_line);
+
+    // styling
+    _.wrapper.setStyles({
+      width:"100%",
+      height:"100%",
+      display:"flex",
+      "flex-direction":"column",
+      color: "#f7f7f7",
+      "background-color":"#151515",
+      "font-size":"1em"
+    });
+
+    _.top_line.setStyles({
+      padding: "2px 8px",
+      background: "#bbbbbb",
+      color: "#151515"
+    });
+
+    _.bottom_line.setStyles({
+      padding: "2px 8px",
+      background: "#bbbbbb",
+      color: "#151515"
+    })
+
+    _.editor_wrapper.setStyles({
+      width:"100%",
+      "flex-grow":1,
+      display:"flex",
+      overflow:"hidden",
+    });
+    _.editor.setStyles({
+      "flex-grow":1,
+      resize: "none",
+      "font-size":"1em",
+      "padding":"8px",
+      "tab-size":3,
+      "font-family":"SAT",
+      "line-height": "16px",
+      "overflow":"hidden",
+      height:"100%"
+    });
+    _.lines.setStyles({
+      background:"rgba(255,255,255,0.2)",
+      height:"100%",
+      overflow:"hidden",
+      opacity:".8",
+      "min-width":"40px",
+      "text-align":"right",
+      padding:"8px",
+    });
+    return _;
+}

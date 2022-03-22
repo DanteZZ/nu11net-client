@@ -1,0 +1,19 @@
+exports = async () => {
+	const _netw = await _import("libs/network");
+	class SRV {
+		constructor (port,rec) {
+			this.port =  port;
+			this.receiver = rec;
+			
+			this.init();
+		}
+
+		init = async () => {
+			this.remover = await _netw.takePort(this.port,this.receiver);
+		}
+		close = () => this?.remover()
+		get = (address,data,headers={}) => _netw.sendPackage(address,{data,headers},"TCP")
+		send = (address,data,headers={}) => _netw.sendPackage(address,{data,headers},"UDP")
+	}
+	return SRV;
+}

@@ -1,0 +1,8 @@
+exports = async () => {
+	/* PROCESS LIBRARY */
+   return {
+		init:_os.___k().PROC.init,
+		list:_os.___k().PROC.list,
+		kill:_os.___k().PROC.kill,
+	}
+};

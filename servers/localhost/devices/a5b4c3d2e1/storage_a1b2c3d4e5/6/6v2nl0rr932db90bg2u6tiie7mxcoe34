@@ -1,0 +1,7 @@
+/* CLEAR */
+const _std = _process.std;
+
+_initialize = async () => {
+    _std._cli.clear();
+    _process.exit();
+}

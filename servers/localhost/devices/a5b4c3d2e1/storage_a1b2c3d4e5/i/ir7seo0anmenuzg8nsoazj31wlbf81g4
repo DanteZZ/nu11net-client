@@ -1,0 +1,131 @@
+/* NETWORK */
+
+const STD_TAKEPORT = "take_port";
+const STD_SENDPCKG = "send_package";
+const STD_RESPPCKG = "response_package";
+
+const PROTO_TCP = "TCP";
+const PROTO_UDP = "UDP";
+
+const _std = _process.std;
+
+var _vm, 
+	_fs, 
+	_cidr,
+	_conf,
+	defEth,
+	rmEvPort = null;
+
+const eventRm = {
+	rx:[]
+}
+const events = {
+	rx:{}
+}
+const ports = {};
+
+_initialize = async () => {
+	_vm = await _import("libs/vm");
+	_fs = await _import("libs/fs");
+	_cidr = await _import("libs/cidr");
+	try {
+		_conf = JSON.parse(await _fs.readFile("/kernel/network_conf/network"));
+	} catch (e) {
+		_std.write("Error in network file [ /kernel/network_conf/network ]");
+		_process.exit(); 
+	}
+	if (setDefaultEth()) {
+		await start();
+	}
+}
+
+_exiting = async () => {
+	eventRm.rx.forEach(i=>_vm.unlistenEvent(i))
+}
+
+const getHost = (url) => /^(?:\w+\:\/\/)?([^\/]+)([^\?]*)\??(.*)$/.exec(url)[1]
+const getEth = (ip) => {
+	for (let name in _conf) {
+		if (_cidr.checkIp(ip,_conf[name].ip)) {
+			return name;
+		}
+	};
+	return defEth;
+};
+
+const setDefaultEth = () => {
+	let first = false;
+	for (let name in _conf) {
+		if (!first) {first = name;};
+		const eth = _conf[name];
+		if (eth?.default) {
+			defEth = name;
+			return true;
+		}
+	};
+	if (!defEth && first) {
+		defEth = first;
+		return true;
+	} else {
+		return false;
+	}
+}
+
+const start = async () => {
+	for (let name in _conf) { // Reg RX Events
+		events.rx[name] = (data) => onRX(name,data);
+		eventRm.rx[name] = _vm.listenEvent(`interfaces/ethernet/${name}/rx`,events.rx[name]);
+	};
+	rmEvPort = _std.read(stdin);
+	_std.write(`Listening ${Object.keys(events.rx).join(", ")}`);
+}
+
+const stdin = async ({
+		type,
+		port = 0,
+		protocol=PROTO_TCP,
+		receiver=()=>{},
+		onSuccess,
+		onError,
+
+		address,
+		data
+	}) => {
+	switch (type) {
+		case STD_TAKEPORT: 
+			if (ports[port]) {
+				
+				onError && onError("Port unavailable");
+			} else {
+				ports[port] = {protocol,receiver};
+				onSuccess && onSuccess(() => { delete ports[port]; });
+			}
+		break;
+		case STD_SENDPCKG:
+			const eth = getEth(getHost(address).split(":")[0]);
+			if (eth) { // Если есть порт по которому стучаться
+				switch (protocol) {
+					case PROTO_UDP:
+						_vm.sendCommand(`interfaces/ethernet/${eth}/send`,{protocol,address,data});
+						return true;
+					break;
+				}
+			} else {
+				return false;
+			};
+		break;
+	}
+}
+
+const onRX = (eth,{address,data}) => {
+	const port = getHost(address).split(":")[1];
+	if (port && data) {
+		if (ports?.[port]) {
+			ports[port].receiver(data,_conf[eth]);
+		}
+	};
+}
+
+const TX = async (eth,data,protocol) => {
+
+}
