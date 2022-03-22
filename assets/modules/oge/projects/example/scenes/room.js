@@ -109,7 +109,7 @@
 			);
 		};
 
-		let exitmsg = "CTR+ALT+F9 для выхода"
+		let exitmsg = "ЛКМ или CTRL+ALT+HOME для выхода"
 
 		ctx.fillStyle = "#FFFFFF";
 		ctx.strokeStyle = 'black';
@@ -146,6 +146,7 @@
 		ctx.fillStyle = "black";
 		ctx.fillRect(0,0, 5000, 5000);
 
+
 		this._oge.drawBackground({
 			name:"room_0",
 			x:0,
@@ -169,10 +170,28 @@
 	},
 
 	_update:function() {
-		if ((this._oge.onKeyPress(17) || this._oge.onKeyHold(17)) &&(this._oge.onKeyPress(18) || this._oge.onKeyHold(18)) && (this._oge.onKeyPress(120) || this._oge.onKeyHold(120))) {
+		let ctx = this._oge._graph.getCanvas(this._oge.buffer.defaultLayer);
+		if ((this._oge.onKeyPress(17) || this._oge.onKeyHold(17)) &&(this._oge.onKeyPress(18) || this._oge.onKeyHold(18)) && (this._oge.onKeyPress(36) || this._oge.onKeyHold(36))) {
 			global.deviceDisplay = null;
 			global.lockgame = false;
-		} 
+		};
+		if (this._oge.onMousePress(1)) {
+			if (this._oge._onBoxMeeting({
+				x:global.mouse_x,
+				y:global.mouse_y,
+				width:1,
+				height:1
+			},
+			{
+				x:0,
+				y:ctx.canvas.height-32,
+				width:ctx.canvas.width,
+				height:32
+			})) {
+				global.deviceDisplay = null;
+				global.lockgame = false;
+			}
+		}
 	}
 	
 }

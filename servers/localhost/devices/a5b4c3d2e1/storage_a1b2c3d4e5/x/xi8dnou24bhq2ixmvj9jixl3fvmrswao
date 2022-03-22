@@ -4,5 +4,8 @@
 	},
 	{
 		"path":"kernel/network"
+	},
+	{
+		"path":"etc/gateway/service"
 	}
 ]

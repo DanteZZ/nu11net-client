@@ -12,7 +12,7 @@ exports = async () => {
 		})
 	);
 
-	const sendPackage = (address,data,protocol) => new Promise((res,rej) =>
+	const sendPackage = (address,data,protocol="UDP") => new Promise((res,rej) =>
 		netw.stdIn({
 			type:"send_package",
 			address,
@@ -23,8 +23,21 @@ exports = async () => {
 		})
 	);
 
+	const sendPackageToPort = (ethPort,address,data,protocol="UDP") => new Promise((res,rej) =>
+		netw.stdIn({
+			type:"send_package_port",
+			data,
+			ethPort,
+			address,
+			protocol,
+			onSuccess:res,
+			onError:rej
+		})
+	);
+
 	return {
 		takePort,
 		sendPackage,
+		sendPackageToPort
 	}
 }

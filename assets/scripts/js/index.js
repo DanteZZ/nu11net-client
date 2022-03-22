@@ -6,6 +6,7 @@ class _vmrun {
 	createVM(callback,ctx=false) {
 		if (!ctx) {ctx = global;};
 		let wv = document.createElement("webview")
+		wv.style.display = "none";
 		wv.src="assets/modules/vm.html"
 		wv.setAttribute("partition","trusted");
 		wv.setAttribute("allownw","allownw");

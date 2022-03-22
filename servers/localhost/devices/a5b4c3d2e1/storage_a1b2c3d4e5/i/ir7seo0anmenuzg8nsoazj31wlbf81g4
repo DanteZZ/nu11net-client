@@ -3,9 +3,16 @@
 const STD_TAKEPORT = "take_port";
 const STD_SENDPCKG = "send_package";
 const STD_RESPPCKG = "response_package";
+const STD_SENDPCKGPORT = "send_package_port"
 
 const PROTO_TCP = "TCP";
 const PROTO_UDP = "UDP";
+
+const DHCPDISCOVER = "DHCPDISCOVER";
+const DHCPOFFER = "DHCPOFFER";
+
+const DHCPSRVPORT = 67;
+const DHCPCLIENTPORT = 68;
 
 const _std = _process.std;
 
@@ -41,6 +48,7 @@ _initialize = async () => {
 
 _exiting = async () => {
 	eventRm.rx.forEach(i=>_vm.unlistenEvent(i))
+	rmEvPort();
 }
 
 const getHost = (url) => /^(?:\w+\:\/\/)?([^\/]+)([^\?]*)\??(.*)$/.exec(url)[1]
@@ -77,7 +85,22 @@ const start = async () => {
 		eventRm.rx[name] = _vm.listenEvent(`interfaces/ethernet/${name}/rx`,events.rx[name]);
 	};
 	rmEvPort = _std.read(stdin);
+	await DHCP();
 	_std.write(`Listening ${Object.keys(events.rx).join(", ")}`);
+}
+
+const DHCP = async () => {
+	for (let name in _conf) {
+		if (_conf[name]?.dhcp) { // check dhcp on port
+			_vm.sendCommand(`interfaces/ethernet/${name}/send`,{
+				protocol:PROTO_UDP,
+				address:"*:"+DHCPSRVPORT,
+				data:{
+					type:DHCPDISCOVER
+				}
+			});
+		}
+	};
 }
 
 const stdin = async ({
@@ -87,14 +110,13 @@ const stdin = async ({
 		receiver=()=>{},
 		onSuccess,
 		onError,
-
-		address,
-		data
+		address="*:*",
+		data,
+		ethPort
 	}) => {
 	switch (type) {
 		case STD_TAKEPORT: 
 			if (ports[port]) {
-				
 				onError && onError("Port unavailable");
 			} else {
 				ports[port] = {protocol,receiver};
@@ -102,7 +124,7 @@ const stdin = async ({
 			}
 		break;
 		case STD_SENDPCKG:
-			const eth = getEth(getHost(address).split(":")[0]);
+			const eth = ethPort || getEth(getHost(address).split(":")[0]);
 			if (eth) { // Если есть порт по которому стучаться
 				switch (protocol) {
 					case PROTO_UDP:
@@ -114,18 +136,40 @@ const stdin = async ({
 				return false;
 			};
 		break;
+		case STD_SENDPCKGPORT:
+			if (ethPort) { // Если есть порт по которому стучаться
+				switch (protocol) {
+					case PROTO_UDP:
+						_os.console.log("SENDING",`interfaces/ethernet/${ethPort}/send`,{protocol,address,data});
+						_vm.sendCommand(`interfaces/ethernet/${ethPort}/send`,{protocol,address,data});
+						return true;
+					break;
+				}
+			} else {
+				return false;
+			};
+		break;
 	}
 }
 
 const onRX = (eth,{address,data}) => {
-	const port = getHost(address).split(":")[1];
+	const port = +getHost(address).split(":")[1];
 	if (port && data) {
-		if (ports?.[port]) {
-			ports[port].receiver(data,_conf[eth]);
-		}
+		switch (port) {
+			case DHCPCLIENTPORT: // DHCP
+				_conf[eth] = {
+					..._conf[eth],
+					ip:`${data.YIADDR}/${data.OPTIONS.MASK}`,
+					gateway:data.SIADDR,
+					dns:data?.OPTIONS?.DNS || ""
+				}
+				_std.write(_conf[eth])
+			break;
+			default: // ANOTHER
+				if (ports?.[port]) {
+					ports[port].receiver(data,{..._conf[eth],name:eth});
+				}
+			break;
+		}	
 	};
-}
-
-const TX = async (eth,data,protocol) => {
-
 }
