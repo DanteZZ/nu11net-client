@@ -1,9 +1,10 @@
 /* NETWORK */
 
 const STD_TAKEPORT = "take_port";
+const STD_ETHPORTSINFO = "eth_ports_info";
 const STD_SENDPCKG = "send_package";
-const STD_RESPPCKG = "response_package";
 const STD_SENDPCKGPORT = "send_package_port"
+const STD_RESPPCKG = "response_package";
 
 const PROTO_TCP = "TCP";
 const PROTO_UDP = "UDP";
@@ -122,6 +123,9 @@ const stdin = async ({
 				ports[port] = {protocol,receiver};
 				onSuccess && onSuccess(() => { delete ports[port]; });
 			}
+		break;
+		case STD_ETHPORTSINFO: 
+			onSuccess({..._conf});
 		break;
 		case STD_SENDPCKG:
 			const eth = ethPort || getEth(getHost(address).split(":")[0]);

@@ -3,7 +3,7 @@ const _std = _process.std;
 var proc, time, asciiTable, table = null;
 
 _initialize = async () => {
-	proc = await _import("libs/process");
+	 proc = await _import("libs/process");
     time = await _import("libs/time");
     asciiTable = await _import("libs/asciiTable");
 
