@@ -47,8 +47,8 @@ let fns = {
 		}
 	},
 	__sortInstances:function() {
-		this.buffer.instances.sort(function(a,b) {
-			return a.depth-b.depth;
+		this?.buffer?.instances?.sort(function(a,b) {
+			return a?.depth-b?.depth;
 		});
 	},
 	destroyInstance:function(inst) {
@@ -61,6 +61,14 @@ let fns = {
 		} else {
 			return false;
 		};
+	},
+	destroyAllInstances:function() {
+		if (this?.buffer?.instances?.length) {
+			for (let num in this.buffer.instances) {
+				this.buffer.instances[num] = null;
+			}
+		} 
+		return true;
 	}
 }
 

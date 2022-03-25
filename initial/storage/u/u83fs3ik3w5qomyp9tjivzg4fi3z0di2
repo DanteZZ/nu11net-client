@@ -1,0 +1,162 @@
+const _list = []
+
+const STD_PRINT = "print";
+const STD_CLEARLN = "clearln";
+const STD_CLEAR = "clear";
+
+const _randomId = () => {
+	let rand = 1000 - 0.5 + Math.random() * (2000 - 1000 + 1);
+	return Math.round(rand);
+}
+
+const _destroy = (id) => {
+	const ind = _list.findIndex((e,i)=>e.id === id);
+	if (ind !== undefined) {
+		_list.splice(ind,1);
+	}
+}
+
+___k.PROC = {
+	init: async function(cli=null,path,attrs, isHup = true) { // Запустить процесс
+		const id = _randomId();
+		const has = await FS.isFile(path)
+		if (has) {
+			const process = new __PROCESS(id,path,attrs, cli);
+			_list.push({ id, process });
+			process.setHupMode(isHup);
+			await process.init();
+			return process;
+		} else {
+			throw new Error("Undefined path");
+		}
+	},
+	clearInit: async function(path,attrs,isHup) {return await this.init(null,path,attrs,isHup)},
+	list: ()=> _list.map(e=>({
+		id:e.id,
+		path:e.process.ctx._process.__path,
+		attrubites:e.process.ctx._process.__attributes,
+		hup:e.process.ctx._process.__hupMode,
+		mem:e.process._mem(),
+		stdIn:e.process.ctx._process.std.in
+	})),
+	kill: async (id) => {
+		let p = _list.find(e=>e.id == id);
+		if (p) {await p.process.destroy(); return true;};
+		return false;
+	}
+};
+
+__PROCESS = class {
+	ctx = null;
+	#id = null;
+
+	constructor(id,path,attrs, cli=null) {
+		this.#id = id;
+		let ctx = {
+			_import:(path,other, vol) => importLibrary(path,{_process:this,...other},vol),
+			_os:___k.getOSCtx(),
+			_process: {
+				std: {
+					write: (msg)=>this.$EE.emit("stdout",{type:STD_PRINT,msg,proc:this.getId()}),
+					clearLn: ()=>this.$EE.emit("stdout",{type:STD_CLEARLN,proc:this.getId()}),
+					clear: ()=>this.$EE.emit("stdout",{type:STD_CLEAR,proc:this.getId()}),
+					read: (a) => { // Ловец ввода сообщений, возвращающий ремувер
+						this.listEvent("stdin",a)
+						return ()=>{ this.unlistEvent("stdin",a) }
+					},
+					in: this.stdIn,
+					prompt: (a) => cli ? cli.prompt(a) : false,
+					_cli: {
+						run: (command,attributes) => cli ? cli?.runCommand(command,attributes) : ()=>{},
+						setPath:(p)=>cli ? cli.setPath(this,p) : ()=>{},
+						clear:()=>cli ? cli.clear(this) : ()=>{},
+					},
+				},
+				$path: cli ? cli.$PATH : "/",
+				exit: ()=>this.destroy(),
+				setHupMode: (a)=>this.ctx._process.__hupMode=a,
+				hupMode: ()=>this.ctx._process.__hupMode,
+				getOutOwn: ()=>cli ? cli.setOwner(this) : false,
+				__hupMode:true,
+				__id: id,
+				__attributes: attrs,
+				__path: path
+			}
+		};
+		this.ctx = __thread.mk(ctx);
+	}
+
+	_mem() {
+		let object = this.ctx;
+		var objectList = [];
+		var stack = [ object ];
+		var bytes = 0;
+	
+		while ( stack.length ) {
+			var value = stack.pop();
+	
+			if ( typeof value === 'boolean' ) {
+				bytes += 4;
+			}
+			else if ( typeof value === 'string' ) {
+				bytes += value.length * 2;
+			}
+			else if ( typeof value === 'number' ) {
+				bytes += 8;
+			}
+			else if
+			(
+				typeof value === 'object'
+				&& objectList.indexOf( value ) === -1
+			)
+			{
+				objectList.push( value );
+	
+				for( var i in value ) {
+					stack.push( value[ i ] );
+				}
+			}
+		}
+		return bytes;
+	}
+
+	getId() {return this.#id}
+
+	isHup() {return this.ctx._process.__hupMode }
+	setHupMode(a) {this.ctx._process.__hupMode=a }
+
+	async init() {
+		const ee = await importLibrary("libs/eventEmmiter");
+		this.$EE = new ee;
+		const script = await FS.readFile(this.ctx._process.__path);
+		__thread.runScript(this.ctx,script);
+	}
+
+	listEvent(a,b) {return this.$EE.on(a,b)}
+	unlistEvent(a,b) {return this.$EE.removeListener(a,b)}
+
+	onStdOut(a) { // Ловец вывода сообщений, возвращающий ремувер
+		this.listEvent("stdout",a)
+		return ()=>{ this.unlistEvent("stdout",a) }
+	}
+
+	stdIn = (a) => { // Ввод сообщений
+		console.log(a);
+		this.$EE.emit("stdin",a);
+	}
+
+	run() {
+		return this.ctx._initialize();
+	}
+
+	useScreen(proc) { return this.ctx?._screenOwnHandler ? this.ctx?._screenOwnHandler(proc) : false }
+
+	async destroy() {
+		if (this?.ctx?._exiting) {
+			await this?.ctx?._exiting();
+		};
+		this.$EE.emit("destroy");
+		this.$EE.emit("exit");
+		_destroy(this.#id);
+	}
+}

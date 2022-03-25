@@ -1,0 +1,108 @@
+//----------------------
+// Load Kernel functions
+//----------------------
+
+var FS, EE = null;
+
+const ___ctx = this;
+class _kernel {
+	#_cmd_queue = []; // Очередь на выполнение команд
+	#_vars = {
+		paths: ["bin"],
+		init:"shell",
+		boot_storage: __boot.storage
+	};
+	getVar(a) {
+		return this.#_vars[a];
+	};
+	getOSCtx() {
+		return {
+			Math,
+			setInterval,
+			setTimeout,
+			__thread,
+			console,
+			___k:()=>this
+		};
+	};
+	sendCommand = (name,data,cb,ctx) => {
+		const blacklist = [
+			"display/getscreen"
+		];
+		if (blacklist.indexOf(name) > -1) {
+			return false;
+		} else {
+			return __vm.sendCommand(name,data,cb,ctx);
+		}
+	};
+	listenEvent = (name,func,ctx) => {
+		const blacklist = [];
+		if (blacklist.indexOf(name) > -1) {
+			return false;
+		} else {
+			return __vm.listenEvent(name,func,ctx);
+		}
+	};
+	unlistenEvent = (id) => {
+		return __vm.unlistenEvent(id);
+	};
+	doEvent = (e,data) => {
+		return __vm.doEvent(e,data);
+	};
+}
+
+this.___k = new _kernel();
+
+const initScript = (path, vol) => new Promise ((res,rej)=> {
+	__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/readdata",{path},(d) => {
+		if (d !== false) {
+			__vm.runScript(d);
+			res();
+		} else {
+			rej("Undefined script: "+path);
+			__vm.sendError("Undefined script: "+path);
+		};
+	})
+});
+
+this.importLibrary = (path,other, vol) => new Promise((res,rej) => {
+	__vm.sendCommand("interfaces/storage/"+(vol || __boot.storage)+"/readdata",{path},(d) => {
+		if (d !== false) {
+			const ctx = __thread.mk({_os:___k.getOSCtx(), exports:undefined, __waitExport:true, _import: importLibrary, ...other});
+			try {
+				__thread.runScript(ctx,d);
+			} catch (e) {
+				rej(e);
+			}
+			res(ctx.exports());
+		} else {
+			rej("Undefined module: "+path);
+			__vm.sendError("Undefined module: "+path);
+		};
+	})
+})
+
+const getScreen = () => new Promise(res => {
+	__vm.sendCommand("display/getscreen",null,(d)=>{res(d)})
+});
+
+const initModules = async () => {
+	try {
+		FS = await importLibrary("libs/fs");
+		const screen = await getScreen();
+		const createShell = await importLibrary("sbin/shell");
+
+		await initScript("sbin/shell");
+		await initScript("kernel/proc");
+
+		const shell = new createShell(screen);
+		
+		const cli = await ___k.PROC.init(shell,"sbin/cli",[],false);
+		cli.run();
+		const daemon = await ___k.PROC.init(shell,"kernel/system_daemon",[],false);
+		daemon.run();
+
+	} catch (e) {__vm.sendLog(e.toString())}
+}
+
+initModules();

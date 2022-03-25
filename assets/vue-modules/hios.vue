@@ -1,5 +1,5 @@
 <template>
-	<div class="bios">
+	<div v-if="showed" class="bios">
 		<div class="tlt">{{title}} &#0007</div>
 		<div class="menu">
 			<div class="item" v-for="(item,id) in menuList" v-bind:class="{active: (id == selItem)}">{{item.title}}</div>
@@ -54,6 +54,12 @@
 						{{modal.statuses[modal.status]}}
 					</div>
 				</div>
+
+				<div v-if="modal.type == 'auth'" class="body">
+					<div class="message">
+						{{modal.statuses[modal.status]}}
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -65,7 +71,7 @@
 			return {
 			    title: "HIOS - Настройка CMOS",
 				footer: "v0.1 (C) Copyright 2015-2021, H4CK-IT, Ltd",
-				
+				showed:true,
 				selItem: 0,
 				selSection: 0,
 				modal: {
@@ -165,7 +171,20 @@
 							},
 							{
 								title:"[ Войти на сервер ]",
-								action:function(){alert("Конкратулейшон")}
+								action:"modal",
+								modal: {
+									title:"Подключение к серверу",
+									type:"auth",
+									button:"Авторизация",
+									statuses:{
+										0:"Подключение к серверу...",
+										200:"Авторизация...",
+										300:"Авторизация прошла успешно!",
+										401:"Неверный логин или пароль",
+										402:"Неизвестная ошибка",
+									},
+									status:0,
+								}
 							},
 							{
 								title:"Регистрация",
@@ -187,9 +206,9 @@
 									statuses:{
 										0:"Подключение к серверу...",
 										200:"Подключено!",
-										401:"Не удалось подключиться к серверу"
+										401:"Не удалось подключиться к серверу",
 									},
-									status:200,
+									status:0,
 									payloadVars: {login:"",password:""},
 									payloadModals:[
 										{
@@ -211,7 +230,8 @@
 												0:"Отправление запроса на регистрацию...",
 												200:"Регистрация прошла успешно!",
 												401:"Пользователь с таким логином уже существует",
-												402:"Неизвестная ошибка"
+												402:"Неизвестная ошибка",
+												403:"Слишком короткий логин или пароль"
 											},
 											status:0,
 											button:"Ок"
@@ -402,12 +422,56 @@
 						}
 					},
 
+					auth:{
+						onKey:{
+							13:function(b){ //ENTER
+								if (b.modal.status !== 0) {
+					  				b.closeModal();
+								}
+							},
+							27:function(b){ //ESC
+								b.closeModal();
+							}
+						},
+						onOpen: async (b) => {
+							try {
+								const {login,password,selectedServer} = _cfg.get();
+								await _ws.tryConnect(selectedServer);
+								await _ws.loadServerInfo();
+								await b.sleep(500);
+								b.modal.status = 200;
+								b.$forceUpdate();
+								const {status,result} = await _ws.sendResponsableCommand("auth",{login,password});
+								console.log(status,result);
+								await b.sleep(500);
+								b.modal.status = status;
+								b.$forceUpdate();
+								if (status == 300) { // Если авторизация прошла
+									_ws.setAuth(result);
+									global._dv.init(result.inf);
+									_oge.play();
+									_oge.loadScene("room");
+									b.showed = false;
+									b.closeModal();
+									b.$forceUpdate();
+								};
+							} catch (e) {
+								console.log(e);
+								b.modal.status = 401;
+							}				
+						},
+						onClose:function(b){
+							b.modal.status = 0;
+							b.modal.connected = false;
+						}
+					},
+
 					register_connect:{
 						onKey:{
 							13:function(b){ //ENTER
 								if (b.modal.status == 200) {
 									let payloadVars = b.modal.payloadVars;
-					  				let payloadModals = b.modal.payloadModals;
+					  				let payloadModals = JSON.parse(JSON.stringify(b.modal.payloadModals));
 					  				let mod = payloadModals.shift();
 					  				mod.opened = true;
 					  				mod.payload = {
@@ -426,30 +490,51 @@
 								b.closeModal();
 							}
 						},
-						onOpen:function(b){
-							b.modal.connected = true;
+						onOpen: async (b) => {
+							try {
+								await _ws.tryConnect(_cfg.get().selectedServer);
+								await _ws.loadServerInfo();
+								b.modal.connected = true;
+								b.modal.status = 200;
+								setTimeout(()=>{
+									b.$forceUpdate();
+								},500)
+							} catch (e) {
+								b.modal.connected = false;
+								b.modal.status = 401;
+							}					
 						},
 						onClose:function(b){
-							
+							b.modal.status = 0;
+							b.modal.connected = false;
 						}
 					},
 
 					register_process:{
 						onKey:{
 							13:function(b){ //ENTER
-								if (b.modal.status == 200) {
-					  				b.closeModal(mod);
+								if (b.modal.status !== 0) {
+					  				b.closeModal();
 								}
 							},
 							27:function(b){ //ESC
 								b.closeModal();
 							}
 						},
-						onOpen:function(b){
-							
+						onOpen:async (b) => {
+							const {login,password} =  b.modal.payloadVars;
+							const {status} = await _ws.sendResponsableCommand("register",{login,password});
+							if (status == 200) {
+								b.userData.auth.login = login;
+								b.userData.auth.password = password;
+								b.updateCFG();
+							}
+							b.modal.status = status;
+							b.$forceUpdate();
 						},
 						onClose:function(b){
-							
+							b.modal.payloadVars.login = "";
+							b.modal.payloadVars.password = "";
 						}
 					},
 				}
@@ -457,6 +542,7 @@
 	  	},
 
 	  	methods: {
+			sleep: async (time) => new Promise((res)=>setTimeout(res,time)),
 		  	enterSection: function(section) {
 		  		switch (typeof(section.action)) {
 		  			case "function":
@@ -553,7 +639,7 @@
 		  			serverList: this.serverList,
 		  			selectedServer: this.userData.selectedServer,
 		  			login: this.userData.auth.login,
-		  			password: this.userData.auth.login
+		  			password: this.userData.auth.password
 		  		});
 		  		_cfg.save();
 		  	},
@@ -587,6 +673,18 @@
 
 			  		if (e.which == 13) {//Enter
 			  			b.enterSection(b.menuList[b.selItem].sections[b.selSection]);
+			  		};
+
+					if (e.which == 27) {//ESC
+			  			if (_ws.authenticated) {
+							if (b.showed) {
+								_oge.play();
+								b.showed = false;
+							} else {
+								_oge.pause();
+								b.showed = true;
+							}
+						}
 			  		};
 		  		} else { //MODAL
 		  			b.onModalKey(e.which);

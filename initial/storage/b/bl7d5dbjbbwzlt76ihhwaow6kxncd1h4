@@ -1,0 +1,23 @@
+/* TOP */
+const _std = _process.std;
+var proc, time, asciiTable, table = null;
+
+_initialize = async () => {
+	 proc = await _import("libs/process");
+    time = await _import("libs/time");
+    asciiTable = await _import("libs/asciiTable");
+
+    table = new asciiTable("TOP");
+	 table.setHeading('#', 'path', 'hup', 'mem')
+    updateList();
+    time.interval(updateList,500)
+	//_process.exit(); 
+}
+
+const updateList = async () => {
+    _std.clear();
+    table.clearRows();
+	const list = proc.list();
+    table.addRowMatrix(list.map(({id,path,hup,mem})=>[id,path,(hup ? "*" : " "),mem]));
+    _std.write(table.toString());
+}

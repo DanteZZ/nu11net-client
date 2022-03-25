@@ -49,6 +49,9 @@ function requireUncached(module) {
 const _vm = require("vm"); // Работа с контекстами
 const _fs = require("fs"); // Работа с файловой системой
 const _cfg = requireUncached("assets/modules/config.js"); // Работа с конфигурационным файлом
+
+const WS = requireUncached("assets/modules/ws.js"); // Работа с веб-сокетом
+
 global._dv = requireUncached("assets/modules/devices/devices.js"); // Работа с девайсами
 global.__csl = console;
 global.__doc = document;
@@ -59,9 +62,6 @@ global.__connectedServer = {
 }
 _cfg.load();
 
-
-global._dv.init(JSON.parse(_fs.readFileSync("servers/localhost/_inf.json","utf-8")));
-
 const _oge = requireUncached("assets/modules/oge/oge.js");
 const _graph = new _GR();
 _graph.init(_oge)
@@ -69,8 +69,9 @@ _graph.init(_oge)
 global._oge = _oge;
 
 _oge.init(document,window);
-_oge.loadProject("assets/modules/oge/projects/example",()=> {
+_oge.loadProject("assets/modules/oge/projects/game",()=> {
 	_oge.start();
+	_oge.pause();
 	_raf();
 });
 
@@ -80,3 +81,10 @@ Vue.component('hios', httpVueLoader('assets/vue-modules/hios.vue'));
 var app = new Vue({
   	el: '#app',
 });
+
+window._ws = new WS();
+
+const check = async () => {
+	await _ws.tryConnect("localhost:1337");
+	console.log(await _ws.loadServerInfo());
+}

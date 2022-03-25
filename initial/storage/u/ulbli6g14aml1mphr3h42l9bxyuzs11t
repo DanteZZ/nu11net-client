@@ -1,0 +1,10 @@
+/* KILL */
+const _std = _process.std;
+var proc = null;
+
+_initialize = async () => {
+	proc = await _import("libs/process");
+	const pid = _process.__attributes?.[0] || false;
+	proc.kill(parseInt(pid))
+	_process.exit(); 
+}

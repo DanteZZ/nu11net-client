@@ -1,1 +1,12 @@
-{"serverList":{"192.168.1.100":{"name":"My server","ip":"192.168.1.100"}},"login":"DantezZ","password":"DantezZ","selectedServer":"172.18.1.31","serversDir":"servers"}
+{
+	"serverList": {
+		"localhost:1337": {
+			"name": "H4CK-IT",
+			"ip": "localhost:1337"
+		}
+	},
+	"login": "DanteZZ",
+	"password": "topkek123",
+	"selectedServer": "localhost:1337",
+	"serversDir": "servers"
+}

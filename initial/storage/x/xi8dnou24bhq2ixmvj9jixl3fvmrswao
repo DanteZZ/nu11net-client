@@ -1,0 +1,10 @@
+[
+	{
+		"name":"lo",
+		"path":"kernel/lo"
+	},
+	{
+		"name":"network",
+		"path":"kernel/network"
+	}
+]

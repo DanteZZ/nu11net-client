@@ -10,6 +10,7 @@ class OGEngine {
 		this.path = "assets/modules/oge";
 		this._em = new EventEmitter(this);
 		this._rl = new ResourceLoader(this);
+    this.paused = false;
 	}
 
 	init(doc,win) {
@@ -45,21 +46,34 @@ class OGEngine {
 		this._em.emit("after_start");
 		this.frameUpdate();
 	}
+
+  pause() {
+    this.paused = true;
+  }
+
+  play() {
+    this.paused = false;
+  }
+
 	frameUpdate() {
-		this._em.emit("before_update");
-		this._em.emit("update");
+    if (!this.paused) {
+      this._em.emit("before_update");
+      this._em.emit("update");
 
 
-		this._em.emit("after_update");
-		this.realFPS = Math.round(1000/(Date.now()-this.frameStart))+1;
-		global.deltaTime = (Date.now()-this.frameStart)/1000;
-		this.frameStart = Date.now();
+      this._em.emit("after_update");
+      this.realFPS = Math.round(1000/(Date.now()-this.frameStart))+1;
+      global.deltaTime = (Date.now()-this.frameStart)/1000;
+      this.frameStart = Date.now();
+    }
 	}
 
 	frameDraw() {
-		this._em.emit("before_draw");
-		this._em.emit("draw");
-		this._em.emit("after_draw");
+    if (!this.paused) {
+      this._em.emit("before_draw");
+      this._em.emit("draw");
+      this._em.emit("after_draw");
+    };
 	}
 
 	loadObjectAsync(path) {

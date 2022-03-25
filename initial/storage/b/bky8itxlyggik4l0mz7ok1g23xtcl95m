@@ -1,0 +1,277 @@
+/* IMPORTS */
+
+var ansi2html, _input, gui, _prompt, _gr, __path = null;
+var historyPoint = 0;
+
+let { screen, CLI } = _process.getOutOwn();
+
+const _std = _process.std;
+const _path = _process.$path;
+
+let isBlocked = false;
+
+/* HELPERS */
+
+/* APP */
+
+_screenOwnHandler = (proc) => {
+    proc.listEvent("exit",()=>{
+        const own = _process.getOutOwn();
+        screen = own.screen;
+        CLI = own.CLI;
+        
+        if (!screen) {
+            _process.exit();
+            return false;
+        } else {
+            screen.setScreen(gui.wrapper);
+            gui.input.focus();
+        };
+    });
+    screen = null;
+    return true;
+}
+
+_initialize = async () => {
+    ansi2html = await _import("libs/ansi");
+    _input = await _import("libs/input");
+    _gr = await _import("libs/graphic");
+    __path = await _import("libs/path");
+
+    gui = await _createGraphic();
+    if (!screen) {
+        _process.exit();
+        return false;
+    } else {
+        await screen.setScreen(gui.wrapper);
+    };
+    _registerLogic(gui);
+    onPrintUpdate(gui);
+}
+
+_exiting = async () => {
+    _input.unlistEvent("keydown",onKeyDownGlobal)
+    _.wrapper.unlistEvent("submit",onSubmit)
+    _.print.unlistEvent("wheel",onWheel)
+    _.input.unlistEvent("blur",onBlur)
+    _.input.unlistEvent("focus",onFocus)
+    CLI.unlistEvent("update",onUpdate)
+    CLI.unlistEvent("prompt",onPrompt)
+}
+
+
+/* HANDLERS */
+
+const onInputSend = async (_) => {
+    const str = _.input.getParam("value")
+    if (_prompt) {
+        CLI.sendPrompt(str);
+        _prompt = null;
+        onUpdate();
+    } else {
+        let attributes = str.split(" ");
+        const command = attributes.shift();
+        await CLI.runCommand(command,attributes);
+    };
+    updateHistoryPoint();
+}
+
+const onPrintUpdate = (_) => {
+    const html = CLI.$PRINT.map(e=>ansi2html(e.msg)).join("\n")
+    const prefix = ansi2html(_prompt || `[32mroot@${CLI.$PCNAME}[0m:[34m${CLI.$PATH}[0m$`)
+    _.print.putHtml(html);
+    _.print.setParam("scrollTop",_.print.getParam("scrollHeight"));
+    _.input_prefix.putHtml(prefix);
+    if (!CLI.$RUNNING || _prompt) {
+        setBlockInput(_,false)
+    } else {
+        setBlockInput(_,true)
+    }
+}
+
+const setBlockInput = (_,a) => {
+    isBlocked=a
+    if (a) {
+        _.input.blur();
+        _.input_wrapper.setStyles({opacity:0});
+    } else {
+        _.input.focus();
+        _.input_wrapper.setStyles({opacity:1});
+    };
+}
+
+/* FUNCS */
+
+const getHelp = async () => {
+    let p = gui.input.getParam("value").split(" ").pop();
+    let search = null;
+    let absolute = true;
+    if (!__path.isAbsolute(p)) {
+        absolute = false;
+        p = __path.buildPath(
+            [
+                CLI.$PATH,
+                p,
+                (
+                    __path.isEnding(p) && p.length > 1
+                        ? "/" 
+                        : "."
+                )
+            ]
+        );
+    };
+    
+    if (!__path.isEnding(p)) {
+        p = p.split("/");
+        search = p.pop();
+        p = __path.buildPath(p);
+    };
+    
+    let res = await CLI.getHelps(__path.buildPath([p]));
+
+    if (search && res) {
+        res = res.find(e=>e.substr(0,search.length) == search);
+        res = __path.buildPath([p,(res || search)])
+    } else if (res) {
+        res = __path.buildPath([p,res[0]]);
+    } else {
+        res = p;
+    };
+
+    const endres = gui.input.getParam("value").split(" ");
+    endres.pop();
+    endres.push(res);
+
+    gui.input.setParam("value",endres.join(" ")
+        .replace(absolute ? "" : "/"+__path.encodePath(CLI.$PATH)+"/", "")
+        .replace(absolute ? "" : "/"+__path.encodePath(CLI.$PATH), ""));
+}
+
+const updateHistoryPoint = (up=null) => {
+    if (up === null) { // clear
+        historyPoint = CLI?.$HISTORY.length;
+    } else if (up === true) { // up
+        historyPoint -= 1;
+    } else { // down
+        historyPoint += 1;
+    }
+    if (historyPoint > CLI?.$HISTORY.length) {historyPoint = CLI?.$HISTORY.length;}
+    if (historyPoint < 0) {historyPoint = 0};
+
+    gui.input.setParam("value", CLI?.$HISTORY?.[historyPoint] || "");
+}
+
+const onKeyDownGlobal = e => {
+    if (screen && !_prompt) {
+        const key = e.which || e.keyCode;
+        const ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17) ? true : false);
+        if (key === 67 && ctrl) { // CTRL + C
+            CLI.abort();
+            e.preventDefault();
+        };
+
+        if (key === 9) { // TAB
+            getHelp();
+            e.preventDefault();
+        };
+
+        if (key === 38) { // UP
+            updateHistoryPoint(true);
+            e.preventDefault();
+        };
+
+        if (key === 40) { // DOWN
+            updateHistoryPoint(false);
+            e.preventDefault();
+        };
+    }
+    
+}
+const onSubmit = e => {
+    if (!isBlocked) {
+        onInputSend(gui);
+        e.preventDefault();
+    }
+}
+const onWheel = () => {
+    const delta = e.deltaY || e.detail || e.wheelDelta;
+    gui.print.setParam("scrollTop",gui.print.getParam("scrollTop")+delta);
+    e.preventDefault();
+}
+const onBlur = () => {
+    if (!isBlocked) {
+        gui.input.focus();
+    }
+}
+const onFocus = () => {
+    if (isBlocked) {
+        gui.input.blur();
+    }
+}
+const onUpdate = () => {
+    onPrintUpdate(gui);
+}
+const onPrompt = (text) => {
+    _prompt = text;
+    onUpdate();
+}
+
+const _registerLogic = (_) => {
+    _input.listEvent("keydown",onKeyDownGlobal)
+    _.wrapper.listEvent("submit",onSubmit)
+    _.print.listEvent("wheel",onWheel)
+    _.input.listEvent("blur",onBlur)
+    _.input.listEvent("focus",onFocus)
+    CLI.listEvent("update",onUpdate)
+    CLI.listEvent("prompt",onPrompt)
+}
+
+const _createGraphic = async () => {
+    const _ = {
+        wrapper: await _gr.createElement("form"),
+            print: await _gr.createElement("pre"),
+            input_wrapper: await _gr.createElement("div"),
+                input_prefix: await _gr.createElement("div"),
+                input: await _gr.createElement("input")
+    };
+
+    
+    // putting elements
+    _.input_wrapper.putElement(_.input_prefix);
+    _.input_wrapper.putElement(_.input);
+    _.wrapper.putElement(_.print);
+    _.wrapper.putElement(_.input_wrapper);
+    
+    // styling
+    _.wrapper.setStyles({
+        width:"100%",
+        height:"100%",
+        display:"flex",
+        "flex-direction":"column",
+        padding:"8px",
+        color: "#f7f7f7",
+        "background-color":"#151515"
+    });
+    _.print.setStyles({
+        overflow:"hidden",
+        color:"#d6d5d4"
+    });
+    _.input_wrapper.setStyles({
+        display:"flex",
+        "padding-top":"4px"
+    });
+    _.input_prefix.setStyles({
+        "margin-right":"8px"
+    });
+    _.input.setStyles({
+        "flex-grow":1,
+        "font-size":"1em",
+        padding:"0px",
+        "caret-color": "#d6d5d4"
+    });
+
+    // properties
+
+    _.input.setAttribute("autofocus","autofocus");
+    return _;
+}

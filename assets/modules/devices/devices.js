@@ -4,6 +4,12 @@ module.exports = {
 	_connection_list:{},
 	_old_connection_list:{},
 	init:function(inf){ 
+
+		this._device_list = {};
+		this._cable_list = {};
+		this._connection_list = {};
+		this._old_connection_list = {};
+
 		this._device_types = this.requireUncached("./device_types.js").init();
 		this._interface_types = this.requireUncached("./interface_types.js").init();
 		this._cable_types = this.requireUncached("./cable_types.js");

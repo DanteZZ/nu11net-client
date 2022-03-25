@@ -1,0 +1,81 @@
+exports = async () => {
+	const vm = await _import("libs/vm");
+
+	class ___FS {
+		a = 10;
+		constructor(){};
+		_encodePath = (path) => path.slice(0,1) == "/" ? path.slice(1) : path
+	
+		scanDir = (path,more=false,vol=null) => new Promise((res)=>{
+			path = this._encodePath(path);
+			vm.sendCommand("interfaces/storage/"+(vol || vm.getBoot())+"/scdir",{path, more},function(d){
+				res(d);
+			})
+		})
+		isDir = (path,vol=null) => new Promise((res)=>{
+			path = this._encodePath(path);
+			vm.sendCommand("interfaces/storage/"+(vol || vm.getBoot())+"/isdir",{path},function(d){
+				res(d);
+			})
+		})
+		rmDir = (path,vol=null) => new Promise((res)=>{
+			path = this._encodePath(path);
+			vm.sendCommand("interfaces/storage/"+(vol || vm.getBoot())+"/rmdir",{path},function(d){
+				res(d);
+			})
+		})
+		mkDir = (path,vol=null) => new Promise((res)=>{
+			path = this._encodePath(path);
+			vm.sendCommand("interfaces/storage/"+(vol || vm.getBoot())+"/mkdirasync",{path},function(d){
+				res(d);
+			})
+		})
+	
+		/* DATA */
+		rmFile = (path,vol=null) => new Promise((res)=>{
+			path = this._encodePath(path);
+			vm.sendCommand("interfaces/storage/"+(vol || vm.getBoot())+"/rmdataasync",{path},function(d){
+				res(d);
+			})
+		})
+		writeFile = (path,data,vol=null) => new Promise((res)=>{
+			path = this._encodePath(path);
+			vm.sendCommand("interfaces/storage/"+(vol || vm.getBoot())+"/writedataasync",{path,data},function(d){
+				res(d);
+			})
+		})
+		readFile = (path,vol=null) => new Promise((res)=>{
+			path = this._encodePath(path);
+			vm.sendCommand("interfaces/storage/"+(vol || vm.getBoot())+"/readdataasync",{path},function(d){
+				res(d);
+			})
+		})
+		isFile = (path,vol=null) => new Promise((res)=>{
+			path = this._encodePath(path);
+			vm.sendCommand("interfaces/storage/"+(vol || vm.getBoot())+"/isdata",{path},function(d){
+				res(d);
+			})
+		})
+		getAttributes = (path,vol=null) => new Promise((res)=>{
+			path = this._encodePath(path);
+			vm.sendCommand("interfaces/storage/"+(vol || vm.getBoot())+"/getattributes",{path},function(d){
+				res(d);
+			})
+		})
+		setAttributes = (path,attributes,vol=null) => new Promise((res)=>{
+			path = this._encodePath(path);
+			vm.sendCommand("interfaces/storage/"+(vol || vm.getBoot())+"/setattributes",{path,attributes},function(d){
+				res(d);
+			})
+		})
+		rename = (oldpath,newpath,vol=null) => new Promise((res)=>{
+			oldpath = this._encodePath(oldpath);
+			newpath = this._encodePath(newpath);
+			vm.sendCommand("interfaces/storage/"+(vol || vm.getBoot())+"/rename",{oldpath,newpath},function(d){
+				res(d);
+			})
+		})
+	};
+
+	return new ___FS
+}

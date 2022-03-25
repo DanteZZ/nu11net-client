@@ -1,0 +1,7 @@
+const _std = _process.std;
+
+_initialize = async () => {
+	const _vm = await _import("libs/vm");
+	_std.write(JSON.stringify(await _vm.getInterfaces(),"\n",4))
+	//_process.exit();
+}

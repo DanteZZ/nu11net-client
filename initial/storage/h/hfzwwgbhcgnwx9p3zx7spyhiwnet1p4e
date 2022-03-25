@@ -1,0 +1,31 @@
+/* CHAT */
+const _std = _process.std;
+var server, http, client = null;
+
+_initialize = async () => {
+	server = await _import("libs/server");
+	http = new server(8080,receiver);
+	client = await _std.prompt("[33mВведите адрес клиента>");
+	_std.write("Подключен к [33m"+client);
+	chat();
+}
+
+const chat = async () => {
+	const str = await _std.prompt("[33m>");
+	_std.write("[33m> [0m"+str);
+	if (str == "!!") {
+		_process.exit();
+		return false;
+	}
+	http.send(client,str)
+	chat();
+	return true;
+}
+
+_exiting = async () => {
+	http.close();
+}
+
+const receiver = (d) => {
+	_std.write(`Answer: ${d.data}`);
+};

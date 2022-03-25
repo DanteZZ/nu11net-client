@@ -44,7 +44,6 @@
 	defaultCam:"default",
 
 	_create:function() {
-
 		global.hovertext = "";
 		global.deviceDisplay = null;
 		global.lockgame = false;
@@ -63,6 +62,7 @@
 			dev.__instance = this.devices[dev._id];
 		};
 	},
+
 
 	_drawDisplay:function() {
 		const _vw = global?.deviceDisplay?.__getScreen() || null;

@@ -6,7 +6,7 @@ module.exports = {
 		return this.parseJSON(data);
 	},
 	save:function(){
-		return this._fs.writeFileSync("config",JSON.stringify(this.cfg),"utf-8");
+		return this._fs.writeFileSync("config",JSON.stringify(this.cfg,null, "\t"),"utf-8");
 	},
 	parseJSON: function(data) {
 		if (this.isJSON(data)) {

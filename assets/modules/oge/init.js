@@ -91,9 +91,9 @@ class _GR {
 	};
 
 	destroyCanvas(name) {
-		if (this.canvases[name]) {
+		if (this.canvases[name]?.canvas) {
 			let canv = this.canvases[name].canvas;
-			$(canv).remove();
+			canv?.remove();
 			delete this.canvases[name];
 		} else {
 			return false;
@@ -103,9 +103,11 @@ class _GR {
 	destroyAll() {
 		if (this.canvases) {
 			for (var k in this.canvases) {
-				let canv = this.canvases[k].canvas;
-				$(canv).remove();
-				this.canvases = {};
+				if (this.canvases[k]?.canvas) {
+					let canv = this.canvases[k].canvas;
+					canv?.remove();
+					this.canvases = {};
+				}
 			};
 			return true;
 		} else {

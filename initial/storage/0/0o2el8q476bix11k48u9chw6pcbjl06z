@@ -1,0 +1,9 @@
+{
+  "eth0_a1b2c3d4e5": {
+    "default": true,
+    "dhcp": true
+  },
+  "lo": {
+    "ip": "127.0.0.1/8"
+  }
+}
