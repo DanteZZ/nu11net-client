@@ -48,6 +48,7 @@ function requireUncached(module) {
 
 const _vm = require("vm"); // Работа с контекстами
 const _fs = require("fs"); // Работа с файловой системой
+const _path = require("path");
 const _cfg = requireUncached("assets/modules/config.js"); // Работа с конфигурационным файлом
 
 const WS = requireUncached("assets/modules/ws.js"); // Работа с веб-сокетом
@@ -57,6 +58,18 @@ global.__csl = console;
 global.__doc = document;
 global.vmrun = new _vmrun();
 global.__cfg = _cfg
+
+try {
+	if (process.env?.NODE_ENV?.indexOf("dev") >= 0) {
+		global._basedir = process?.env?.PWD || process.cwd();
+	} else {
+		global._basedir = _path.dirname(process.execPath);
+	};
+} catch (e) {
+	alert(e.toString())
+}
+
+
 global.__connectedServer = {
 	address: "localhost"
 }

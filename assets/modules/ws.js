@@ -50,7 +50,12 @@ class WS {
 
     checkFiles() {
         if (this.authenticated && this.userInfo?.inf?.devices) {
-            const pth = path.join(process.cwd(),global.__cfg.get().serversDir,this.srvInfo.hash);
+            const pth = path.join(global._basedir,global.__cfg.get().serversDir,this.srvInfo.hash);
+
+            // Если нет папки серверов
+            if (!fs.existsSync(path.join(global._basedir,global.__cfg.get().serversDir))) { 
+                fs.mkdirSync(path.join(global._basedir,global.__cfg.get().serversDir));
+            };
 
             // Если нет папки сервера
             if (!fs.existsSync(pth)) { 
@@ -74,10 +79,10 @@ class WS {
                     const int = dev.interfaces[intn];
                     if (
                         !fs.existsSync(path.join(pth,String(this.userInfo.id),"interfaces",intn)) &&
-                        fs.existsSync(path.join(process.cwd(),"initial",dev.type,int.type))
+                        fs.existsSync(path.join("initial",dev.type,int.type))
                     ) { 
                         fse.copySync(
-                            path.join(process.cwd(),"initial",dev.type,int.type),
+                            path.join("initial",dev.type,int.type),
                             path.join(pth,String(this.userInfo.id),"interfaces",intn)
                         )
                     };

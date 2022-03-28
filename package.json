@@ -2,12 +2,15 @@
 	"name": "hackit",
 	"main": "index.html",
 	"fullscreen": true,
+	"version": "0.1.0",
 	"width": 900,
 	"height": 700,
 	"min_width": 900,
 	"min_height": 700,
 	"scripts": {
-		"start": "nw"
+		"preinstall":"npm install -g nw@0.62.2-sdk && npm install -g nw-builder",
+		"build":"nwbuild -p win64 -v 0.62.2 -o ./build . --flavor normal",
+		"start": "set NODE_ENV=dev && nw"
 	},
 	"webview": {
 		"partitions": [
@@ -21,7 +24,6 @@
 	},
 	"dependencies": {
 		"eval": "^0.1.6",
-		"fs-extra": "^10.0.1",
-		"nw": "^0.61.0-sdk"
+		"fs-extra": "^10.0.1"
 	}
 }

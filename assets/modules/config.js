@@ -2,11 +2,12 @@ module.exports = {
 	cfg:{},
 	load:function(){
 		this._fs = require("fs");
-		let data = this._fs.readFileSync("config","utf-8");
+		this._path = require("path");
+		let data = this._fs.readFileSync(this._path.join(global._basedir,"config"),"utf-8");
 		return this.parseJSON(data);
 	},
 	save:function(){
-		return this._fs.writeFileSync("config",JSON.stringify(this.cfg,null, "\t"),"utf-8");
+		return this._fs.writeFileSync(this._path.join(global._basedir,"config"),JSON.stringify(this.cfg,null, "\t"),"utf-8");
 	},
 	parseJSON: function(data) {
 		if (this.isJSON(data)) {

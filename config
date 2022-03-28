@@ -3,6 +3,10 @@
 		"localhost:1337": {
 			"name": "H4CK-IT",
 			"ip": "localhost:1337"
+		},
+		"192.168.1.100": {
+			"name": "Hehe",
+			"ip": "192.168.1.100"
 		}
 	},
 	"login": "test1",

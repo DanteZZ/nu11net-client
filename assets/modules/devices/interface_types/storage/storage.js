@@ -14,12 +14,12 @@ class storage {
 	};
 
 	#__dir = function() {
-		return this.#__pth.join(global.__cfg.get().serversDir,global._ws.srvInfo.hash,String(global._ws.userInfo.id),"interfaces",this._id);
+		return this.#__pth.join(global._basedir,global.__cfg.get().serversDir,global._ws.srvInfo.hash,String(global._ws.userInfo.id),"interfaces",this._id);
 	};
 
 	#__initMap = function() { // Инициализировать MAP
 		/* Функция которую надо будет переписать под серверную */
-		let pmap = this.#__pth.join(this.#__dir(),".map");
+		let pmap = this.#__pth.join(this.#__dir(),"map");
 		if (!this.#__fs.existsSync(pmap)) {
 			this.__mapped = false;
 		} else {
@@ -39,7 +39,7 @@ class storage {
 		if (typeof(this.__map) == "object") {mp = this.__map;}; // Проверяем чтобы нам не посылали всякую шляпу в MAP
 
 		try {
-			this.#__fs.writeFileSync(this.#__pth.join(this.#__dir(),".map"),JSON.stringify(mp));
+			this.#__fs.writeFileSync(this.#__pth.join(this.#__dir(),"map"),JSON.stringify(mp));
 			return true;
 		} catch (e) {
 			this.#__err("0x000101",e);
