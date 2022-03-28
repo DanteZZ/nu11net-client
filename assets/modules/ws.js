@@ -20,6 +20,7 @@ class WS {
         this.srvInfo = {};
         this.userInfo = {};
         this.authenticated = false;
+        this.packageReceiver = () => {};
     }
 
     _onReceive({data}) {
@@ -35,6 +36,11 @@ class WS {
                 this._onCommand(msg.payload,msg.command,(payload,command=null)=>{this.sendResponse(command,payload,msg.response_id)})
             break;
         }
+
+        if (msg.command == "send_package") {
+            this.packageReceiver(msg.payload);
+        };
+
     }
 
     setAuth(inf) {
@@ -51,10 +57,14 @@ class WS {
                 fs.mkdirSync(pth);
             };
 
-            // Если нет папки сервера
-            console.log(path.join(pth,"interfaces"))
-            if (!fs.existsSync(path.join(pth,"interfaces"))) { 
-                fs.mkdirSync(path.join(pth,"interfaces"));
+            // Если нет папки юзера
+            if (!fs.existsSync(path.join(pth,String(this.userInfo.id)))) { 
+                fs.mkdirSync(path.join(pth,String(this.userInfo.id)));
+            };
+
+            // Если нет папки интерфейса
+            if (!fs.existsSync(path.join(pth,String(this.userInfo.id),"interfaces"))) { 
+                fs.mkdirSync(path.join(pth,String(this.userInfo.id),"interfaces"));
             };
 
             // Проверка устройств
@@ -63,13 +73,12 @@ class WS {
                 for (var intn in dev.interfaces) {
                     const int = dev.interfaces[intn];
                     if (
-                        !fs.existsSync(path.join(pth,"interfaces",intn)) &&
+                        !fs.existsSync(path.join(pth,String(this.userInfo.id),"interfaces",intn)) &&
                         fs.existsSync(path.join(process.cwd(),"initial",dev.type,int.type))
                     ) { 
-                        console.log(path.join(process.cwd(),"initial",dev.type,int.type),path.join(pth,"interfaces",intn))
                         fse.copySync(
                             path.join(process.cwd(),"initial",dev.type,int.type),
-                            path.join(pth,"interfaces",intn)
+                            path.join(pth,String(this.userInfo.id),"interfaces",intn)
                         )
                     };
                 }

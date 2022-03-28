@@ -14,7 +14,7 @@ class storage {
 	};
 
 	#__dir = function() {
-		return this.#__pth.join(global.__cfg.get().serversDir,global._ws.srvInfo.hash,"interfaces",this._id);
+		return this.#__pth.join(global.__cfg.get().serversDir,global._ws.srvInfo.hash,String(global._ws.userInfo.id),"interfaces",this._id);
 	};
 
 	#__initMap = function() { // Инициализировать MAP
