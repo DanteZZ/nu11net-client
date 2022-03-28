@@ -5,8 +5,8 @@
 			"ip": "localhost:1337"
 		}
 	},
-	"login": "DanteZZ",
-	"password": "topkek123",
+	"login": "test1",
+	"password": "test1",
 	"selectedServer": "localhost:1337",
 	"serversDir": "servers"
 }

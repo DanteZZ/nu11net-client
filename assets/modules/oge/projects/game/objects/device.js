@@ -4,6 +4,7 @@
 	mousehover:false,
 	clickable:true,
 	contextable:true,
+	statable: true,
 	contextmenu:{
 		"poweron":{
 			label: "Включить"
@@ -53,6 +54,9 @@
 			width:spr.width,
 			height:spr.height
 		});
+		if (typeof this.dev.contextable !== "undefined") { this.contextable = this.dev.contextable };
+		if (typeof this.dev.clickable !== "undefined") { this.clickable = this.dev.clickable };
+		if (typeof this.dev.statable !== "undefined") { this.statable = this.dev.statable };
 	},
 	_update:function() {
 		if (this.status !== this.dev._status) {
@@ -60,12 +64,12 @@
 			this.setSpriteFrame(this.status);
 			switch (this.dev._status) {
 				case 0:
-					this.title = this.dev.__name+" [Выкл.]";
+					this.title = this.dev.__name + (this.statable ? " [Выкл.]" : "");
 					this.contextmenu.poweron.disabled = false;
 					this.contextmenu.poweroff.disabled = true;
 				break;
 				case 1:
-					this.title = this.dev.__name+" [Вкл.]";
+					this.title = this.dev.__name + (this.statable ? " [Вкл.]" : "");
 					this.contextmenu.poweron.disabled = true;
 					this.contextmenu.poweroff.disabled = false;
 				break;

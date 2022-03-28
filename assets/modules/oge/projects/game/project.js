@@ -29,6 +29,13 @@
 			center_x:37,
 			center_y:42
 		},
+		device_network_socket: {
+			src:"/sprites/device_network_socket.png",
+			frames:1,
+			speed:0.5,
+			center_x:21,
+			center_y:21
+		},
 		cursor: {
 			src:"/sprites/cursor.png",
 			center_x:0,
