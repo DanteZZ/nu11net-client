@@ -1,3 +1,5 @@
+const { copyFolderRecursiveSync, fs } = require("./fsAdvance");
+
 const CMD_GETSRVINFO = "get_server_info";
 
 const TYPE_SIMPLE = "simple";
@@ -34,6 +36,15 @@ class WS {
     setAuth(inf) {
         this.userInfo = inf;
         this.authenticated = true;
+    }
+
+    checkAuthIntegrity() {
+        if (this.authenticated && this.userInfo?.inf?.devices) {
+            // Перекинуть файлы
+
+
+        }
+        return false;
     }
     
     _onClose() {
