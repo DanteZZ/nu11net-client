@@ -36,12 +36,15 @@ _initialize = async () => {
 	_vm = await _import("libs/vm");
 	_fs = await _import("libs/fs");
 	_cidr = await _import("libs/cidr");
+	_yaml = await _import("libs/yaml");
+
 	try {
-		_conf = JSON.parse(await _fs.readFile("/kernel/network_conf/network"));
+		_conf = _yaml.load(await _fs.readFile("/kernel/network_conf/network"));
 	} catch (e) {
 		_std.write("Error in network file [ /kernel/network_conf/network ]");
 		_process.exit(); 
-	}
+	};
+	await convertPortNames();
 	if (setDefaultEth()) {
 		await start();
 	}
@@ -60,6 +63,20 @@ const getEth = (ip) => {
 		}
 	};
 	return defEth;
+};
+
+const convertPortNames = async () => {
+	const intList = await _vm.getInterfaces();
+	const ports = intList.filter(i=>i.type == "ethernet").map(i=>i.name);
+	for (let name in _conf) {
+		ports.forEach(i=>{
+			if (i.indexOf(name) === 0) {
+				_conf[i] = _conf[name];
+				delete _conf[name];
+			}
+		})
+	};
+	return true;
 };
 
 const setDefaultEth = () => {

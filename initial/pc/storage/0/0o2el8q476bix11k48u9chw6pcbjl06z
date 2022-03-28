@@ -1,9 +1,6 @@
-{
-  "eth0_a1b2c3d4e5": {
-    "default": true,
-    "dhcp": true
-  },
-  "lo": {
-    "ip": "127.0.0.1/8"
-  }
-}
+---
+#<first characters of ethernet interface>:
+  #default: true
+  #dhcp: true
+lo:
+  ip: 127.0.0.1/8

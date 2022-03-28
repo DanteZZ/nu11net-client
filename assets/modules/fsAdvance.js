@@ -20,6 +20,7 @@ function copyFolderRecursiveSync( source, target ) {
 
     // Check if folder needs to be created or integrated
     var targetFolder = path.join( target, path.basename( source ) );
+
     if ( !fs.existsSync( targetFolder ) ) {
         fs.mkdirSync( targetFolder );
     }
@@ -38,9 +39,4 @@ function copyFolderRecursiveSync( source, target ) {
     }
 }
 
-export {
-    copyFileSync,
-    copyFolderRecursiveSync,
-    fs,
-    path
-}
+exports.copyFolderRecursiveSync = copyFolderRecursiveSync

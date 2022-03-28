@@ -1,4 +1,8 @@
-const { copyFolderRecursiveSync, fs } = require("./fsAdvance");
+const { copyFolderRecursiveSync } = require("./fsAdvance");
+
+const path = require("path");
+const fs = require("fs");
+const fse = require('fs-extra');
 
 const CMD_GETSRVINFO = "get_server_info";
 
@@ -38,11 +42,39 @@ class WS {
         this.authenticated = true;
     }
 
-    checkAuthIntegrity() {
+    checkFiles() {
         if (this.authenticated && this.userInfo?.inf?.devices) {
-            // Перекинуть файлы
+            const pth = path.join(process.cwd(),global.__cfg.get().serversDir,this.srvInfo.hash);
 
+            // Если нет папки сервера
+            if (!fs.existsSync(pth)) { 
+                fs.mkdirSync(pth);
+            };
 
+            // Если нет папки сервера
+            console.log(path.join(pth,"interfaces"))
+            if (!fs.existsSync(path.join(pth,"interfaces"))) { 
+                fs.mkdirSync(path.join(pth,"interfaces"));
+            };
+
+            // Проверка устройств
+            for (var devn in this.userInfo.inf.devices) {
+                const dev = this.userInfo.inf.devices[devn];
+                for (var intn in dev.interfaces) {
+                    const int = dev.interfaces[intn];
+                    if (
+                        !fs.existsSync(path.join(pth,"interfaces",intn)) &&
+                        fs.existsSync(path.join(process.cwd(),"initial",dev.type,int.type))
+                    ) { 
+                        console.log(path.join(process.cwd(),"initial",dev.type,int.type),path.join(pth,"interfaces",intn))
+                        fse.copySync(
+                            path.join(process.cwd(),"initial",dev.type,int.type),
+                            path.join(pth,"interfaces",intn)
+                        )
+                    };
+                }
+            }
+            return true;
         }
         return false;
     }

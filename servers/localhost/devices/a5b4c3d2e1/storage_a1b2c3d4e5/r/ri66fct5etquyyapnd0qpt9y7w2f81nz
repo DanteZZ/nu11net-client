@@ -1,6 +1,0 @@
-exports = async () => {
-	return {
-		timeout:_os.setTimeout,
-		interval:_os.setInterval
-	};
-}

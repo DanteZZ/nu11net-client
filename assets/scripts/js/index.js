@@ -83,7 +83,7 @@ var app = new Vue({
 });
 
 window._ws = new WS();
-
+global._ws = _ws;
 const check = async () => {
 	await _ws.tryConnect("localhost:1337");
 	console.log(await _ws.loadServerInfo());

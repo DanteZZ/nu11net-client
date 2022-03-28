@@ -21,6 +21,7 @@
 	},
 	"dependencies": {
 		"eval": "^0.1.6",
+		"fs-extra": "^10.0.1",
 		"nw": "^0.61.0-sdk"
 	}
 }

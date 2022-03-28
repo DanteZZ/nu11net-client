@@ -448,6 +448,7 @@
 								b.$forceUpdate();
 								if (status == 300) { // Если авторизация прошла
 									_ws.setAuth(result);
+									_ws.checkFiles();
 									global._dv.init(result.inf);
 									_oge.play();
 									_oge.loadScene("room");
