@@ -62,6 +62,11 @@
 				</div>
 			</div>
 		</div>
+		<div v-if="disconnected" class="modalwrapper">
+			<div class="modal-disconnected">
+				Потеряна связь с сервером
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -74,6 +79,7 @@
 				showed:true,
 				selItem: 0,
 				selSection: 0,
+				disconnected: false,
 				modal: {
 					opened:false,
 					title:"",
@@ -451,9 +457,10 @@
 									_ws.checkFiles();
 									global._dv.init(result.inf);
 									_oge.play();
-									_oge.loadScene("room");
+									_oge.buffer.scene.loadDevices();
 									b.showed = false;
 									b.closeModal();
+									_ws.setOnClose(b.onDisconnect);
 									b.$forceUpdate();
 								};
 							} catch (e) {
@@ -556,6 +563,18 @@
 		  			break;
 		  		};
 		  	},
+			onDisconnect: function() {
+				this.disconnected = true;
+				this.showed = true;
+				try {
+					global._oge.buffer.scene.clearDevices();
+					global.vmrun.clearAll();
+				} catch (e) {
+					console.log(e);
+				};
+				global._oge.pause();
+				this.$forceUpdate();
+			},
 		  	getVar: function(name){
 		  		let vars = name.split('.');
 		  		let res = this;
@@ -647,7 +666,7 @@
 
 		  	onkeyup: function(e) {
 		  		let b = BIOS;
-		  		if (!b.modal.opened) { //SECTIONS
+		  		if (!b.modal.opened && !b.disconnected) { //SECTIONS
 		  			if (e.which == 39) {//Right arrow
 		  				if (b.selItem+1 == b.menuList.length) { b.selItem = 0;} else {b.selItem++;};
 		  				b.selSection = -1;
@@ -686,6 +705,10 @@
 								b.showed = true;
 							}
 						}
+			  		};
+				} else if (b.disconnected) {
+					if ((e.which == 13) || (e.which == 27)) {//Enter
+			  			b.disconnected = false;
 			  		};
 		  		} else { //MODAL
 		  			b.onModalKey(e.which);
@@ -737,6 +760,12 @@
 		display:flex;
 		align-items:center;
 		justify-content: center;
+	}
+
+	.bios .modalwrapper .modal-disconnected {
+		color:#dcdbdb;
+		background-color: rgb(83, 0, 0);
+		padding:16px;
 	}
 
 	.bios .modalwrapper .modal {

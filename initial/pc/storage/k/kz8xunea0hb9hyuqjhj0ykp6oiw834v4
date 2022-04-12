@@ -20,10 +20,10 @@ _initialize = async () => {
     for (let id in info) {
         const eth = info[id];
         list.push([
-            id,
+            id.substr(0,5),
             eth?.ip || "",
             eth?.gateway || "",
-            eth?.dns ? formatArray(dns) : "",
+            eth?.dns ? formatArray(eth.dns) : "",
             eth?.dhcp ? "*" : "",
             eth?.default ? "*" : ""
         ]);

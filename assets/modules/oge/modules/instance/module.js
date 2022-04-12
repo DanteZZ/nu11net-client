@@ -90,7 +90,11 @@ class Instance {
 	}
 	
 	destroy() {
-		this._oge.buffer.instances[this.id] = null;
+		this._oge.buffer.instances.forEach((e,i)=>{
+			if (e == this) {
+				this._oge.buffer.instances.splice(i,1);
+			};
+		});
 	}
 }
 

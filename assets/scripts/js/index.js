@@ -23,6 +23,12 @@ class _vmrun {
 			callback.apply(ctx,[global.vms[hash]])
 		});
 	}
+	clearAll() {
+		const list = document.getElementsByTagName("webview");
+		for (var k in list) {
+			list[k].remove();
+		};
+	}
 	onMessage(event){
 		let data = event.data;
 		global.vms[data.pid].onmsg(data.data);
@@ -97,7 +103,3 @@ var app = new Vue({
 
 window._ws = new WS();
 global._ws = _ws;
-const check = async () => {
-	await _ws.tryConnect("localhost:1337");
-	console.log(await _ws.loadServerInfo());
-}

@@ -51,6 +51,10 @@
 
 		//Create Devices
 		this.devices = {};
+		
+	},
+
+	loadDevices:function() {
 		for (var k in global._dv._device_list) {
 			let dev = global._dv._device_list[k];
 			this.devices[dev._id] = this._oge.createInstance({
@@ -63,6 +67,17 @@
 		};
 	},
 
+	clearDevices:function() {
+		for (let i in this.devices) {
+			this.devices[i].destroy();
+			delete this.devices[i];
+		};
+		global.deviceDisplay = null;
+		global.lockgame = false;
+		const hs = this._oge.buffer.scene.instances.find(e=>e.name == "hero");
+		global.hero.x = hs.x;
+		global.hero.y = hs.y;
+	},
 
 	_drawDisplay:function() {
 		const _vw = global?.deviceDisplay?.__getScreen() || null;
@@ -158,13 +173,15 @@
 			let cable = global._dv._connection_list[k];
 			let d0 = this.devices[cable[0].split("#")[0]];
 			let d1 = this.devices[cable[1].split("#")[0]];
-
-			ctx.beginPath();
-			ctx.moveTo(d0.x-ctx.offset_x,d0.y-ctx.offset_y-4);
-			ctx.lineWidth = 2;
-			ctx.strokeStyle = "grey";
-			ctx.lineTo(d1.x-ctx.offset_x,d1.y-ctx.offset_y-4); 
-			ctx.stroke();
+			if (d0?.x && d1?.x) {
+				ctx.beginPath();
+				ctx.moveTo(d0.x-ctx.offset_x,d0.y-ctx.offset_y-4);
+				ctx.lineWidth = 2;
+				ctx.strokeStyle = "grey";
+				ctx.lineTo(d1.x-ctx.offset_x,d1.y-ctx.offset_y-4); 
+				ctx.stroke();
+			}
+			
 		};
 		
 	},

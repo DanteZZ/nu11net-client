@@ -99,7 +99,7 @@ module.exports = {
 						for (var bk in b) {
 							let binst = b[bk];
 							
-							if (ainst.__colliders && binst.__colliders) {
+							if (ainst?.__colliders && binst?.__colliders) {
 								if ((ainst == this) && (binst == this)) {continue;};
 								for (var ca in ainst.__colliders) {
 									for (var cb in binst.__colliders) {

@@ -1,5 +1,3 @@
-const { copyFolderRecursiveSync } = require("./fsAdvance");
-
 const path = require("path");
 const fs = require("fs");
 const fse = require('fs-extra');
@@ -13,7 +11,7 @@ const TYPE_RESPONSE = "response";
 class WS {
     constructor(onMessage,onClose) {
         this.onMessage = onMessage;
-        this.onClose = onClose;
+        this.onClose = onClose || function() {};
         this.connected = false;
         this.pool = {};
         this.pool_last = 1;
@@ -21,6 +19,10 @@ class WS {
         this.userInfo = {};
         this.authenticated = false;
         this.packageReceiver = () => {};
+    }
+
+    setOnClose(func) {
+        this.onClose = func;
     }
 
     _onReceive({data}) {
@@ -95,6 +97,10 @@ class WS {
     
     _onClose() {
         this.connected = false;
+        this.onClose();
+        this.authenticated = false;
+        _oge.clearScene();
+        vmrun.clearAll();
         console.log("DISCONNECT");
     }
 

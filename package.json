@@ -8,9 +8,9 @@
 	"min_width": 900,
 	"min_height": 700,
 	"scripts": {
-		"preinstall":"npm install -g nw@0.62.2-sdk && npm install -g nw-builder",
-		"build":"nwbuild -p win64 -v 0.62.2 -o ./build . --flavor normal",
-		"start": "set NODE_ENV=dev && nw"
+		"preinstall": "npm install nw@0.62.2-sdk --save-dev && npm install nw-builder --save-dev && npm install --save-dev cross-env",
+		"build": "nwbuild -p win64 -v 0.62.2 -o ./build . --flavor normal",
+		"start": "cross-env NODE_ENV=dev nw"
 	},
 	"webview": {
 		"partitions": [
@@ -25,5 +25,10 @@
 	"dependencies": {
 		"eval": "^0.1.6",
 		"fs-extra": "^10.0.1"
+	},
+	"devDependencies": {
+		"cross-env": "^7.0.3",
+		"nw": "^0.62.2-sdk",
+		"nw-builder": "^3.5.7"
 	}
 }
