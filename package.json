@@ -1,34 +1,20 @@
 {
 	"name": "hackit",
-	"main": "index.html",
-	"fullscreen": true,
+	"main": "bin/index.html",
 	"version": "0.1.0",
-	"width": 900,
-	"height": 700,
-	"min_width": 900,
-	"min_height": 700,
 	"scripts": {
-		"preinstall": "npm install nw@0.62.2-sdk --save-dev && npm install nw-builder --save-dev && npm install --save-dev cross-env",
-		"build": "nwbuild -p win64 -v 0.62.2 -o ./build . --flavor normal",
-		"start": "cross-env NODE_ENV=dev nw"
-	},
-	"webview": {
-		"partitions": [
-			{
-				"name": "trusted",
-				"accessible_resources": [
-					"<all_urls>"
-				]
-			}
-		]
-	},
-	"dependencies": {
-		"eval": "^0.1.6",
-		"fs-extra": "^10.0.1"
+		"start": "cross-env NODE_ENV=dev node nw.js",
+		"build": "cross-env NODE_ENV=dev node nw.js --build"
 	},
 	"devDependencies": {
 		"cross-env": "^7.0.3",
-		"nw": "^0.62.2-sdk",
-		"nw-builder": "^3.5.7"
+		"nw-builder": "^3.5.7",
+		"fs": "0.0.1-security",
+		"os": "^0.1.2"
+	},
+	"nw": {
+		"version": "0.62.2",
+		"dirName": "bin",
+		"platforms": ["linux64"]
 	}
 }
