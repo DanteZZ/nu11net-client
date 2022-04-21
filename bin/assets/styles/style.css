@@ -67,7 +67,7 @@ div, form, input, button {
 }
 
 #app {
-	z-index:10;
+	z-index:1000;
 	position:absolute;
 	background-color:rgba(0,0,0,0.8);
 }

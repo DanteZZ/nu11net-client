@@ -9,15 +9,15 @@ module.exports = {
 	load:function(){
 		this._fs = require("fs");
 		this._path = require("path");
-		if (!this._fs.existsSync(this._path.join(global._basedir,"config"))) {
+		if (!this._fs.existsSync(this._path.join(global._basedir,"config.json"))) {
 			this.save();
 		}
-		let data = this._fs.readFileSync(this._path.join(global._basedir,"config"),"utf-8");
+		let data = this._fs.readFileSync(this._path.join(global._basedir,"config.json"),"utf-8");
 		return this.parseJSON(data);
 	},
 
 	save:function(){
-		return this._fs.writeFileSync(this._path.join(global._basedir,"config"),JSON.stringify(this.cfg,null, "\t"),"utf-8");
+		return this._fs.writeFileSync(this._path.join(global._basedir,"config.json"),JSON.stringify(this.cfg,null, "\t"),"utf-8");
 	},
 
 

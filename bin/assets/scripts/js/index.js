@@ -101,5 +101,16 @@ var app = new Vue({
   	el: '#app',
 });
 
+//Toggle Fullscreen--Borderless Window-Mode
+nw.App.registerGlobalHotKey(new nw.Shortcut({
+	key: "F10",
+	active: function () {
+		if (!global?.deviceDisplay) {
+			nw.Window.get().toggleFullscreen();
+		};
+	}
+}));
+//END
+
 window._ws = new WS();
 global._ws = _ws;
