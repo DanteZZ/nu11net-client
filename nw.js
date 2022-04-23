@@ -37,6 +37,8 @@ if (process.argv.indexOf("--build") >= 0) { // IF BUILD
         version: nwinf.version,
         flavor: "normal",
         cacheDir: "./versions/",
+        macIcns:"./assets/icon.icns",
+        winIco:"./assets/icon.ico",
         zip:true
     });
 

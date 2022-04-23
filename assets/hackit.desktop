@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=H4CK-IT 
+StartupWMClass=hackit
+Comment=New-generation programming game
+GenericName=Game
+Exec=/opt/hackit/hackit
+Icon=hackit
+Type=Application
+Categories=Network;Games;
+Path=/opt/hackit

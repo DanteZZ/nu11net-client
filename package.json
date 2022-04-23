@@ -4,17 +4,22 @@
 	"version": "0.1.0",
 	"scripts": {
 		"start": "cross-env NODE_ENV=dev node nw.js",
-		"build": "cross-env NODE_ENV=dev node nw.js --build"
+		"build": "cross-env NODE_ENV=dev node nw.js --build",
+		"mkdeb": "node deb.js"
 	},
 	"devDependencies": {
 		"cross-env": "^7.0.3",
 		"nw-builder": "^3.5.7",
 		"fs": "0.0.1-security",
-		"os": "^0.1.2"
+		"os": "^0.1.2",
+		"debian-packaging": "^0.1.5",
+		"fs-extra": "^10.0.1"
 	},
 	"nw": {
 		"version": "0.62.2",
 		"dirName": "bin",
-		"platforms": ["linux64"]
+		"platforms": [
+			"linux64"
+		]
 	}
 }
