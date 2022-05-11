@@ -4,7 +4,8 @@ module.exports = {
 		"login": "",
 		"password": "",
 		"selectedServer": "",
-		"serversDir": "servers"
+		"serversDir": "servers",
+		"fullscreen": true,
 	},
 	load:function(){
 		this._fs = require("fs");

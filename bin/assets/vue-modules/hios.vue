@@ -252,21 +252,24 @@
 						title: "Настройки",
 						sections:[
 							{
-								title:"Авторизация 2",
+								titleText:"Полноэкранный режим",
+								title:`Полноэкранный режим [${_cfg.get().fullscreen ? "*" : "-"}]`,
 								action:function(){
-									window.ck = this;
+									if (!global?.deviceDisplay) {
+										const nww = nw.Window.get()
+										this.title = this.titleText+` [${nww.isFullscreen ? "-" : "*"}]`
+										nww.toggleFullscreen();
+										setTimeout(()=>{
+											_cfg.set({fullscreen:nww.isFullscreen})
+											_cfg.save();
+										},200);
+									}; 
 								}
 							},
 							{
-								title:"Авторизация 2",
+								title:`Выход`,
 								action:function(){
-									alert("Авторизация");
-								}
-							},
-							{
-								title:"Авторизация 2",
-								action:function(){
-									alert("Авторизация");
+									nw.App.quit();
 								}
 							}
 						]
