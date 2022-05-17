@@ -479,6 +479,12 @@ class storage {
 	    return randomString;
 	};
 
+	__clearCommands = function() {
+		let cat = "interfaces/"+this.__type+"/"+this._id;
+		let cmd = this.__device._cmd;
+		cmd._remove(cat); //Регаем каталог
+	};
+
 	__initCommands = function() {
 		/* Запишем путь к командам и путь с конечным слешом */
 		let cat = "interfaces/"+this.__type+"/"+this._id;

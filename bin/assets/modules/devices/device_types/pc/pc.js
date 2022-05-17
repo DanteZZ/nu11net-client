@@ -16,12 +16,12 @@ class pc {
 
 	constructor(a,b,c,d) {
 		this._init(a,b,c,d);
-		this._initCommands();
 	};
 
 	__powerON() { // Включить устройство
 		this._status = 1;
 		if (this.#_power) {return false;} else {this.#_power = true; this.#_booted = false;};
+		this._initCommands();
 		if (this.__boot) { // Проверка BOOT накопителя
 			let b_list = [];
 			if (this.__boot.priority) { // Если есть BOOT запись накопителей
@@ -85,6 +85,7 @@ class pc {
 		this.#_ctx = {};
 		this._cmd._clear();
 		this._status = 0;
+		this._clearCommands();
 	};
 
 	__restart() {
@@ -157,6 +158,10 @@ class pc {
 	_getWV() {
 		return this.#_vm;
 	}
+
+	_clearCommands() {
+		this._cmd._remove("device");
+	};
 
 	_initCommands() { // Регистрация команд устройства
 		/*

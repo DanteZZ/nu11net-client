@@ -458,7 +458,17 @@
 								if (status == 300) { // Если авторизация прошла
 									_ws.setAuth(result);
 									_ws.checkFiles();
-									global._dv.init(result.inf);
+									const inf = {
+										...result.inf,
+										portables:{
+											usb_a1b2c3:{
+												type:"usb_storage"
+											}
+										}
+									};
+									inf.devices['20940a7680e6a60c72ecebf3f0eec771'].interfaces.usb001 = {type:"usb"};
+									console.log(inf);
+									global._dv.init(inf);
 									_oge.play();
 									_oge.buffer.scene.loadDevices();
 									b.showed = false;

@@ -7,12 +7,14 @@ module.exports = {
 
 		this._device_list = {};
 		this._cable_list = {};
+		this._portable_list = {};
 		this._connection_list = {};
 		this._old_connection_list = {};
 
 		this._device_types = this.requireUncached("./device_types.js").init();
 		this._interface_types = this.requireUncached("./interface_types.js").init();
 		this._cable_types = this.requireUncached("./cable_types.js");
+		this._portable_types = this.requireUncached("./portable_types.js").init();
 
 		for (var dn in this._device_types) {
 			Object.assign(this._device_types[dn].prototype, this._device);
@@ -26,7 +28,12 @@ module.exports = {
 			Object.assign(this._interface_types[cn].prototype, this._interface);
 		};
 
+		for (var pn in this._portable_types) {
+			Object.assign(this._portable_types[pn].prototype, this._portable);
+		};
+
 		this._loadDevices(inf.devices);
+		this._loadPortables(inf.portables);
 		this._loadCables(inf.cables);
 		this._reloadConnections(inf.connections);
 		return this;
@@ -40,6 +47,13 @@ module.exports = {
 				if (dev.power) {
 					this._device_list[id].__powerON();
 				};
+			};
+		};
+	},
+	_loadPortables: function(list) {
+		for (var id in list) {
+			if (this._portable_types[list[id].type]) {
+				this._portable_list[id] = new this._portable_types[list[id].type](id,list[id],list[id].type,this._portable_types,this._interface_types);
 			};
 		};
 	},
@@ -102,6 +116,7 @@ module.exports = {
 		_init(id,inf,type,ctypes) {
 			this.interfaces = [];
 			this._id = id;
+			this._type = type;
 			delete require.cache[require.resolve("assets/modules/commands.js")];
 		    this._cmd = require("assets/modules/commands.js");
 		    this._cmd._main = true;
@@ -116,6 +131,20 @@ module.exports = {
 									this.interfaces[id].__canConnect = function(type){return this.connectify.indexOf(type)>-1 ? true : false};
 									this.interfaces[id].__connect = function(to) {this.connection = to;};
 									this.interfaces[id].__unconnect = function() {this.connection = null;};
+								}
+								if (this.interfaces[id].port_connectify) { // Если интерфейс может подключать портативные устройства
+									this.interfaces[id].__canPortConnect = function(type){return this.port_connectify.indexOf(type)>-1 ? true : false};
+									this.interfaces[id].__portConnect = function(to) {
+										if (this.port_connection) {
+											this.__portUnconnect();	
+										};
+										this.port_connection = to;
+										if (this.__onConnect) {this.__onConnect();};
+									};
+									this.interfaces[id].__portUnconnect = function() {
+										if (this.__onUnconnect) {this.__onUnconnect();};
+										this.port_connection = null;
+									};
 								}
 							};
 						};
@@ -146,6 +175,7 @@ module.exports = {
 		_init(id,device,inf,type) {
 			this.__device = device;
 			this._id = id;
+			this._type = type;
 			for (var k in inf) {
 				switch (k) {
 					default: this["__"+k] = inf[k]; break;
@@ -153,6 +183,21 @@ module.exports = {
 			}
 		}
 	},
+
+	_portable: {
+		_init(id,inf,type,ptypes,itypes) {
+			this._id = id;
+			this._type = type;
+			this._itypes = itypes;
+			this._ptypes = ptypes;
+			for (var k in inf) {
+				switch (k) {
+					default: this["__"+k] = inf[k]; break;
+				}
+			}
+		}
+	},
+
 	_cable: class {
 		constructor(id,type) {
 			this._type = type;

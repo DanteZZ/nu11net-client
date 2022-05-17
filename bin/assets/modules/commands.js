@@ -245,7 +245,10 @@ class CMD {
 			};
 		} else {
 			if (__device._main) {
-				global.__csl.error("Undefined command: "+msg.command);
+				global.__csl.error("[MAIN] Undefined command: "+msg.command);
+				if (msg.bufferId) {
+					__device._sendResponse(null,msg.bufferId);
+				};
 			} else {
 				__device._sendError("Undefined command: "+msg.command);
 			};

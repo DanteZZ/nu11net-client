@@ -5,9 +5,23 @@ exports = async () => {
 		unlistenEvent:_os.___k().unlistenEvent,
 		doEvent:_os.___k().doEvent,
 		getBoot:()=>_os.___k().getVar("boot_storage"),
-		getInterfaces: () => new Promise(res=>_os.___k().sendCommand("vm/interfaces",null,		(el)=>{
-			res(el);
-		})),
+		getInterfaces: async () => {
+			const getMainList = () => new Promise(res=>_os.___k().sendCommand("vm/interfaces",null,		(el)=>{
+				res(el);
+			}))
+			const getSubList = (type,name) => new Promise(res=>_os.___k().sendCommand(`interfaces/${type}/${name}/interfaceList`,null,		(el)=>{
+				res(el);
+			}))
+			const list = await getMainList();
+			if (list?.length) {
+				for (let k in list) {
+					let i = list[k];
+					i.interfaces = await getSubList(i.type,i.name);
+					list[k] = i;
+				}
+			};
+			return list;
+		},
 		commands: {
 			reg: (path,handler,ctx) => new Promise(res=>
 				_os.___k().sendCommand("vm/commands/reg",{path,handler,ctx}, (el)=>{
