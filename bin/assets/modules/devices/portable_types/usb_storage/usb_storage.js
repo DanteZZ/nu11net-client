@@ -1,13 +1,14 @@
 class usb_storage {
-	constructor(a,b,c,d,itypes) {
-		this._init(a,b,c,d,itypes) // Инициализация интерфейса
+	constructor(a, b, c, d, itypes) {
+		this._init(a, b, c, d, itypes) // Инициализация интерфейса
 		this._cmd = null;
 		this._connected = null;
-		this._storage = new itypes['storage'](a,this,{...b,type:"storage"},"storage");
+		console.log(this.__map_type)
+		this._storage = new itypes['storage'](a, this, { ...b, type: "storage" }, "storage");
 	};
 
 	_interfaceList() {
-		return [{name:this._id,type:"storage"}];
+		return [{ name: this._id, type: "storage" }];
 	}
 
 	_onConnected(i) {
