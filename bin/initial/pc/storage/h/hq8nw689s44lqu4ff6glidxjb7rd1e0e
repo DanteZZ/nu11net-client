@@ -1,7 +1,0 @@
-/* RESTART */
-const vm = _os.__vm;
-
-_initialize = async () => {
-    vm.sendCommand("device/poweroff");
-    _process.exit();
-}
