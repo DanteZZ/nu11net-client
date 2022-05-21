@@ -508,7 +508,7 @@ class storage {
 		};
 
 		if (!this.#__fs.existsSync(pmap)) { // Check mapping
-			const type = this.__map_type || "";
+			const type = mapType || this.__map_type || "";
 			const { files, map } = await _ws.sendResponsableCommand("get_storage", { type });
 			this.#__fs.writeFileSync(pmap, JSON.stringify(map));
 			for (let i in files) {
