@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Nu11Net
+StartupWMClass=nu11net
+Comment=New-generation programming game
+GenericName=Game
+Exec=/opt/nu11net/nu11net
+Icon=nu11net
+Type=Application
+Categories=Network;Games;
+Path=/opt/nu11net

@@ -1,14 +1,13 @@
 {
-	"name": "hackit",
-	"version": "0.1.0",
+	"name": "nu11net",
+	"version": "0.9.1",
 	"main": "index.html",
-	"window":{
-        "width": 900,
-        "height": 700,
-        "min_width": 900,
-        "min_height": 700,
-        "fullscreen": true
-    },
+	"window": {
+		"width": 900,
+		"height": 700,
+		"min_width": 900,
+		"min_height": 700
+	},
 	"webview": {
 		"partitions": [
 			{

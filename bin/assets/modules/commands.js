@@ -21,16 +21,16 @@ class CMD {
 		this.#_events = {};
 		this._cmdBuffer = {};
 		this._cmdBuffNum = 0;
-	}; 
+	};
 
-	_commands(self=false) {
+	_commands(self = false) {
 		return self ? this.#_selfCommands : this.#_commands;
 	}
 
 	/*
 		COMMANDS
 	*/
-	_reg(command,func,ctx=null,async = false,self=false) { // Зарегистрировать комманду
+	_reg(command, func, ctx = null, async = false, self = false) { // Зарегистрировать комманду
 		let p = command.split("/");
 		let n = p.pop(); // Название создаваемой команды
 		let ct = self ? this.#_selfCommands : this.#_commands; // Текущий директория поиска
@@ -42,11 +42,11 @@ class CMD {
 			}
 		};
 		ct[n] = {
-			async:async,
-			fn:func,
-			ctx:ctx
+			async: async,
+			fn: func,
+			ctx: ctx
 		};
-		if (ctx==null) {
+		if (ctx == null) {
 			ct[n].fn = ct[n].fn?.bind({});
 		} else {
 			ct[n].fn = ct[n].fn?.bind(ct[n].ctx);
@@ -54,7 +54,7 @@ class CMD {
 		return true;
 	};
 
-	_regCat(name,self=false) {
+	_regCat(name, self = false) {
 		let p = name.split("/");
 		let n = p.pop(); // Название создаваемой категории
 		let ct = self ? this.#_selfCommands : this.#_commands; // Текущий директория поиска
@@ -70,7 +70,7 @@ class CMD {
 		return true;
 	};
 
-	_remove(name,self=false) {
+	_remove(name, self = false) {
 		let p = name.split("/");
 		let n = p.pop(); // Название искаемой команды
 		let ct = self ? this.#_selfCommands : this.#_commands; // Текущий директория поиска
@@ -86,7 +86,7 @@ class CMD {
 		return false;
 	};
 
-	_is(name, self=false) {
+	_is(name, self = false) {
 		let p = name.split("/");
 		let n = p.pop(); // Название искаемой команды
 		let ct = self ? this.#_selfCommands : this.#_commands; // Текущий директория поиска
@@ -108,20 +108,20 @@ class CMD {
 
 	// SELF
 
-	_regSelf(command,func,ctx=null,async = false) {
-		return this._reg(command,func,ctx,async,true);
+	_regSelf(command, func, ctx = null, async = false) {
+		return this._reg(command, func, ctx, async, true);
 	}
 
 	_regSelfCat(name) {
-		return this._regCat(name,true);
+		return this._regCat(name, true);
 	}
 
 	_removeSelf(name) {
-		return this._remove(name,true);
+		return this._remove(name, true);
 	}
 
 	_isSelf(name) {
-		return this._is(name,true);
+		return this._is(name, true);
 	}
 
 	_getSelf(name) {
@@ -131,45 +131,45 @@ class CMD {
 	/*
 		EVENTS
 	*/
-	_listenEvent(event,func = ()=>{},ctx=null) { // Прослушивать Event
+	_listenEvent(event, func = () => { }, ctx = null) { // Прослушивать Event
 		const evvs = this.#_events;
 		if (!evvs[event]) { // Если в массиве Event'ов такого ещё не прослушивалось
 			evvs[event] = [];
 		};
 		let p = {
 			fn: func,
-			ctx:ctx
+			ctx: ctx
 		};
-		if (ctx==null) {
+		if (ctx == null) {
 			p.fn = p.fn.bind({});
 		} else {
 			p.fn = p.fn.bind(p.ctx);
 		};
 		evvs[event].push(p);
-		return event+"#"+(evvs[event].length-1);
+		return event + "#" + (evvs[event].length - 1);
 	};
 	_unlistenEvent(id) { // Перестать прослушивать Event
 		const evvs = this.#_events;
 		let p = id.split("#");
 		let event = p[0];
 		id = p[1];
-		if (typeof(evvs[event][id]) == "object") {// Если такой Event существует
+		if (typeof (evvs[event][id]) == "object") {// Если такой Event существует
 			evvs[event][id] = null;
 			return true;
 		} else {
 			return false;
 		}
 	};
-	_doEvent(event,data=false) {
+	_doEvent(event, data = false) {
 		const evvs = this.#_events;
-		console.log(event,evvs);
-		if (typeof(evvs[event]) == "object") {
-			
+		console.log(event, evvs);
+		if (typeof (evvs[event]) == "object") {
+
 			for (var k in evvs[event]) {
 				let ev = evvs[event][k];
 				if (ev.fn) {
 					try {
-						ev.fn(data,ev.ctx);
+						ev.fn(data, ev.ctx);
 					} catch (e) {
 						this._sendError(e);
 					}
@@ -179,98 +179,101 @@ class CMD {
 	};
 
 	_onMessage(msg) { // Обработка входящих данных
-		let cmd = this; if (cmd.__device) {cmd = cmd.__device._cmd;};
+		let cmd = this; if (cmd.__device) { cmd = cmd.__device._cmd; };
 		if (cmd._main) {
 			switch (msg.type) {
 				case "command":
 					try {
-						cmd._onCommand(cmd,msg);
+						cmd._onCommand(cmd, msg);
 					} catch (e) {
-						global.__csl.error(e,msg);
+						global.__csl.error(e, msg);
 					}
-				break;
+					break;
 				case "response":
 					try {
-						cmd._onResponse(cmd,msg);
+						cmd._onResponse(cmd, msg);
 					} catch (e) {
-						global.__csl.error(e,msg);
+						global.__csl.error(e, msg);
 					}
-				break;
+					break;
 				case "log":
-					global.__csl.log("Log from",this.__device._id,":\n",msg.data);
-				break;
+					global.__csl.log("Log from", this.__device._id, ":\n", msg.data);
+					break;
 				case "error":
-					global.__csl.error("Error from",this.__device._id,":\n",msg.data);
-				break;
+					global.__csl.error("Error from", this.__device._id, ":\n", msg.data);
+					break;
 				case "event":
 					try {
-						cmd._onEvent(cmd,msg);
+						cmd._onEvent(cmd, msg);
 					} catch (e) {
-						global.__csl.error(e,msg);
+						global.__csl.error(e, msg);
 					}
-				break;
+					break;
 			}
 		} else {
 			switch (msg.type) {
 				case "command":
-					cmd._onCommand(cmd,msg);
-				break;
+					cmd._onCommand(cmd, msg);
+					break;
 				case "response":
-					cmd._onResponse(cmd,msg);
-				break;
+					cmd._onResponse(cmd, msg);
+					break;
 				case "event":
-					cmd._onEvent(cmd,msg);
-				break;
+					cmd._onEvent(cmd, msg);
+					break;
 			}
 		};
 	};
 
-	_onCommand(__device,msg) { // Функция обработки запроса команды
+	_onCommand(__device, msg) { // Функция обработки запроса команды
 		let cmd = __device._get(msg.command);
 		if (cmd) { // Если такая команда зарегистрирована
 			if (!cmd.async) { // Если функция асинхронна
 				let res = cmd.fn(msg.data);
-				if (typeof(msg.bufferId) !== "undefined") { // Если запрашивается возврат
-					__device._sendResponse(res,msg.bufferId);	
+				if (typeof (msg.bufferId) !== "undefined") { // Если запрашивается возврат
+					__device._sendResponse(res, msg.bufferId);
 				};
 			} else {
 
-				if (typeof(msg.bufferId) !== "undefined") { // Если запрашивается возврат
-					cmd.fn(msg.data,function(data){
-						__device._sendResponse(data,msg.bufferId);
+				if (typeof (msg.bufferId) !== "undefined") { // Если запрашивается возврат
+					cmd.fn(msg.data, function (data) {
+						__device._sendResponse(data, msg.bufferId);
 					});
 				} else {
-					cmd.fn(msg.data,function(){});
+					cmd.fn(msg.data, function () { });
 				};
 			};
 		} else {
 			if (__device._main) {
-				global.__csl.error("Undefined command: "+msg.command);
+				global.__csl.info("[MAIN] Undefined command: " + msg.command);
+				if (msg.bufferId) {
+					__device._sendResponse(null, msg.bufferId);
+				};
 			} else {
-				__device._sendError("Undefined command: "+msg.command);
+				__device._sendError("Undefined command: " + msg.command);
 			};
 		}
 	};
 
-	_onEvent(__device,msg) { // Функция обработки приходящего Event'а
-		__device._doEvent(msg.event,msg.data);
+	_onEvent(__device, msg) { // Функция обработки приходящего Event'а
+		__device._doEvent(msg.event, msg.data);
 	};
 
-	_onResponse(__device,msg) { // Функция обработки ответа
+	_onResponse(__device, msg) { // Функция обработки ответа
 		if (__device._cmdBuffer[msg.bufferId]) {
-		  	__device._cmdBuffer[msg.bufferId].fn(msg.data,__device._cmdBuffer[msg.bufferId].ctx);
-		  	delete __device._cmdBuffer[msg.bufferId];
+			__device._cmdBuffer[msg.bufferId].fn(msg.data, __device._cmdBuffer[msg.bufferId].ctx);
+			delete __device._cmdBuffer[msg.bufferId];
 		};
 	};
 
-	_sendCommand(command,data=false,callback=false,ctx=null) { // Отправить комманду в proc
-		if (!this.#_vm) { return false;};
+	_sendCommand(command, data = false, callback = false, ctx = null) { // Отправить комманду в proc
+		if (!this.#_vm) { return false; };
 		const self = this._getSelf(command);
-		
+
 		if (self) {
 			if (callback) {
 				if (self.async) {
-					self.fn(data,callback)
+					self.fn(data, callback)
 				} else {
 					callback(self.fn(data))
 				}
@@ -279,15 +282,15 @@ class CMD {
 			}
 			return true;
 		}
-		
+
 		let pay = {
-            type:"command",
-            command:command,
-            data:data
-        };
+			type: "command",
+			command: command,
+			data: data
+		};
 		if (command) { // Если пришла комманда
 			if (callback) { // Если есть коллбек, и нужно слушать ответ
-				this._cmdBuffer[this._cmdBuffNum] = {fn:callback,ctx:ctx}; // Записываем коллбек ожидания
+				this._cmdBuffer[this._cmdBuffNum] = { fn: callback, ctx: ctx }; // Записываем коллбек ожидания
 				pay.bufferId = this._cmdBuffNum;
 				this.sendPost(pay);
 				this._cmdBuffNum++;
@@ -297,67 +300,67 @@ class CMD {
 			return true;
 		} else {
 			return false;
-		}	
+		}
 	};
 
-	_sendResponse(data=false,bufferId=false) { // Отправить ответ в proc
-		if (!this.#_vm) { return false;};
+	_sendResponse(data = false, bufferId = false) { // Отправить ответ в proc
+		if (!this.#_vm) { return false; };
 		let pay = {
-            type:"response",
-            data:data,
-            bufferId:bufferId
-        };
-        this.sendPost(pay);
+			type: "response",
+			data: data,
+			bufferId: bufferId
+		};
+		this.sendPost(pay);
 	};
 
-	_sendEvent(event,data=false) { // Отправить Event в proc
-		if (!this.#_vm) { return false;};
+	_sendEvent(event, data = false) { // Отправить Event в proc
+		if (!this.#_vm) { return false; };
 		let pay = {
-            type:"event",
-            event:event,
-            data:data
-        };
-        this.sendPost(pay);
-		
+			type: "event",
+			event: event,
+			data: data
+		};
+		this.sendPost(pay);
+
 	};
 
-	_sendLog(data=false) { // Отправить ответ в proc
-		if (!this.#_vm) { return false;};
+	_sendLog(data = false) { // Отправить ответ в proc
+		if (!this.#_vm) { return false; };
 		if (!this._main) {
 			let pay = {
-	            type:"log",
-	            data:data
-	        };
+				type: "log",
+				data: data
+			};
 			this.sendPost(pay);
 		};
 	};
 
-	_sendError(data=false) { // Отправить ответ в proc
-		if (!this.#_vm) { return false;};
+	_sendError(data = false) { // Отправить ответ в proc
+		if (!this.#_vm) { return false; };
 		if (!this._main) {
 			let pay = {
-	            type:"error",
-	            data:data
-	        };
-	        this.sendPost(pay);
+				type: "error",
+				data: data
+			};
+			this.sendPost(pay);
 		};
 	};
 
 	sendPost(pay) {
-		
+
 		if (this._main) {
 			pay = {
-				pid:this.#_vm.pid,
-				data:pay
+				pid: this.#_vm.pid,
+				data: pay
 			};
 		} else {
 			pay = {
-				pid:this.#_vm._pid,
-				data:pay
+				pid: this.#_vm._pid,
+				data: pay
 			};
 		}
 		if (this.#_poster.postMessage !== undefined) {
-			this.#_poster.postMessage(pay); 
+			this.#_poster.postMessage(pay);
 		};
 	};
 }
