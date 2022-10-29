@@ -38,8 +38,8 @@ const build = async function() {
             console.log(`Copying game files...`);
             fse.copySync(`./build/${pjs.name}/${arch}`, `./build/deb/opt/${pjs.name}`);
             console.log(`Copying icons and desktop files...`);
-            fse.copySync(`./assets/hackit.desktop`, `./build/deb/usr/share/applications/hackit.desktop`);
-            fse.copySync(`./assets/icon.svg`, `./build/deb/usr/share/pixmaps/hackit.svg`);
+            fse.copySync(`./assets/desktop.desktop`, `./build/deb/usr/share/applications/${pjs.name}.desktop`);
+            fse.copySync(`./assets/icon.svg`, `./build/deb/usr/share/pixmaps/${pjs.name}.svg`);
             console.log(`Build files is copied`);
             try {
                 console.log(`Creating .deb file...`);
