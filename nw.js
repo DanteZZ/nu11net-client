@@ -64,6 +64,7 @@ const runServer = () => {
         if (!nwStarted) {
           nw.run().then(() => {
             watching.close();
+            io.close();
           });
           nwStarted = true;
         }

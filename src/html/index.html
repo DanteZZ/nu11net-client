@@ -16,6 +16,7 @@
         });
         socket.on("updateBundle", () => {
           console.log("Updating...");
+          socket.disconnect();
           location.reload();
         });
         socket.on("disconnect", () => {});

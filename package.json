@@ -3,7 +3,6 @@
   "main": "bin/index.html",
   "version": "0.9.1",
   "scripts": {
-    "bundle": "webpack --watch",
     "dev": "npm run nw",
     "build": "webpack --mode production && npm run nw:build",
     "nw": "cross-env NODE_ENV=dev node nw.js",
