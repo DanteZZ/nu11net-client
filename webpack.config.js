@@ -4,7 +4,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: "./src/main.ts",
+  entry: "src/main.ts",
   target: "node",
   output: {
     path: path.resolve(__dirname, "bin/dist"),
@@ -28,7 +28,7 @@ module.exports = {
         {
           from: "**/*",
           context: path.resolve(__dirname, "src", "assets"),
-          to: "./assets",
+          to: "assets",
         },
       ],
     }),
