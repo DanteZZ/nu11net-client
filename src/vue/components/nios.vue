@@ -15,7 +15,7 @@
 			<div class="desc">
 				<pre v-if="menuList[selItem].sections[selSection].description">{{menuList[selItem].sections[selSection].description}}</pre>
 			</div>
-		</div class="main">
+		</div>
 		<div class="ftr">
 			{{footer}}
 		</div>
@@ -70,9 +70,11 @@
 	</div>
 </template>
 
-<script>
-	module.exports = {
-		data: function () {
+<script lang="js">
+	import conf from "../../utils/conf";
+	export default {
+		name: "nios",
+		data() {
 			return {
 			    title: "NIOS - Настройка CMOS",
 				footer: `v${nw.App.manifest.version} (C) Copyright 2015-${new Date().getFullYear()}, Nu11Net, Ltd`,
@@ -88,12 +90,12 @@
 					selItems:[]
 				},
 
-				serverList: (_cfg.get().serverList) ? _cfg.get().serverList : {},
+				serverList: (conf.get().serverList) ? conf.get().serverList : {},
 				userData: {
-					selectedServer: (_cfg.get().selectedServer) ? _cfg.get().selectedServer : "",
+					selectedServer: (conf.get().selectedServer) ? conf.get().selectedServer : "",
 					auth: {
-						login: (_cfg.get().login) ? _cfg.get().login : "",
-						password: (_cfg.get().password) ? _cfg.get().password : ""
+						login: (conf.get().login) ? conf.get().login : "",
+						password: (conf.get().password) ? conf.get().password : ""
 					}
 				},
 				menuList: [
@@ -253,22 +255,22 @@
 						sections:[
 							{
 								titleText:"Полноэкранный режим",
-								title:`Полноэкранный режим [${_cfg.get().fullscreen ? "*" : "-"}]`,
-								action:function(){
+								title:`Полноэкранный режим [${conf.get().fullscreen ? "*" : "-"}]`,
+								action(){
 									if (!global?.deviceDisplay) {
 										const nww = nw.Window.get()
 										this.title = this.titleText+` [${nww.isFullscreen ? "-" : "*"}]`
 										nww.toggleFullscreen();
 										setTimeout(()=>{
-											_cfg.set({fullscreen:nww.isFullscreen})
-											_cfg.save();
+											conf.set({fullscreen:nww.isFullscreen})
+											conf.save();
 										},200);
 									}; 
 								}
 							},
 							{
 								title:`Выход`,
-								action:function(){
+								action(){
 									nw.App.quit();
 								}
 							}
@@ -280,8 +282,8 @@
 					input_text:{
 						onKey:{
 							13:function(b){ //ENTER
-								model = b;
-				  				vars = b.modal.model.split('.');
+								let model = b;
+				  				const vars = b.modal.model.split('.');
 						  		for (var k in vars) {
 						  			if (k == vars.length-1) { break; };
 						  			model = model[vars[k]];
@@ -310,8 +312,8 @@
 					select:{
 						onKey:{
 							13:function(b){ //ENTER
-								model = b;
-				  				vars = b.modal.model.split('.');
+								let model = b;
+				  				const vars = b.modal.model.split('.');
 						  		for (var k in vars) {
 						  			if (k == vars.length-1) { break; };
 						  			model = model[vars[k]];
@@ -335,8 +337,8 @@
 					select_editor:{
 						onKey:{
 							13:function(b){ //ENTER
-								model = b;
-				  				vars = b.modal.model.split('.');
+								let model = b;
+				  				const vars = b.modal.model.split('.');
 						  		for (var k in vars) {
 						  			if (k == vars.length-1) { break; };
 						  			model = model[vars[k]];
@@ -386,8 +388,8 @@
 				  				b.openModal(mod);
 							},
 							46:function(b){ //DELETE
-								model = b;
-				  				vars = b.modal.values.split('.');
+								let model = b;
+				  				const vars = b.modal.values.split('.');
 						  		for (var k in vars) {
 						  			if (k == vars.length-1) { break; };
 						  			model = model[vars[k]];
@@ -444,7 +446,7 @@
 						},
 						onOpen: async (b) => {
 							try {
-								const {login,password,selectedServer} = _cfg.get();
+								const {login,password,selectedServer} = conf.get();
 								await _ws.tryConnect(selectedServer);
 								await _ws.loadServerInfo();
 								await b.sleep(500);
@@ -503,7 +505,7 @@
 						},
 						onOpen: async (b) => {
 							try {
-								await _ws.tryConnect(_cfg.get().selectedServer);
+								await _ws.tryConnect(conf.get().selectedServer);
 								await _ws.loadServerInfo();
 								b.modal.connected = true;
 								b.modal.status = 200;
@@ -554,7 +556,7 @@
 
 	  	methods: {
 			sleep: async (time) => new Promise((res)=>setTimeout(res,time)),
-		  	enterSection: function(section) {
+		  	enterSection(section) {
 		  		switch (typeof(section.action)) {
 		  			case "function":
 		  				section.action(this);
@@ -566,7 +568,7 @@
 		  			break;
 		  		};
 		  	},
-			onDisconnect: function() {
+			onDisconnect() {
 				this.disconnected = true;
 				this.showed = true;
 				try {
@@ -578,7 +580,7 @@
 				global._oge.pause();
 				this.$forceUpdate();
 			},
-		  	getVar: function(name){
+		  	getVar(name){
 		  		let vars = name.split('.');
 		  		let res = this;
 		  		for (var k in vars) {
@@ -587,7 +589,7 @@
 		  		return res;
 		  	},
 
-		  	closeModal: function() {
+		  	closeModal() {
 	  			this.modal.opened = false;
 		  		document.body.focus();
 		  		if (this.modalTypes[this.modal.type]) {
@@ -613,7 +615,7 @@
 		  		
 		  	},
 
-		  	genTitle: function(arr,vals=false){
+		  	genTitle(arr,vals=false){
 		  		if (typeof(arr) == "object") {
 		  			let res = "";
 		  			if (vals == false) {vals = this;};
@@ -629,7 +631,7 @@
 		  			return arr;
 		  		};
 		  	},
-		  	openModal: function(modal) {
+		  	openModal(modal) {
 		  		for (var k in modal) {
 		  			this.modal[k] = modal[k];
 		  		};
@@ -642,7 +644,7 @@
 		  		this.modal.opened = true;
 		  	},
 
-		  	modalFocusInput: function() {
+		  	modalFocusInput() {
 		  		if (this.$refs.modal_input) {
 		  			this.$refs.modal_input.focus();
 		  		};
@@ -658,16 +660,16 @@
 		  	},
 
 		  	updateCFG() {
-		  		_cfg.set({
+		  		conf.set({
 		  			serverList: this.serverList,
 		  			selectedServer: this.userData.selectedServer,
 		  			login: this.userData.auth.login,
 		  			password: this.userData.auth.password
 		  		});
-		  		_cfg.save();
+		  		conf.save();
 		  	},
 
-		  	onkeyup: function(e) {
+		  	onkeyup(e) {
 		  		let b = BIOS;
 		  		if (!b.modal.opened && !b.disconnected) { //SECTIONS
 		  			if (e.which == 39) {//Right arrow
@@ -719,7 +721,7 @@
 		  	}
 	  	},
 
-		mounted: function() {
+		mounted() {
 		  	// Проверка нажати клавиш
 		  	document.body.addEventListener('keyup', this.onkeyup,false);
 		  	window.BIOS = this;
@@ -729,192 +731,8 @@
 				if (b.selSection+1 == b.menuList[b.selItem].sections.length) { b.selSection = 0;} else {b.selSection++;};
 			} while (b.menuList[b.selItem].sections[b.selSection].notuse);
 		},
-		beforeDestroy: function() {
+		beforeDestroy() {
 			document.body.removeEventListener('keyup', this.onkeyup,false);
 		}
 	}
 </script>
-<style>
-	
-	.bios, .bios .tlt, .bios .ftr, .bios .main, .bios .sections, .bios .desc, .bios .menu {
-		display: block;
-		box-sizing: border-box;
-		overflow:hidden;
-		padding:0px;
-		margin:0px;
-		user-select: none;
-	}
-
-	.bios {
-		padding:10px;
-		width:900px;
-		height:700px;
-		display:flex;
-		flex-direction: column;
-		position:relative;
-	}
-
-	.bios .modalwrapper {
-		position:absolute;
-		left:0px;
-		top:0px;
-		width:100%;
-		height:100%;
-		display:flex;
-		align-items:center;
-		justify-content: center;
-	}
-
-	.bios .modalwrapper .modal-disconnected {
-		color:#dcdbdb;
-		background-color: rgb(83, 0, 0);
-		padding:16px;
-	}
-
-	.bios .modalwrapper .modal {
-		background-color:#dcdbdb;
-		color: black;
-	}
-
-	.bios .modal .list {
-		background-color:#dcdbdb;
-		color: black;
-		position:relative;
-		padding:6px;
-	}
-
-	.bios .modal .list .item {
-		position:relative;
-		padding-left:20px;
-	}
-
-	.bios .modal .list .item.active:before {
-		content:"\2666\a0\A0";
-		position: absolute;
-		left:4px;
-		top:0px;
-	}
-
-	.bios .modal .input {
-		padding:10px;
-		padding-top:0px;
-		text-align: center;
-	}
-
-	.bios .modal .input input {
-		font-family: "VGA";
-	    font-size: 16px;
-	    border: 2px solid;
-	    background-color: #dcdbdb;
-	    color: black;
-	    border-radius: 0px;
-	    outline: none;
-	}
-
-	.bios .modal .message {
-		text-align:center;
-		padding:8px;
-	}
-	.bios .modal .btn {
-	    text-align: center;
-	    margin: 0 auto;
-	    border: 2px solid;
-	    width: fit-content;
-	    padding: 2px 10px;
-	    margin-bottom: 6px;
-	    background-color:black;
-	    color:white;
-	}
-
-	.bios .menu {
-		padding:12px;
-		padding-top:9px;
-		padding-bottom:4px;
-		display: flex;
-	}
-	.bios .menu .item {
-		padding:4px;
-		margin-right:8px;
-	}
-	.bios .menu .item.active {
-		background-color:white;
-		color:black;
-	}
-
-	.bios .main {
-		display:flex;
-		flex-grow:1;
-		position:relative;
-		padding: 5px 0px;
-	}
-
-	.bios .main:before {
-	    content: " ";
-	    position: absolute;
-	    z-index: 0;
-	    top: 5px;
-	    left: 0px;
-	    right: 0px;
-	    bottom: 5px;
-	    border: 2px solid #5a5a5a;
-	}
-
-	.bios .main .sections {
-		flex-grow:1;
-		position:relative;
-	    padding: 12px;
-	}
-
-	.bios .main .sections .section {
-		padding:2px;
-	}
-
-	.bios .main .sections .section div {
-		display:inline-block;
-	}
-
-	.bios .main .sections .section.active {
-		background-color:white;
-		color:black;
-	}
-
-	.bios .main .desc {
-		width:250px;
-		min-width:250px;
-		position:relative;
-	    padding: 12px;
-	    margin-left: -6px;
-	}
-	.bios .main .desc pre {
-		font-family: 'VGA';
-	    white-space: pre-wrap;
-	    margin: 0px;
-	}
-
-	.bios .main .sections:before, .bios .main .desc:before {
-	    content: " ";
-	    position: absolute;
-	    z-index: 0;
-	    top: 5px;
-	    left: 5px;
-	    right: 5px;
-	    bottom: 5px;
-	    border: 2px solid #5a5a5a;
-	}
-
-	.bios .tlt {
-		text-align:center;
-		width:100%;
-		background-color: #dcdbdb;
-	    color: black;
-	    padding: 5px;
-	}
-
-	.bios .ftr {
-		text-align:center;
-		width:100%;
-		background-color: #dcdbdb;
-	    color: black;
-	    padding: 5px;
-	}
-</style>

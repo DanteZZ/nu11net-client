@@ -3,6 +3,7 @@ const io = require("socket.io")();
 const NwBuilder = require("nw-builder");
 
 const { nwinf, getPlatform, checkTemporaty } = require("./pre.js");
+const { writeFileSync } = require("fs");
 
 checkTemporaty();
 

@@ -1,14 +1,20 @@
 const path = require("path");
+const { VueLoaderPlugin } = require("vue-loader");
 const CleanWebpackPlugin = require("clean-webpack-plugin").CleanWebpackPlugin;
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
+const pth = (p) => path.resolve(__dirname, p);
+
+console.log(pth("./src/main.ts"));
+
 module.exports = {
-  entry: "src/main.ts",
+  entry: pth("./src/main.ts"),
+  mode: "development",
   target: "node",
   output: {
-    path: path.resolve(__dirname, "bin/dist"),
-    filename: "bundle-[hash].js",
+    path: pth("./bin/dist"),
+    filename: "bundle-[fullhash].js",
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
@@ -19,21 +25,29 @@ module.exports = {
         test: /\.tsx?$/,
         loader: "ts-loader",
       },
+      {
+        test: /\.vue$/,
+        loader: "vue-loader",
+        options: {
+          optimizeSSR: false,
+        },
+      },
     ],
   },
   plugins: [
+    new VueLoaderPlugin(),
     new CleanWebpackPlugin(),
     new CopyWebpackPlugin({
       patterns: [
         {
           from: "**/*",
-          context: path.resolve(__dirname, "src", "assets"),
+          context: pth("src/assets"),
           to: "assets",
         },
       ],
     }),
     new HtmlWebpackPlugin({
-      template: "src/html/index.html",
+      template: pth("src/html/index.html"),
       filename: "index.html",
       minify: {
         collapseWhitespace: true,
