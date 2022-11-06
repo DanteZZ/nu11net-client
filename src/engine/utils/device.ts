@@ -6,13 +6,14 @@ import {
   ePortInterface,
 } from "../enums";
 
-import Interface, { iInterface } from "./interface";
+import Interface, { iInterface, tInterfaceType } from "./interface";
 
 import Display from "../interfaces/display";
 import Ethernet from "../interfaces/ethernet";
 import Input from "../interfaces/input";
 import Storage from "../interfaces/storage";
 import Usb from "../interfaces/usb";
+import Socket, { iSocket } from "./socket";
 
 export interface iDevice {
   id: string;
@@ -23,42 +24,43 @@ export interface iDevice {
 export default abstract class Device implements iDevice {
   readonly id;
   readonly type;
-  readonly interfaces: Interface[] = [];
-  constructor(info: iDevice, intList: iInterface[]) {
+  readonly sockets: Socket[];
+  // constructor(info: iDevice, socketList: iSocket[], intList: iInterface[]) {
+  constructor(info: iDevice, intList: iInterface[], sockets: iSocket[] = []) {
     this.id = info.id;
     this.type = info.type;
 
-    intList.forEach((i) => {
+    this.sockets = sockets.map((s) => new Socket(s.id, s.type, this));
+    this.sockets.forEach((s) => s.set(this.createInterface(s.id, s, intList)));
+  }
+
+  private createInterface(
+    id: string,
+    socket: Socket,
+    list: iInterface[]
+  ): Interface | null {
+    const i = list.find((i) => i?.socketId === id);
+    if (i) {
       switch (i.type) {
         // Default
         case eInterface.display:
-          this.addInterface(new Display(i, this));
-          break;
+          return new Display(i, socket);
         case eInterface.input:
-          this.addInterface(new Input(i, this));
-          break;
+          return new Input(i, socket);
         case eInterface.storage:
-          this.addInterface(new Storage(i, this));
-          break;
+          return new Storage(i, socket);
         // Connectable
         case eConnectableInterface.ethernet:
-          this.addInterface(new Ethernet(i, this));
-          break;
+          return new Ethernet(i, socket);
         // Port
         case ePortInterface.usb:
-          this.addInterface(new Usb(i, this));
-          break;
+          return new Usb(i, socket);
       }
-    });
+    }
+    return null;
   }
 
-  private addInterface(i: Interface) {
-    this.interfaces.push(i);
-  }
-
-  public getInterfacesByType(
-    type: eInterface | eConnectableInterface | ePortInterface
-  ): Interface[] {
-    return this.interfaces.filter((i) => i.type === type);
+  public getSocket(type: tInterfaceType): Interface | null {
+    return this.sockets.find((s) => s.type === type)?.get() || null;
   }
 }

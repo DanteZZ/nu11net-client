@@ -1,13 +1,13 @@
 import { eDevice, eProtableDevice } from "../enums";
-import Device from "./device";
 import Interface from "./interface";
 import PortableDevice from "./portableDevice";
+import Socket from "./socket";
 
 export default abstract class PortInterface extends Interface {
   abstract readonly connectionTypes: eProtableDevice[];
   private connectedPortableDevice: PortableDevice | null = null;
 
-  public getDevice(): Device {
+  public getDevice(): Socket {
     return this.controller;
   }
 

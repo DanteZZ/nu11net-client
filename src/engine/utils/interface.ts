@@ -1,17 +1,23 @@
 import { eConnectableInterface, eInterface, ePortInterface } from "../enums";
-import Device from "./device";
+import Socket from "./socket";
+
+export type tInterfaceType =
+  | eInterface
+  | eConnectableInterface
+  | ePortInterface;
 
 export interface iInterface {
   id: string;
-  type: eInterface | eConnectableInterface | ePortInterface;
+  type: tInterfaceType;
+  socketId?: string;
   [key: string]: any;
 }
 
 export default abstract class Interface implements iInterface {
-  protected controller: Device;
+  protected controller: Socket;
   readonly id;
   readonly type;
-  constructor(info: iInterface, controller: Device) {
+  constructor(info: iInterface, controller: Socket) {
     this.controller = controller;
     this.id = info.id;
     this.type = info.type;
