@@ -1,32 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= htmlWebpackPlugin.options.title %></title>
-    <link rel="stylesheet" href="./assets/styles/style.css" />
-    <link rel="stylesheet" href="./assets/styles/nios.css" />
-    <link rel="icon" type="image/png" href="./assets/images/icon.png" />
-    <script src="https://cdn.socket.io/4.5.3/socket.io.min.js"></script>
-    <script>
-      var socket = io("http://localhost:1234");
-      socket.on("connect", () => {
-        socket.on("event", (data) => {
-          console.log(data);
-        });
-        socket.on("updateBundle", () => {
-          console.log("Updating...");
-          socket.disconnect();
-          location.reload();
-        });
-        socket.on("disconnect", () => {});
-      });
-    </script>
-  </head>
-  <body class="game">
-    <div id="app">
-      <div id="nios"></div>
-    </div>
-  </body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title><%= htmlWebpackPlugin.options.title %></title>
+        <link rel="stylesheet" href="./assets/styles/style.css" />
+        <link rel="stylesheet" href="./assets/styles/nios.css" />
+        <link rel="icon" type="image/png" href="./assets/images/icon.png" />
+        <script src="https://cdn.socket.io/4.5.3/socket.io.min.js"></script>
+        <script>
+            var socket = io("http://localhost:1234");
+            socket.on("connect", () => {
+                socket.on("event", (data) => {
+                    console.log(data);
+                });
+                socket.on("updateBundle", () => {
+                    console.log("Updating...");
+                    socket.disconnect();
+                    location.reload();
+                });
+                socket.on("disconnect", () => {});
+            });
+        </script>
+        <script>
+            window.createWebviewElement = () => {
+                return document.createElement("webview");
+            };
+        </script>
+    </head>
+    <body class="game">
+        <div id="app">
+            <div id="nios"></div>
+        </div>
+    </body>
 </html>
