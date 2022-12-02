@@ -63,10 +63,21 @@ module.exports = [
         name: "vm",
         mode: "development",
         target: "node",
-        entry: "./src/vm/index.js",
+        entry: "./src/vm/index.ts",
         output: {
             path: pth("./bin/dist/vm"),
             filename: "bundle-[fullhash].js",
+        },
+        resolve: {
+            extensions: [".ts", ".tsx", ".js"],
+        },
+        module: {
+            rules: [
+                {
+                    test: /\.tsx?$/,
+                    loader: "ts-loader",
+                },
+            ],
         },
         plugins: [
             new CleanWebpackPlugin(),

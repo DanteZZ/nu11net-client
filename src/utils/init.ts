@@ -30,5 +30,23 @@ config.devices.forEach((d) => {
 
 console.log(devices);
 
-const vm = vmRunner.create(() => {});
-console.log(vm);
+const initVm = async () => {
+    const vm = vmRunner.create();
+    await vm.init();
+    vm.commandRunner.listenEvent("checkEvent", (data: any) => {
+        console.log("It was checkEvent", data);
+    });
+    vm.commandRunner.registerCommand("/aboba/check", (data: any) => {
+        console.log("It's ABOBA!", data);
+    });
+    vm.commandRunner.sendResponsableCommand(
+        "/check/response",
+        (answer: any) => {
+            console.log(answer);
+        },
+        123
+    );
+    setTimeout(() => vmRunner.remove(vm), 5000);
+};
+
+initVm();

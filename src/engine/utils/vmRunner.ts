@@ -1,9 +1,23 @@
 import { randomHash } from "../../utils/hash";
+import {
+    iVmEvMessage,
+    tVmMessageCommand,
+    tVmMessageEvent,
+    tVmMessageResponse,
+} from "../interfaces/vmRunner";
+import CommandRunner from "./commandRunner";
 
 export class VMRunner {
     private vmList: VM[] = [];
-    public create(callback: Function): VM {
-        const vm = new VM(callback, this);
+    constructor() {
+        window.addEventListener(
+            "message",
+            (event: MessageEvent) => this.onMessage(event),
+            false
+        );
+    }
+    public create(): VM {
+        const vm = new VM(this);
         this.vmList.push(vm);
         return vm;
     }
@@ -14,6 +28,16 @@ export class VMRunner {
     public unavailableHash(hash: string): Boolean {
         return !!this.vmList.find((i) => i.hash === hash);
     }
+    public getVm(pid: string) {
+        return this.vmList.find((i) => i.pid === pid);
+    }
+    private onMessage(event: MessageEvent) {
+        const { pid, payload } = event.data;
+        const vm = this.getVm(pid);
+        if (vm) {
+            vm.proccessMessage(payload);
+        }
+    }
 }
 
 export class VM {
@@ -21,9 +45,11 @@ export class VM {
     private vmRunner: VMRunner;
     public hash: string;
     public pid: string;
+    public commandRunner: CommandRunner;
 
-    constructor(callback: Function, vmRunner: VMRunner) {
+    constructor(vmRunner: VMRunner) {
         this.vmRunner = vmRunner;
+        this.commandRunner = new CommandRunner(this);
         const wv = createWebviewElement();
         wv.style.display = "none";
         wv.src = "dist/vm/index.html";
@@ -38,15 +64,42 @@ export class VM {
 
         this.hash = hash;
         this.pid = hash;
-
         this.webView = document.body.appendChild(wv);
-        this.webView.addEventListener("contentload", () => {
-            this?.webView?.contentWindow?.postMessage({
-                setpid: true,
-                pid: hash,
+    }
+
+    public async init() {
+        return new Promise((res, rej) => {
+            this.webView.addEventListener("contentload", () => {
+                this?.webView?.contentWindow?.postMessage({
+                    setPid: true,
+                    pid: this.pid,
+                });
+                res(true);
             });
-            callback(this);
         });
+    }
+
+    public sendMessage(
+        payload: tVmMessageCommand | tVmMessageEvent | tVmMessageResponse
+    ) {
+        this?.webView?.contentWindow?.postMessage({
+            pid: this.pid,
+            payload,
+        });
+    }
+
+    public proccessMessage(
+        data: tVmMessageCommand | tVmMessageEvent | tVmMessageResponse
+    ) {
+        if ("command" in data) {
+            this.commandRunner.handleCommand(data);
+        }
+        if ("event" in data) {
+            this.commandRunner.handleEvent(data);
+        }
+        if ("response" in data) {
+            this.commandRunner.handleResponse(data);
+        }
     }
 
     public remove() {
