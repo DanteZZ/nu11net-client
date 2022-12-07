@@ -23,7 +23,7 @@ export class EventEmitter {
             }
         }
     }
-    emit(event: string, data: any | null): void {
+    emit(event: string, data?: any | null): void {
         if (typeof this.events[event] === "object") {
             this.events[event].forEach((listener: Function) => {
                 listener(data);

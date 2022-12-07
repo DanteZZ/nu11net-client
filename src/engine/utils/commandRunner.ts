@@ -11,6 +11,7 @@ import { VM } from "./vmRunner";
 export default class CommandRunner {
     private vm: VM | VMSender;
     private commandList: iCommandList = {};
+    private localCommandList: iCommandList = {};
     private commandBuffer: iBufferItem[] = [];
     private lastBufferId: number = 0;
     private eventEmitter: EventEmitter;
@@ -23,13 +24,27 @@ export default class CommandRunner {
         // Reg device command
         this.commandList[path] = { fn, async };
     }
+
+    public registerLocalCommand(
+        path: string,
+        fn: Function,
+        async: Boolean = false
+    ) {
+        // Reg device command
+        this.localCommandList[path] = { fn, async };
+    }
     public removeCommand(path: string) {
         // Remove device command
         delete this.commandList?.[path];
     }
+    public removeLocalCommand(path: string) {
+        // Remove device command
+        delete this.localCommandList?.[path];
+    }
     public removeCommands() {
         // Remove all device commands
         this.commandList = {};
+        this.localCommandList = {};
     }
 
     public listenEvent(event: string, listener: Function) {
@@ -46,13 +61,22 @@ export default class CommandRunner {
 
     public async handleCommand(data: tVmMessageCommand) {
         // handle command from VM
-        if (this.commandList[data.command]) {
+        const command =
+            this.localCommandList[data.command] ||
+            this.commandList[data.command] ||
+            null;
+        if (command) {
             let result = undefined;
-            if (this.commandList[data.command].async) {
-                result = await this.commandList[data.command].fn(data.data);
-            } else {
-                result = this.commandList[data.command].fn(data.data);
+            try {
+                if (command.async) {
+                    result = await command.fn(data.data);
+                } else {
+                    result = command.fn(data.data);
+                }
+            } catch (e) {
+                result = undefined;
             }
+
             if (data.bufferId) {
                 this.sendResponse(data.bufferId, result);
             }
@@ -75,7 +99,11 @@ export default class CommandRunner {
     }
 
     public sendCommand(command: string, data?: any) {
-        this.vm.sendMessage({ command, data });
+        if (this.localCommandList[command]) {
+            this.handleCommand(data);
+        } else {
+            this.vm.sendMessage({ command, data });
+        }
     }
 
     public sendResponsableCommand(
@@ -83,12 +111,21 @@ export default class CommandRunner {
         callback: Function,
         data?: any
     ) {
-        this.lastBufferId++;
-        this.commandBuffer.push({
-            bufferId: this.lastBufferId,
-            fn: callback,
-        });
-        this.vm.sendMessage({ command, data, bufferId: this.lastBufferId });
+        if (this.localCommandList[command]) {
+            const lcmd = this.localCommandList[command];
+            if (lcmd.async) {
+                lcmd.fn(data).then((res: any) => callback(res));
+            } else {
+                callback(lcmd.fn(data));
+            }
+        } else {
+            this.lastBufferId++;
+            this.commandBuffer.push({
+                bufferId: this.lastBufferId,
+                fn: callback,
+            });
+            this.vm.sendMessage({ command, data, bufferId: this.lastBufferId });
+        }
     }
 
     public sendEvent(event: string, data?: any) {

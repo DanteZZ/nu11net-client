@@ -109,6 +109,16 @@ export class VM {
     public removeWebView() {
         this.webView.remove();
     }
+
+    public sendCommand(name: string, data?: any, responsable?: Boolean) {
+        return new Promise((res) => {
+            if (responsable) {
+                this.commandRunner.sendResponsableCommand(name, res, data);
+            } else {
+                res(this.commandRunner.sendCommand(name, data));
+            }
+        });
+    }
 }
 
 const vmRunner = new VMRunner();
