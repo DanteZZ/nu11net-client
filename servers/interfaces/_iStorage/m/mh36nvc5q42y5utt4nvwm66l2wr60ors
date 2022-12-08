@@ -1,0 +1,30 @@
+/* MOUNTED LIB */
+
+exports = async () => {
+    const _proc = await _import("libs/process");
+    const mnt = _proc.list ? _proc.list().find(e => e.path == "kernel/mount") : null;
+
+    if (!mnt) { return null; };
+
+    const mountList = () => new Promise((res, rej) =>
+        mnt.stdIn({
+            type: "mountlist",
+            onSuccess: res,
+            onError: rej
+        })
+    );
+
+    const getInt = (mount) => new Promise((res, rej) =>
+        mnt.stdIn({
+            type: "getint",
+            mount,
+            onSuccess: res,
+            onError: rej
+        })
+    );
+
+    return {
+        mountList,
+        getInt
+    }
+}

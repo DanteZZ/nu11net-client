@@ -1,0 +1,54 @@
+exports = async () => {
+	const _proc = await _import("libs/process");
+	const netw = _proc.list().find(e=>e.path == "kernel/network");
+	
+	if (!netw) {return null;};
+
+	const takePort = (port,rec) => new Promise((res,rej) =>
+		netw.stdIn({
+			type:"take_port",
+			port:port,
+			receiver:rec,
+			onSuccess:res,
+			onError:rej
+		})
+	);
+
+	const sendPackage = (address,data,protocol="UDP") => new Promise((res,rej) =>
+		netw.stdIn({
+			type:"send_package",
+			address,
+			data,
+			protocol,
+			onSuccess:res,
+			onError:rej
+		})
+	);
+
+	const sendPackageToPort = (ethPort,address,data,protocol="UDP") => new Promise((res,rej) =>
+		netw.stdIn({
+			type:"send_package_port",
+			data,
+			ethPort,
+			address,
+			protocol,
+			onSuccess:res,
+			onError:rej
+		})
+	);
+
+	const ethPortsInfo = () => new Promise((res,rej) =>
+		netw.stdIn({
+			type:"eth_ports_info",
+			onSuccess:res,
+			onError:rej
+		})
+	);
+
+	return {
+		takePort,
+		sendPackage,
+		sendPackageToPort,
+		ethPortsInfo
+	}
+}

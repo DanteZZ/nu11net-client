@@ -1,0 +1,38 @@
+/* IP */
+
+const _std = _process.std;
+var _netw, _asciiTable = null;
+
+_initialize = async () => {
+	_netw = await _import("libs/network");
+    _asciiTable = await _import("libs/asciiTable");
+    if (!_netw) {
+        _std.write("Network is unavailable");
+        _process.exit();
+        return;
+    };
+
+    table = new _asciiTable("IP");
+	table.setHeading('id','ip','gateway','dns','dhcp','def');
+    const info = await _netw.ethPortsInfo();
+
+    const list = [];
+    for (let id in info) {
+        const eth = info[id];
+        list.push([
+            id.substr(0,5),
+            eth?.ip || "",
+            eth?.gateway || "",
+            eth?.dns ? formatArray(eth.dns) : "",
+            eth?.dhcp ? "*" : "",
+            eth?.default ? "*" : ""
+        ]);
+    };
+
+    table.addRowMatrix(list);
+
+    _std.write(table.toString());
+    _process.exit();
+}
+
+const formatArray = (arr) => typeof(arr) == "object" ? arr?.join(", ") : arr;

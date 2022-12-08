@@ -1,0 +1,196 @@
+exports = async () => {
+    const vm = await _import("libs/vm");
+    let _mnt = await _import("libs/mounted");
+    class ___FS {
+        a = 10;
+        constructor() {}
+
+        _encodePath = async (path) => {
+            if (!_mnt) {
+                _mnt = await _import("libs/mounted");
+            }
+            const ss = path.split(":");
+            let vol = { name: null, type: "storage" };
+            if (ss.length == 2) {
+                if (_mnt && _mnt.getInt) {
+                    try {
+                        const intr = await _mnt.getInt(ss[0]);
+                        if (intr) {
+                            path = ss[1];
+                            vol = intr;
+                        }
+                    } catch (e) {}
+                }
+            }
+
+            return [
+                path.slice(0, 1) == "/" ? path.slice(1) : path,
+                vol.name,
+                vol.type,
+            ];
+        };
+
+        _encodePathSync = (path) => {
+            return path.slice(0, 1) == "/" ? path.slice(1) : path;
+        };
+
+        scanDir = (path, more = false) =>
+            new Promise((res) => {
+                this._encodePath(path).then(([path, vol, volType]) =>
+                    vm.sendCommand(
+                        `interfaces/${volType}/` +
+                            (vol || vm.getBoot()) +
+                            "/scdir",
+                        { path, more },
+                        function (d) {
+                            res(d);
+                        }
+                    )
+                );
+            });
+        isDir = (path) =>
+            new Promise((res) => {
+                this._encodePath(path).then(([path, vol, volType]) =>
+                    vm.sendCommand(
+                        `interfaces/${volType}/` +
+                            (vol || vm.getBoot()) +
+                            "/isdir",
+                        path,
+                        function (d) {
+                            res(d);
+                        }
+                    )
+                );
+            });
+        rmDir = (path) =>
+            new Promise((res) => {
+                this._encodePath(path).then(([path, vol, volType]) =>
+                    vm.sendCommand(
+                        `interfaces/${volType}/` +
+                            (vol || vm.getBoot()) +
+                            "/rmdir",
+                        path,
+                        function (d) {
+                            res(d);
+                        }
+                    )
+                );
+            });
+        mkDir = (path) =>
+            new Promise((res) => {
+                this._encodePath(path).then(([path, vol, volType]) =>
+                    vm.sendCommand(
+                        `interfaces/${volType}/` +
+                            (vol || vm.getBoot()) +
+                            "/mkdir",
+                        path,
+                        function (d) {
+                            res(d);
+                        }
+                    )
+                );
+            });
+
+        /* DATA */
+        rmFile = (path) =>
+            new Promise((res) => {
+                this._encodePath(path).then(([path, vol, volType]) =>
+                    vm.sendCommand(
+                        `interfaces/${volType}/` +
+                            (vol || vm.getBoot()) +
+                            "/rmdata",
+                        path,
+                        function (d) {
+                            res(d);
+                        }
+                    )
+                );
+            });
+        writeFile = (path, data) =>
+            new Promise((res) => {
+                this._encodePath(path).then(([path, vol, volType]) =>
+                    vm.sendCommand(
+                        `interfaces/${volType}/` +
+                            (vol || vm.getBoot()) +
+                            "/writedata",
+                        { path, data },
+                        function (d) {
+                            res(d);
+                        }
+                    )
+                );
+            });
+        readFile = (path) =>
+            new Promise((res) => {
+                this._encodePath(path).then(([path, vol, volType]) =>
+                    vm.sendCommand(
+                        `interfaces/${volType}/` +
+                            (vol || vm.getBoot()) +
+                            "/readdata",
+                        path,
+                        function (d) {
+                            res(d);
+                        }
+                    )
+                );
+            });
+        isFile = (path) =>
+            new Promise((res) => {
+                this._encodePath(path).then(([path, vol, volType]) =>
+                    vm.sendCommand(
+                        `interfaces/${volType}/` +
+                            (vol || vm.getBoot()) +
+                            "/isdata",
+                        path,
+                        function (d) {
+                            res(d);
+                        }
+                    )
+                );
+            });
+        getAttributes = (path) =>
+            new Promise((res) => {
+                this._encodePath(path).then(([path, vol, volType]) =>
+                    vm.sendCommand(
+                        `interfaces/${volType}/` +
+                            (vol || vm.getBoot()) +
+                            "/getattributes",
+                        path,
+                        function (d) {
+                            res(d);
+                        }
+                    )
+                );
+            });
+        setAttributes = (path, attributes) =>
+            new Promise((res) => {
+                this._encodePath(path).then(([path, vol, volType]) =>
+                    vm.sendCommand(
+                        `interfaces/${volType}/` +
+                            (vol || vm.getBoot()) +
+                            "/setattributes",
+                        { path, attributes },
+                        function (d) {
+                            res(d);
+                        }
+                    )
+                );
+            });
+        rename = (oldpath, newpath) =>
+            new Promise((res) => {
+                oldpath = this._encodePathSync(oldpath);
+                newpath = this._encodePathSync(newpath);
+                vm.sendCommand(
+                    `interfaces/${volType}/` +
+                        (vol || vm.getBoot()) +
+                        "/rename",
+                    { oldpath, newpath },
+                    function (d) {
+                        res(d);
+                    }
+                );
+            });
+    }
+
+    return new ___FS();
+};

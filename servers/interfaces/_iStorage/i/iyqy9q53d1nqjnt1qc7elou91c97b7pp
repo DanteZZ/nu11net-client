@@ -1,0 +1,85 @@
+const buildPath = (segments, basePath) => {
+  const sf = segments[0].split(":");
+  let hasPrefix = false;
+  if (sf.length == 2) {
+    hasPrefix = sf[0];
+    segments[0] = sf[1];
+  };
+
+  if (basePath && !hasPrefix) { segments.unshift(basePath) };
+
+  const parts = segments.reduce((parts, segment) => {
+    // Remove leading slashes from non-first part.
+    if (parts.length > 0) {
+      segment = segment.replace(/^\//, '')
+    }
+    // Remove trailing slashes.
+    segment = segment.replace(/\/$/, '')
+    return parts.concat(segment.split('/'))
+  }, [])
+  const resultParts = []
+  for (const part of parts) {
+    if (part === '.') {
+      continue
+    }
+    if (part === '..') {
+      resultParts.pop()
+      continue
+    }
+    resultParts.push(part)
+  }
+  return hasPrefix ? hasPrefix + ":" + resultParts.join('/') : resultParts.join('/')
+}
+
+const buildPathOld = (segs, basePath) => {
+  if (basePath) { segs.unshift(basePath); };
+  let segments = [];
+  let hasPrefix = false;
+
+  for (let s in segs) {
+    if (hasPrefix) {
+      segments.push(segs[s]);
+    } else {
+      const sf = segs[s].split(":");
+      if (sf.length == 2) {
+        hasPrefix = sf[0];
+        segments.push(sf[1]);
+      };
+    };
+  };
+
+  if (!segments.length) { segments = segs; };
+
+  const parts = segments.reduce((parts, segment) => {
+    // Remove leading slashes from non-first part.
+    if (parts.length > 0) {
+      segment = segment.replace(/^\//, '')
+    }
+    // Remove trailing slashes.
+    segment = segment.replace(/\/$/, '')
+    return parts.concat(segment.split('/'))
+  }, [])
+  const resultParts = []
+  for (const part of parts) {
+    if (part === '.') {
+      continue
+    }
+    if (part === '..') {
+      resultParts.pop()
+      continue
+    }
+    resultParts.push(part)
+  }
+  return hasPrefix ? hasPrefix + ":" + resultParts.join('/') : resultParts.join('/')
+}
+
+const isAbsolute = (path) => path.slice(0, 1) == "/"
+const isEnding = (path) => path.slice(-1) == "/"
+const encodePath = (path) => isAbsolute(path) ? path.slice(1) : path
+
+exports = async () => ({
+  buildPath,
+  isAbsolute,
+  isEnding,
+  encodePath
+})

@@ -1,0 +1,16 @@
+const _std = _process.std;
+let _vm = null;
+_initialize = async () => {
+	_vm = await _import("libs/vm");
+	const asciiTable = await _import("libs/asciiTable");
+	const list = await _vm.getInterfaces();
+	const allList = [];
+	list.forEach(e=>{allList.push(e); if (e.interfaces?.length) {e.interfaces.forEach(i=>allList.push({...i,name:` └ ${i.name}`}))}});
+    table = new asciiTable("INTERFACES");
+	table.setHeading('ID', 'TYPE');
+
+	table.addRowMatrix(allList.map(({name,type})=>[name,type]));
+    _std.write(table.toString());
+
+	_process.exit();
+};

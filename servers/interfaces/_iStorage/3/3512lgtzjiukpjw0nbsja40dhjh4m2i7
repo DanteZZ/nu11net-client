@@ -1,0 +1,15 @@
+/* MNTLIST */
+
+const _std = _process.std;
+
+_initialize = async () => {
+	_mnt = await _import("libs/mounted");
+    if (!_mnt) {
+        _std.write("Mount service is unavailable");
+        _process.exit();
+        return;
+    };
+    const list = await _mnt.mountList();
+    list.forEach(m=>_std.write(`${m.type}: "${m.short}:"`));
+    _process.exit();
+}

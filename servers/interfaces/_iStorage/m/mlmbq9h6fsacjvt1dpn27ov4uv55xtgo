@@ -1,0 +1,192 @@
+/* SYSTEM_DAEMON */
+const _std = _process.std;
+const _list = [];
+var _proc, _fs, _asciiTable, _inRm = null;
+var daemons = [];
+
+_initialize = async () => {
+	_proc = await _import("libs/process");
+	_fs = await _import("libs/fs");
+	_asciiTable = await _import("libs/asciiTable");
+
+	if (!_process.__hupMode) {
+		await start();
+	} else {
+		const command = _process.__attributes?.[0] || false;
+
+		const service = _process.__attributes?.[1] || false;
+		const started = _proc.list().find(i=>i.path == _process.__path && !i.hup);
+
+		if (started && service) {
+			try {
+				const res = await sendServiceCommand(started,service,command);
+				_std.write(res);
+			} catch (e) {
+				_std.write(e.toString());
+			};
+		} else {
+			switch (command) {
+				case "start":
+					if (!started) {
+						await runDaemon();
+					} else {
+						_std.write("Daemon already worked.");
+					};
+				break;
+				case "restart":
+					if (started) {
+						_std.write("Shutting down daemon...");
+						await _proc.kill(started.id);
+					}
+					await runDaemon();
+				break;
+				case "stop":
+					if (started) {
+						_std.write("Shutting down daemon...");
+						await _proc.kill(started.id);
+						_std.write("Daemon is stopped.");
+					} else {
+						_std.write("Daemon is stopped.");
+					}
+				break;
+				case "list":
+					if (started) {
+						const res = await getListFrom(started);
+						const table = new _asciiTable("WORKING SERVICE LIST");
+						table.setHeading('name','path');
+						table.addRowMatrix(res.map(e=>[e.name,e.proc.ctx._process.__path]));
+						_std.write(table.toString());
+					};
+				break;
+				default:
+					_std.write("Please, run system_daemon without hup mode");
+				break;
+			};
+		}
+		_process.exit(); 
+	};
+}
+
+_exiting = async () => {
+	if (_inRm) {_inRm();};
+	_list.forEach(p=>p.proc?.destroy());
+};
+
+const getListFrom = (proc) => new Promise((res,rej)=>proc.stdIn({
+	serviceCommand:"list",
+	res,rej
+}))
+
+const sendServiceCommand = (proc,service,serviceCommand) =>  new Promise((res,rej)=>proc.stdIn({
+	serviceCommand,
+	service,
+	res,rej
+}))
+
+const runDaemon = async () => {
+	_std.write("Starting system daemon...");
+	try {
+		const p = await _proc.init(null,_process.__path,[],false);
+		await p.run();
+		_std.write("Daemon is worked.");
+	} catch (e) {
+		_std.write("Error while starting services.");
+		_std.write(e.toString());
+	};
+}
+
+const stdIn = async ({serviceCommand,service,res,rej}) => {
+	switch (serviceCommand) {
+		case "list": res(_list); break;
+		case "restart":
+			try {
+				let r = [];
+				r.push(await stopService(service));
+				r.push(await startService(service));
+				res(r.join("\n"));
+			} catch (e) {
+				rej(e.toString());
+			};
+		break;
+		case "stop":
+			try {
+				res(await stopService(service));
+			} catch (e) {
+				rej(e.toString());
+			};
+		break;
+		case "start":
+			try {
+				res(await startService(service));
+			} catch (e) {
+				rej(e.toString());
+			};
+		break;
+	}
+	return;
+}
+
+const startService = async (service) => {
+	await updateDaemonList();
+	const d = daemons.find(e=>e?.name == service);
+	if (d) {
+		const res = [];
+		res.push(`Starting ${service} service`);
+		const p = await _proc.init(null,d.path,d?.attributes || [],false);
+		_list.push({proc:p,name:d?.name || ""});
+		p.run();
+		res.push(`Service ${service} is started`);
+		return res.join("\n");
+	} else {
+		throw new Error(`Service ${service} is not found`);
+	}
+};
+
+const stopService = async (service) => {
+	await updateDaemonList();
+	const d = daemons.find(e=>e?.name == service);
+	if (!d) { throw new Error(`Service ${service} is not found`); };
+	const ser = _list.find(e=>e.name == service);
+	if (ser) {
+		for (let i in _list) {
+			if (_list[i]?.name == service) {
+				let res = [];
+				res.push(`Stopping ${service} service`);
+				await _list[i].proc.destroy();
+				_list.splice(i,1);
+				res.push(`Service ${service} is stopped`);
+				return res.join("\n");
+			};
+		}
+	} else {
+		throw new Error(`Service ${service} is already stopped`);
+	};
+};
+
+const start = async () => {
+	await updateDaemonList();
+
+	_inRm = _std.read(stdIn);
+
+	const ids = {}
+	_proc.list().forEach(i =>ids[i.path] = i.id);
+	for (var i in daemons) {
+		const d = daemons[i];
+		if (!ids[d.path]) {
+			try {
+				_std.write(d.path);
+				const p = await _proc.init(null,d.path,d?.attributes || [],false);
+				_list.push({proc:p,name:d?.name || ""});
+				p.run();
+			} catch (e) {
+				_std.write(e.toString());
+			}
+		};
+	};
+	return true;
+}
+
+const updateDaemonList = async () => {
+	daemons = JSON.parse(await _fs.readFile("kernel/daemon/init"));
+	return daemons;
+};

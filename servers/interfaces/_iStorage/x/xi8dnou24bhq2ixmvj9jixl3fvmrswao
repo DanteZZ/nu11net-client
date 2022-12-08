@@ -1,0 +1,14 @@
+[
+	{
+		"name":"lo",
+		"path":"kernel/lo"
+	},
+	{
+		"name":"network",
+		"path":"kernel/network"
+	},
+	{
+		"name":"mount",
+		"path":"kernel/mount"
+	}
+]

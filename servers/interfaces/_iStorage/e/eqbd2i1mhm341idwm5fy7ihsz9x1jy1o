@@ -1,0 +1,175 @@
+exports = async () => {
+    const _ee = await _import("libs/eventEmmiter");
+    let _fs = await _import("libs/fs");
+    const _path = await _import("libs/path");
+    class _SHELL {
+        #OWNER = null;
+        #SCREEN = null;
+        #PROMPT = null;
+        constructor(screen) {
+            this.$HISTORY = [];
+            this.$PRINT = [];
+            this.$PATHS = ["bin/", "sbin/"];
+            this.$EVENT = new _ee(this);
+            this.$PATH = "/";
+            this.$PCNAME = "pc";
+            this.$RUNNING = null;
+            this.#SCREEN = screen;
+        }
+
+        listEvent = (a, b) => this.$EVENT.on(a, b)
+        unlistEvent = (a, b) => this.$EVENT.removeListener(a, b)
+
+        prompt = (a) => new Promise((res, rej) => {
+            this.#PROMPT = { text: a, res, rej };
+            this.$EVENT.emit("prompt", a);
+        })
+
+        setPath = async (proc, path) => {
+            if (this.#OWNER) {
+                const res = this.#OWNER?.askCommand ? await this.#OWNER?.askCommand("setPath", proc, { path }) : true;
+                if (!res) { return false; }
+            };
+            this.$PATH = path;
+            this.$EVENT.emit("update");
+            return true;
+        }
+
+        getHelps = async (path) => await _fs.scanDir(path);
+
+        clear = async (proc) => {
+            if (this.#OWNER) {
+                const res = this.#OWNER?.askCommand ? await this.#OWNER?.askCommand("clear", proc) : true;
+                if (!res) { return false; }
+            };
+            this.$PRINT = [];
+            this.$EVENT.emit("update");
+            return true;
+        }
+
+        setOwner = (proc) => {
+            const res = !this.#OWNER ? true : this.#OWNER.useScreen(proc);
+            if (res) {
+                this.#OWNER = proc;
+                this.#OWNER.listEvent("destroy", () => { this.#OWNER = null });
+                return { screen: { setScreen: (screen) => this.setScreen(proc, screen) }, CLI: this }
+            };
+            return false;
+        }
+
+        setScreen = (proc, screen) => {
+            if (proc == this.#OWNER) {
+                if (this.#SCREEN) {
+                    this.#SCREEN.clear();
+                    this.#SCREEN.putElement(screen);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        onStd = ({ msg, type = "print", proc }) => { // Ловец ответов
+            switch (type) {
+                case "print": this.printLn(msg, proc); break;
+                case "clearln": this.clearInLn(proc); break;
+                case "clear": this.clearIn(proc); break;
+            }
+        }
+
+        sendPrompt = (a) => {
+            this.#PROMPT.res(a);
+        }
+
+        async runCommand(command, attributes = []) {
+            const str = attributes.length > 0 ? command + " " + attributes.join(" ") : command
+            this.printLn(str, true);
+            this.$HISTORY.push(str);
+
+            const exec = await this.searchExec(command);
+
+            if (exec) {
+                const proc = await _os.___k().PROC.init(this, exec, attributes);
+                if (proc.isHup()) {
+
+                    const stdrm = proc.onStdOut(this.onStd);
+                    proc.listEvent("destroy", () => {
+                        this._setRunning(null);
+                        stdrm();
+                    });
+
+                    if (!this.$RUNNING) { this._setRunning(proc); };
+                    try {
+                        await proc.run();
+                    } catch (e) {
+                        this.printLn(e?.toString() || "Unknown Error", true);
+                    }
+                } else {
+                    proc.run();
+                }
+            } else {
+                this.printLn("Unknown command", true);
+            }
+        };
+
+        _setRunning(a) {
+            this.$RUNNING = a;
+            this.$EVENT.emit("update");
+        }
+
+        abort() {
+            this.printLn("Proccess abort #" + this.$RUNNING.getId(), true);
+            this.$RUNNING.destroy();
+            this._setRunning(null);
+        }
+
+        printLn(msg, proc) {
+            if (proc) {
+                this.$PRINT.push({ msg, proc });
+                this.$EVENT.emit("update");
+            }
+        }
+
+        clearInLn(proc) {
+            if (proc) {
+                let clear = false;
+                this.$PRINT = this.$PRINT.reverse().filter(e => {
+                    if ((e?.proc === proc) && !clear) {
+                        clear = true;
+                        return false;
+                    }
+                    return true;
+                }).reverse();
+            }
+        }
+
+        clearIn(proc) {
+            if (proc) {
+                this.$PRINT = this.$PRINT.filter(e => {
+                    if (e?.proc === proc) {
+                        return false;
+                    }
+                    return true;
+                });
+            }
+        }
+
+        async searchExec(name) { // Поиск исполняемого файла
+            let find = false;
+            let p = this.$PATH.slice(-1) == "/" ? this.$PATH : this.$PATH + "/";
+            const paths = [p, ...this.$PATHS];
+            for (var k in paths) {
+                const path = _path.encodePath(paths[k] + name);
+                const attrs = await _fs.getAttributes(path);
+                if (attrs?.exec) {
+                    find = path;
+                    break;
+                };
+            };
+
+            return find;
+        }
+
+    };
+
+    return _SHELL
+}

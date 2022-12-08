@@ -1,0 +1,27 @@
+const _std = _process.std;
+const _thr = _os.__thread;
+
+var thread, ansi2html = null;
+
+_initialize = async () => {
+	thread = _thr.mk({_os, std:_process.std});
+	repl();
+}
+
+
+const repl = async () => {
+	const str = await _std.prompt("[33m>");
+	_std.write("[33m> [0m"+str);
+	if (str == "exit") {
+		_process.exit();
+		return false;
+	}
+	try {
+		_thr.runScript(thread,str);
+	} catch (e) {
+		_std.write("Error:");
+		_std.write(e.toString());
+	}
+	repl();
+	return true;
+}

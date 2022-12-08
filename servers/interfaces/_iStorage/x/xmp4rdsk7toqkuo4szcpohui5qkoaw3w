@@ -1,0 +1,31 @@
+/* EXECMOD */
+const _std = _process.std;
+const _path = _process.$path;
+
+_initialize = async () => {
+    const fs = await _import("libs/fs");
+    const { buildPath, isAbsolute } = await _import("libs/path");
+    
+    const attrMod = _process.__attributes?.[0] || false;
+    const attrPath = _process.__attributes?.[1] || false;
+
+    if (!attrPath || (["on","off"].indexOf(attrMod) < 0)) {
+        _std.write("[31mError:[0m Please, print [32m\"execmod [on/off] [filepath]\" [0m");
+        _process.exit();
+        return null;
+    }
+
+    let path = _path;
+    if (attrPath) {
+        path = isAbsolute(attrPath) ? attrPath : buildPath([attrPath], _path);
+    }
+
+    const res = await fs.isFile(path);
+    if (res) {
+        const attrs = await fs.getAttributes(path);
+        await fs.setAttributes(path,{...attrs,exec:(attrMod === "on")});
+    } else {
+        _std.write("Unfined file");
+    };
+    _process.exit();
+}
