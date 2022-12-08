@@ -3,6 +3,7 @@ import Ethernet from "../interfaces/ethernet";
 import Device, { iDevice } from "../utils/device";
 import { iInterface } from "../utils/interface";
 
+console.log(Device);
 export default class NetworkSocket extends Device {
     constructor(info: iDevice, intList: iInterface[]) {
         super(info, intList, [
@@ -11,7 +12,7 @@ export default class NetworkSocket extends Device {
         this.initInterfaces();
     }
 
-    private getEthernet(): Ethernet {
+    protected getEthernet(): Ethernet {
         const eth = this.getSocket(eConnectableInterface.ethernet);
         if (eth instanceof Ethernet) {
             return eth;

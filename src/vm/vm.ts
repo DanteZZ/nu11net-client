@@ -2,7 +2,7 @@ import {
     tVmMessageCommand,
     tVmMessageEvent,
     tVmMessageResponse,
-} from "../engine/interfaces/vmRunner";
+} from "../engine/utils/interfaces/vmRunner";
 import CommandRunner from "../engine/utils/commandRunner";
 import VM from "vm";
 
@@ -84,21 +84,25 @@ export const vmFunctions = (vmSender: VMSender) => ({
         vmSender.commandRunner.listenEvent(event, listener),
     unlistenEvent: (event: string, listener: Function) =>
         vmSender.commandRunner.unlistenEvent(event, listener),
+
+    sendError: (error: string) => {
+        console.error(error);
+    },
 });
 
-export const threadFunctions = {
+export const threadFunctions = (mainContext: Object) => ({
     mk: function (ctx: any) {
         return VM.createContext(ctx);
     },
-    runScript: function (ctx: any, script: string) {
+    runScript: function (ctx: any, script: string, main: boolean = false) {
         try {
-            VM.runInContext(script, ctx);
+            VM.runInContext(script, main ? mainContext : ctx);
             return true;
         } catch (e) {
             throw e;
         }
     },
-};
+});
 
 interface iRegCommandParams {
     path: string;
@@ -110,7 +114,11 @@ interface iDoEventParams {
     data?: any;
 }
 
-export const regVmCommands = (mainContext: Object, vmSender: VMSender) => {
+interface iVmCtx {
+    [key: string]: any;
+}
+
+export const regVmCommands = (mainContext: iVmCtx, vmSender: VMSender) => {
     // Common commands
     vmSender.commandRunner.registerCommand(
         "vm/makemainthread",
@@ -122,9 +130,13 @@ export const regVmCommands = (mainContext: Object, vmSender: VMSender) => {
                 setInterval,
                 setTimeout,
                 __vm: vmFunctions(vmSender),
-                __thread: threadFunctions,
+                __thread: threadFunctions(mainContext),
             };
             mainContext = VM.createContext(ctx);
+
+            mainContext.__vm = vmFunctions(vmSender);
+            mainContext.__thread = threadFunctions(mainContext);
+
             return true;
         }
     );

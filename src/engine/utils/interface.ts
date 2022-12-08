@@ -1,4 +1,3 @@
-import { EventEmitter } from "../../utils/eventEmitter";
 import { VMSender } from "../../vm/vm";
 import { eConnectableInterface, eInterface, ePortInterface } from "../enums";
 import Socket from "./socket";
@@ -25,8 +24,8 @@ export default abstract class Interface implements iInterface {
         this.id = info.id;
         this.type = info.type;
     }
-    public _init() {
-        return new Promise((res) => res(true));
+    public async _init(data?: any): Promise<boolean> {
+        return await new Promise((res) => res(true));
     }
 }
 

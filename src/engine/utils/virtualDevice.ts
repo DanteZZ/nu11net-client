@@ -8,7 +8,7 @@ export interface iInterfaceInfo {
 
 export default abstract class VirtualDevice extends Device {
     protected power: Boolean = false;
-    protected vm?: VM;
+    public vm?: VM;
 
     public regCommands(): void {}
     private _regCommands() {
@@ -59,8 +59,8 @@ export default abstract class VirtualDevice extends Device {
 
     public async powerOn() {
         if (!this.vm) {
-            await this.initInterfaces();
             this.vm = vmRunner.create();
+            await this.initInterfaces();
             this._regCommands();
             this._regListeners();
             await this.vm.init();

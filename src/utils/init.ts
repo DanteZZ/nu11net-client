@@ -1,7 +1,7 @@
+import Device from "../engine/utils/device";
 import NetworkSocket from "../engine/devices/networkSocket";
 import PC from "../engine/devices/pc";
 import { eDevice } from "../engine/enums";
-import Device from "../engine/utils/device";
 import { iUserInfo } from "./userInfo";
 
 const config: iUserInfo = JSON.parse(`{
@@ -35,6 +35,11 @@ const config: iUserInfo = JSON.parse(`{
             "id": "_iDisplay",
             "type": "display",
             "socketId": "display:1"
+        },
+        {
+          "id": "_iStorage",
+          "type": "storage",
+          "socketId": "storage:1"
         }
       ]
     }
@@ -50,9 +55,9 @@ declare global {
 const devices: Device[] = [];
 
 config.devices.forEach((d) => {
-    if (d.type === eDevice.networkSocket) {
-        devices.push(new NetworkSocket(d, d.interfaces));
-    }
+    // if (d.type === eDevice.networkSocket) {
+    //     devices.push(new NetworkSocket(d, d.interfaces));
+    // }
 
     if (d.type === eDevice.pc) {
         devices.push(new PC(d, d.interfaces));
@@ -60,3 +65,5 @@ config.devices.forEach((d) => {
 });
 
 window._devs = devices;
+// @ts-ignore
+devices[0].powerOn();

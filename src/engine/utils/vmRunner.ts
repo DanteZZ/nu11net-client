@@ -1,10 +1,9 @@
 import { randomHash } from "../../utils/hash";
 import {
-    iVmEvMessage,
     tVmMessageCommand,
     tVmMessageEvent,
     tVmMessageResponse,
-} from "../interfaces/vmRunner";
+} from "./interfaces/vmRunner";
 import CommandRunner from "./commandRunner";
 
 export class VMRunner {

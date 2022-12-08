@@ -48,6 +48,7 @@
     ]
   },
   "dependencies": {
+    "@types/fs-extra": "^9.0.13",
     "core-js": "^3.6.5",
     "vue": "^2.6.12"
   }

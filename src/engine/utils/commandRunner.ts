@@ -1,11 +1,11 @@
 import { EventEmitter } from "../../utils/eventEmitter";
 import { VMSender } from "../../vm/vm";
-import { iBufferItem, iCommandList } from "../interfaces/commandRunner";
+import { iBufferItem, iCommandList } from "./interfaces/commandRunner";
 import {
     tVmMessageCommand,
     tVmMessageEvent,
     tVmMessageResponse,
-} from "../interfaces/vmRunner";
+} from "./interfaces/vmRunner";
 import { VM } from "./vmRunner";
 
 export default class CommandRunner {

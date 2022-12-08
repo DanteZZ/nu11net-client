@@ -104,7 +104,9 @@ export default class Display extends VmInterface {
         );
         vmSender.commandRunner.registerLocalCommand(
             `${info.type}/createelement`,
-            (tag: string) => new DisplayElement(tag)
+            (tag: string) => {
+                return new DisplayElement(tag);
+            }
         );
     }
 }

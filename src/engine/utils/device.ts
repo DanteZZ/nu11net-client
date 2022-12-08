@@ -21,11 +21,10 @@ export interface iDevice {
     [key: string]: any;
 }
 
-export default abstract class Device implements iDevice {
+export abstract class Device implements iDevice {
     readonly id;
     readonly type;
     readonly sockets: Socket[];
-    // constructor(info: iDevice, socketList: iSocket[], intList: iInterface[]) {
     constructor(info: iDevice, intList: iInterface[], sockets: iSocket[] = []) {
         this.id = info.id;
         this.type = info.type;
@@ -67,8 +66,11 @@ export default abstract class Device implements iDevice {
     }
 
     public initInterfaces() {
-        return Promise.all(
-            this.sockets.filter((s) => s.get()).map((s) => s.get()?._init())
-        );
+        const promises = this.sockets
+            .filter((s) => s.get())
+            .map((s) => s.get()?._init());
+        return Promise.all(promises);
     }
 }
+
+export default Device;

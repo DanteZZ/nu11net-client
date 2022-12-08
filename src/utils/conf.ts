@@ -3,59 +3,59 @@ import path from "path";
 import { basedir } from "./consts";
 
 interface iCfg {
-  serverList: Object;
-  login: string;
-  password: string;
-  selectedServer: string;
-  serversDir: string;
-  fullscreen: boolean;
-  [ley: string]: any;
+    serverList: Object;
+    login: string;
+    password: string;
+    selectedServer: string;
+    serversDir: string;
+    fullscreen: boolean;
+    [ley: string]: any;
 }
 
-class CONF {
-  constructor() {}
-  public cfg: iCfg = {
-    serverList: {},
-    login: "",
-    password: "",
-    selectedServer: "",
-    serversDir: "servers",
-    fullscreen: true,
-  };
-  load() {
-    if (!fs.existsSync(path.join(basedir, "config.json"))) {
-      this.save();
+class Conf {
+    constructor() {}
+    public cfg: iCfg = {
+        serverList: {},
+        login: "",
+        password: "",
+        selectedServer: "",
+        serversDir: "servers",
+        fullscreen: true,
+    };
+    load() {
+        if (!fs.existsSync(path.join(basedir, "config.json"))) {
+            this.save();
+        }
+        let data = fs.readFileSync(path.join(basedir, "config.json"), "utf-8");
+        this.parseJSON(data);
     }
-    let data = fs.readFileSync(path.join(basedir, "config.json"), "utf-8");
-    this.parseJSON(data);
-  }
 
-  save() {
-    fs.writeFileSync(
-      path.join(basedir, "config.json"),
-      JSON.stringify(this.cfg, null, "\t"),
-      "utf-8"
-    );
-  }
+    save() {
+        fs.writeFileSync(
+            path.join(basedir, "config.json"),
+            JSON.stringify(this.cfg, null, "\t"),
+            "utf-8"
+        );
+    }
 
-  parseJSON(data: string | unknown): void {
-    if (typeof data === "string") {
-      this.cfg = JSON.parse(data);
+    parseJSON(data: string | unknown): void {
+        if (typeof data === "string") {
+            this.cfg = JSON.parse(data);
+        }
     }
-  }
-  get() {
-    return this.cfg;
-  }
-  set(data: iCfg) {
-    if (data) {
-      for (var k in data) {
-        this.cfg[k] = data[k];
-      }
+    get() {
+        return this.cfg;
     }
-  }
+    set(data: iCfg) {
+        if (data) {
+            for (var k in data) {
+                this.cfg[k] = data[k];
+            }
+        }
+    }
 }
 
-const conf = new CONF();
-conf.load();
+const CFG = new Conf();
+CFG.load();
 
-export default conf;
+export default CFG;
