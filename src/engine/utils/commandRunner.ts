@@ -15,6 +15,8 @@ export default class CommandRunner {
     private commandBuffer: iBufferItem[] = [];
     private lastBufferId: number = 0;
     private eventEmitter: EventEmitter;
+    private commandTimeout: number = 5000;
+
     constructor(vmr: VM | VMSender) {
         this.vm = vmr;
         this.eventEmitter = new EventEmitter();
@@ -120,11 +122,21 @@ export default class CommandRunner {
             }
         } else {
             this.lastBufferId++;
+            const bid = this.lastBufferId;
             this.commandBuffer.push({
-                bufferId: this.lastBufferId,
+                bufferId: bid,
                 fn: callback,
             });
             this.vm.sendMessage({ command, data, bufferId: this.lastBufferId });
+            setTimeout(() => {
+                if (this.commandBuffer.find((i) => i.bufferId === bid)) {
+                    this.handleResponse({
+                        bufferId: bid,
+                        response: true,
+                        data: undefined,
+                    });
+                }
+            }, this.commandTimeout);
         }
     }
 
