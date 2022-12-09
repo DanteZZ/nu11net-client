@@ -21,7 +21,7 @@ const initVm = async () => {
         const vmSender = new VMSender();
         await vmSender.init();
         const interfaces = await vmSender.sendCommand(
-            "interfaces/list",
+            "board/interfaces/list",
             false,
             true
         );

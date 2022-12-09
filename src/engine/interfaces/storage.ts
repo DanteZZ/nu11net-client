@@ -7,7 +7,6 @@ import { basedir } from "../../utils/consts";
 import { mkdir, readFile, unlink, writeFile } from "fs/promises";
 import { randomHash } from "../../utils/hash";
 import Socket from "../utils/socket";
-import VirtualDevice from "../utils/virtualDevice";
 
 interface iMapAttributes {
     [key: string]: any;
@@ -541,7 +540,9 @@ export default class Storage extends Interface {
         const cat = "interfaces/" + this.type + "/" + this.id;
         const catf = cat + "/";
         const device = this.controller.device;
-        if (device instanceof VirtualDevice && device.vm) {
+        // @ts-ignore
+        if (device && device.vm) {
+            // @ts-ignore
             const cmd = device.vm.commandRunner;
             cmd.registerCommand(
                 catf + "initialize",

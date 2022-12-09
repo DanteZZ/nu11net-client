@@ -55,15 +55,14 @@ declare global {
 const devices: Device[] = [];
 
 config.devices.forEach((d) => {
-    // if (d.type === eDevice.networkSocket) {
-    //     devices.push(new NetworkSocket(d, d.interfaces));
-    // }
-
     if (d.type === eDevice.pc) {
         devices.push(new PC(d, d.interfaces));
+    }
+    if (d.type === eDevice.networkSocket) {
+        devices.push(new NetworkSocket(d, d.interfaces));
     }
 });
 
 window._devs = devices;
 // @ts-ignore
-devices[0].powerOn();
+devices[1].powerOn();

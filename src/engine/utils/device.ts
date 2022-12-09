@@ -14,6 +14,7 @@ import Input from "../interfaces/input";
 import Storage from "../interfaces/storage";
 import Usb from "../interfaces/usb";
 import Socket, { iSocket } from "./socket";
+import { VM } from "./vmRunner";
 
 export interface iDevice {
     id: string;
@@ -25,6 +26,8 @@ export abstract class Device implements iDevice {
     readonly id;
     readonly type;
     readonly sockets: Socket[];
+    public vm?: VM;
+
     constructor(info: iDevice, intList: iInterface[], sockets: iSocket[] = []) {
         this.id = info.id;
         this.type = info.type;
@@ -63,6 +66,15 @@ export abstract class Device implements iDevice {
 
     public getSocket(type: tInterfaceType): Interface | null {
         return this.sockets.find((s) => s.type === type)?.get() || null;
+    }
+
+    public socket(id: string): Socket {
+        const result = this.sockets.find((s) => s.id === id);
+        if (result) {
+            return result;
+        } else {
+            throw new Error(`Undefined socket: ${id}`);
+        }
     }
 
     public initInterfaces() {

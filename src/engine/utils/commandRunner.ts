@@ -82,6 +82,8 @@ export default class CommandRunner {
             if (data.bufferId) {
                 this.sendResponse(data.bufferId, result);
             }
+        } else if (data.bufferId) {
+            this.sendResponse(data.bufferId, undefined);
         }
     }
 

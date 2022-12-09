@@ -10,9 +10,11 @@ exports = async () => {
         getInterfaces: async () => {
             const getMainList = () =>
                 new Promise((res) =>
-                    _os.___k().sendCommand("vm/interfaces", null, (el) => {
-                        res(el);
-                    })
+                    _os
+                        .___k()
+                        .sendCommand("board/interfaces/list", null, (el) => {
+                            res(el);
+                        })
                 );
             const getSubList = (type, name) =>
                 new Promise((res) =>

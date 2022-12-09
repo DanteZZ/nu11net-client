@@ -15,8 +15,8 @@ export default class PC extends VirtualDevice {
     }
 
     public async onVmReady() {
-        console.log("vm is ready!");
-        const storage = this.getSocket(eInterface.storage);
+        console.log("Vm is ready!");
+        const storage = this.socket("storage:1").get();
         await this.vm?.sendCommand(
             "vm/makemainthread",
             {

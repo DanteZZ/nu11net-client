@@ -8,14 +8,13 @@ export interface iInterfaceInfo {
 
 export default abstract class VirtualDevice extends Device {
     protected power: Boolean = false;
-    public vm?: VM;
 
     public regCommands(): void {}
     private _regCommands() {
         if (this.vm) {
             this.regCommands();
             this.vm.commandRunner.registerCommand(
-                "interfaces/list",
+                "board/interfaces/list",
                 (type?: string) =>
                     this.sockets
                         .filter(
@@ -29,13 +28,16 @@ export default abstract class VirtualDevice extends Device {
                             return item;
                         })
             );
-            this.vm.commandRunner.registerCommand("sockets/list", () =>
+            this.vm.commandRunner.registerCommand("vm/sockets/list", () =>
                 this.sockets.map((s) => ({ id: s.id, type: s.type }))
             );
 
-            this.vm.commandRunner.registerCommand("power/off", this.powerOff);
             this.vm.commandRunner.registerCommand(
-                "power/on",
+                "board/power/off",
+                this.powerOff
+            );
+            this.vm.commandRunner.registerCommand(
+                "board/power/on",
                 this.powerOn,
                 true
             );
