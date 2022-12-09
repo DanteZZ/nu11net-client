@@ -1,0 +1,54 @@
+{
+    "devices": [
+        {
+            "type": "networkSocket",
+            "id": "_ns1",
+            "interfaces": [
+                {
+                    "id": "_iEthernet1",
+                    "type": "ethernet",
+                    "socketId": "eth:1"
+                }
+            ]
+        },
+        {
+            "type": "pc",
+            "id": "_pc1",
+            "interfaces": [
+                {
+                    "id": "_iEthernet1",
+                    "type": "ethernet",
+                    "socketId": "eth:1"
+                },
+                {
+                    "id": "_iInput",
+                    "type": "input",
+                    "socketId": "input:1"
+                },
+                {
+                    "id": "_iDisplay",
+                    "type": "display",
+                    "socketId": "display:1"
+                },
+                {
+                    "id": "_iStorage",
+                    "type": "storage",
+                    "socketId": "storage:1"
+                },
+                {
+                    "id": "_iUsb",
+                    "type": "usb",
+                    "socketId": "usb:1"
+                }
+            ]
+        }
+    ],
+    "portableDevices": [
+        {
+            "id": "_usbStorage1",
+            "type": "usbStorage",
+            "mapType": "clean",
+            "connectedTo": null
+        }
+    ]
+}

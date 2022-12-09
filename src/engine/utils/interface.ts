@@ -1,5 +1,6 @@
 import { VMSender } from "../../vm/vm";
 import { eConnectableInterface, eInterface, ePortInterface } from "../enums";
+import Device from "./device";
 import Socket from "./socket";
 import { iInterfaceInfo } from "./virtualDevice";
 
@@ -24,7 +25,10 @@ export default abstract class Interface implements iInterface {
         this.id = info.id;
         this.type = info.type;
     }
-    public async _init(data?: any): Promise<boolean> {
+    public async _init(device: Device, data?: any): Promise<boolean> {
+        return await new Promise((res) => res(true));
+    }
+    public async _terminate(device: Device, data?: any): Promise<boolean> {
         return await new Promise((res) => res(true));
     }
 }

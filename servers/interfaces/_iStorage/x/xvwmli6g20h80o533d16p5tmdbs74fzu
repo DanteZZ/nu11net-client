@@ -3,6 +3,12 @@
 exports = async () => {
     return {
         sendCommand: _os.___k().sendCommand,
+        sendCommandAsync: (name, data) =>
+            new Promise((res) =>
+                _os.___k().sendCommand(name, data, (el) => {
+                    res(el);
+                })
+            ),
         listenEvent: _os.___k().listenEvent,
         unlistenEvent: _os.___k().unlistenEvent,
         doEvent: _os.___k().doEvent,
@@ -21,7 +27,7 @@ exports = async () => {
                     _os
                         .___k()
                         .sendCommand(
-                            `interfaces/${type}/${name}/interfaceList`,
+                            `interfaces/${type}/${name}/interfaces/list`,
                             null,
                             (el) => {
                                 res(el);

@@ -1,122 +1,151 @@
 /* MOUNT */
 
-const STD_MOUNTLIST = "mountlist"
-const STD_GETINT = "getint"
+const STD_MOUNTLIST = "mountlist";
+const STD_GETINT = "getint";
 
 var rmEvMount = null;
 
 _initialize = async () => {
-	try {
-		// LOAD LIBS
-		_vm = await _import("libs/vm");
+    try {
+        // LOAD LIBS
+        _vm = await _import("libs/vm");
 
-		// INIT CONSTS
-		_std = _process.std;
+        // INIT CONSTS
+        _std = _process.std;
 
-		listeners = {
-			connect: [],
-			disconnect: []
-		};
-		mountList = [];
-		const intlist = await _vm.getInterfaces();
-		const checkInterfaces = ["usb"]; // Array of checking interfaces
-		const checkTypes = ["storage"]; // Array of checking types
-		// INIT FUNCS
-		const updateListeners = async () => {
-			listeners.connect.forEach(id => _vm.unlistEvent(id));
-			listeners.disconnect.forEach(id => _vm.unlistEvent(id));
-			for (let i in intlist) {
-				const intr = intlist[i];
-				if (checkInterfaces.indexOf(intr.type) !== -1) {
-					listeners.connect.push(_vm.listenEvent(`interfaces/${intr.type}/${intr.name}/onconnect`, connectionListener, this));
-					listeners.disconnect.push(_vm.listenEvent(`interfaces/${intr.type}/${intr.name}/ondisconnect`, disconnectionListener, this))
-				};
-			};
-			return true;
-		};
+        listeners = {
+            connect: [],
+            disconnect: [],
+        };
+        mountList = [];
+        const intlist = await _vm.getInterfaces();
+        const checkInterfaces = ["usb"]; // Array of checking interfaces
+        const checkTypes = ["storage"]; // Array of checking types
+        // INIT FUNCS
+        const updateListeners = async () => {
+            listeners.connect.forEach((id) => _vm.unlistEvent(id));
+            listeners.disconnect.forEach((id) => _vm.unlistEvent(id));
+            for (let i in intlist) {
+                const intr = intlist[i];
+                if (checkInterfaces.indexOf(intr.type) !== -1) {
+                    listeners.connect.push(
+                        _vm.listenEvent(
+                            `interfaces/${intr.type}/${intr.name}/onconnect`,
+                            connectionListener,
+                            this
+                        )
+                    );
+                    listeners.disconnect.push(
+                        _vm.listenEvent(
+                            `interfaces/${intr.type}/${intr.name}/ondisconnect`,
+                            disconnectionListener,
+                            this
+                        )
+                    );
+                }
+            }
+            return true;
+        };
 
-		const initMount = async () => {
-			for (let i in intlist) {
-				const intr = intlist[i];
+        const initMount = async () => {
+            for (let i in intlist) {
+                const intr = intlist[i];
 
-				if (checkInterfaces.indexOf(intr.type) !== -1) {
-					if (intr.interfaces?.length) {
-						for (let m in intr.interfaces) {
-							await mountInterface(intr.interfaces[m]);
-						};
-					};
-				};
-			};
-			return true;
-		};
+                if (checkInterfaces.indexOf(intr.type) !== -1) {
+                    if (intr.interfaces?.length) {
+                        for (let m in intr.interfaces) {
+                            await mountInterface(intr.interfaces[m]);
+                        }
+                    }
+                }
+            }
+            return true;
+        };
 
-		const mountInterface = async ({ type, name }) => {
-			if (checkTypes.indexOf(type) !== -1) {
-				if (!mountList.find(m => m.name == name)) { // If is not already mounted
-					const ok = await _vm.sendCommand(`interfaces/${type}/${name}/initialize`);
-					if (ok) { // If initialized
-						const short = name.substring(0, 3);
-						_std.write(`Interface ${name}(${type}) is mounted like "${short}:"`);
-						mountList.push({ type, name, short });
-					};
-				};
-			};
-			return true;
-		}
+        const mountInterface = async ({ type, name }) => {
+            if (checkTypes.indexOf(type) !== -1) {
+                if (!mountList.find((m) => m.name == name)) {
+                    // If is not already mounted
+                    const ok = await _vm.sendCommandAsync(
+                        `interfaces/${type}/${name}/initialize`
+                    );
+                    _std.write(
+                        JSON.stringify([
+                            `interfaces/${type}/${name}/initialize`,
+                            ok,
+                        ])
+                    );
+                    if (ok) {
+                        // If initialized
+                        const short = name.substring(0, 3);
+                        _std.write(
+                            `Interface ${name}(${type}) is mounted like "${short}:"`
+                        );
+                        mountList.push({ type, name, short });
+                    }
+                }
+            }
+            return true;
+        };
 
-		unmountInterface = async ({ type, name }) => {
-			if (checkTypes.indexOf(type) !== -1) {
-				mountList = mountList.filter(m => m.name !== name);
-				_std.write(`Interface ${name}(${type}) is unmounted"`);
-			}
-			return true;
-		}
+        unmountInterface = async ({ type, name }) => {
+            if (checkTypes.indexOf(type) !== -1) {
+                mountList = mountList.filter((m) => m.name !== name);
+                _std.write(`Interface ${name}(${type}) is unmounted"`);
+            }
+            return true;
+        };
 
-		const connectionListener = async (ints) => {
-			for (let m in ints) {
-				await mountInterface(ints[m]);
-			};
-			return;
-		}
+        const connectionListener = async (ints) => {
+            for (let m in ints) {
+                await mountInterface(ints[m]);
+            }
+            return;
+        };
 
-		const disconnectionListener = async (ints) => {
-			for (let m in ints) {
-				await unmountInterface(ints[m]);
-			};
-			return;
-		};
+        const disconnectionListener = async (ints) => {
+            for (let m in ints) {
+                await unmountInterface(ints[m]);
+            }
+            return;
+        };
 
-		unmountAll = async () => {
-			for (let m in mountList) {
-				await unmountInterface(m);
-			};
-			return;
-		};
+        unmountAll = async () => {
+            for (let m in mountList) {
+                await unmountInterface(m);
+            }
+            return;
+        };
 
-		const stdin = async ({ type, mount, onSuccess, onError }) => {
-			switch (type) {
-				case STD_MOUNTLIST:
-					onSuccess && onSuccess(mountList);
-					break;
-				case STD_GETINT:
-					const find = mountList.find(m => m.short == mount);
-					if (find) { onSuccess && onSuccess(find); } else { onError && onError(`${mount} is not mounted`) };
-					break;
-			};
-		};
+        const stdin = async ({ type, mount, onSuccess, onError }) => {
+            switch (type) {
+                case STD_MOUNTLIST:
+                    onSuccess && onSuccess(mountList);
+                    break;
+                case STD_GETINT:
+                    const find = mountList.find((m) => m.short == mount);
+                    if (find) {
+                        onSuccess && onSuccess(find);
+                    } else {
+                        onError && onError(`${mount} is not mounted`);
+                    }
+                    break;
+            }
+        };
 
-		// START SERVICE
-		await updateListeners();
-		await initMount();
-		rmEvMount = _std.read(stdin)
-	} catch (e) {
-		_std.write(e.toString());
-	};
+        // START SERVICE
+        await updateListeners();
+        await initMount();
+        _std.write(JSON.stringify(mountList));
+        rmEvMount = _std.read(stdin);
+    } catch (e) {
+        _std.write(e.toString());
+    }
 };
 
 _exiting = async () => {
-	unmountAll();
-	listeners.connect.forEach(id => _vm.unlistEvent(id));
-	listeners.disconnect.forEach(id => _vm.unlistEvent(id));
-	rmEvPort();
-}
+    unmountAll();
+    listeners.connect.forEach((id) => _vm.unlistEvent(id));
+    listeners.disconnect.forEach((id) => _vm.unlistEvent(id));
+    rmEvPort();
+};

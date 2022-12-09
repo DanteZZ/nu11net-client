@@ -1,6 +1,7 @@
 import { EventEmitter } from "../../utils/eventEmitter";
 import { eConnectionType } from "../enums";
 import ConnectableInterface from "../utils/connectableInterface";
+import Device from "../utils/device";
 
 export default class Ethernet extends ConnectableInterface {
     connectionTypes: eConnectionType[] = [eConnectionType.twistedPair];
@@ -27,8 +28,8 @@ export default class Ethernet extends ConnectableInterface {
         );
     }
 
-    protected getCmd() {
-        const device = this.controller.device;
+    protected getCmd(d?: Device) {
+        const device = d || this.controller.device;
         if (device && device.vm) {
             return device.vm.commandRunner;
         } else {
@@ -36,9 +37,9 @@ export default class Ethernet extends ConnectableInterface {
         }
     }
 
-    public async _init() {
-        const cat = `interfaces/${this.type}/${this.id}`;
-        const cmd = this.getCmd();
+    public async _init(device: Device) {
+        const cat = `interfaces/${this.type}/${this.id}/`;
+        const cmd = this.getCmd(device);
         if (cmd) {
             cmd.registerCommand(cat + "send", (payload: any) =>
                 this._tx(payload)

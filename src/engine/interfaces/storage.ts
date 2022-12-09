@@ -7,6 +7,7 @@ import { basedir } from "../../utils/consts";
 import { mkdir, readFile, unlink, writeFile } from "fs/promises";
 import { randomHash } from "../../utils/hash";
 import Socket from "../utils/socket";
+import Device from "../utils/device";
 
 interface iMapAttributes {
     [key: string]: any;
@@ -535,18 +536,14 @@ export default class Storage extends Interface {
         }
     }
 
-    public async _init() {
+    public async _init(device: Device) {
         await this._initStorage();
-        const cat = "interfaces/" + this.type + "/" + this.id;
-        const catf = cat + "/";
-        const device = this.controller.device;
-        // @ts-ignore
-        if (device && device.vm) {
-            // @ts-ignore
-            const cmd = device.vm.commandRunner;
+        const catf = "interfaces/" + this.type + "/" + this.id + "/";
+        const cmd = device?.vm?.commandRunner || null;
+        if (cmd) {
             cmd.registerCommand(
                 catf + "initialize",
-                () => this._initStorage,
+                () => this._initStorage(),
                 true
             );
             cmd.registerCommand(
@@ -591,6 +588,28 @@ export default class Storage extends Interface {
                 (attrs: { oldpath: string; newpath: string }) =>
                     this.rename(attrs.oldpath, attrs.newpath)
             );
+        }
+        return true;
+    }
+
+    public async _terminate(device: Device) {
+        const catf = "interfaces/" + this.type + "/" + this.id + "/";
+        const cmd = device?.vm?.commandRunner || null;
+        if (cmd) {
+            [
+                "getattributes",
+                "initialize",
+                "isdata",
+                "isdir",
+                "mkdir",
+                "readdata",
+                "rename",
+                "rmdata",
+                "rmdir",
+                "scdir",
+                "setattributes",
+                "writedata",
+            ].forEach((c) => cmd.removeCommand(catf + c));
         }
         return true;
     }

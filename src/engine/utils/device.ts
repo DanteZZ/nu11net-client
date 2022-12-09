@@ -15,6 +15,7 @@ import Storage from "../interfaces/storage";
 import Usb from "../interfaces/usb";
 import Socket, { iSocket } from "./socket";
 import { VM } from "./vmRunner";
+import { iInterfaceInfo } from "./virtualDevice";
 
 export interface iDevice {
     id: string;
@@ -77,10 +78,29 @@ export abstract class Device implements iDevice {
         }
     }
 
+    public interfaceList(type?: string) {
+        return this.sockets
+            .filter((s) => s.get() && (type ? s.type === type : true))
+            .map((s) => {
+                const item: iInterfaceInfo = {
+                    name: s.get()?.id || "",
+                    type: s.type,
+                };
+                return item;
+            });
+    }
+
     public initInterfaces() {
         const promises = this.sockets
             .filter((s) => s.get())
-            .map((s) => s.get()?._init());
+            .map((s) => s.get()?._init(this));
+        return Promise.all(promises);
+    }
+
+    public terminateInterfaces() {
+        const promises = this.sockets
+            .filter((s) => s.get())
+            .map((s) => s.get()?._terminate(this));
         return Promise.all(promises);
     }
 }

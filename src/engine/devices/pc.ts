@@ -1,4 +1,4 @@
-import { eConnectableInterface, eInterface } from "../enums";
+import { eConnectableInterface, eInterface, ePortInterface } from "../enums";
 import Storage from "../interfaces/storage";
 import { iDevice } from "../utils/device";
 import { iInterface } from "../utils/interface";
@@ -11,6 +11,7 @@ export default class PC extends VirtualDevice {
             { id: "input:1", type: eInterface.input },
             { id: "display:1", type: eInterface.display },
             { id: "storage:1", type: eInterface.storage },
+            { id: "usb:1", type: ePortInterface.usb },
         ]);
     }
 

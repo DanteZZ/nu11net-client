@@ -34,7 +34,8 @@ export default abstract class VirtualDevice extends Device {
 
             this.vm.commandRunner.registerCommand(
                 "board/power/off",
-                this.powerOff
+                this.powerOff,
+                true
             );
             this.vm.commandRunner.registerCommand(
                 "board/power/on",
@@ -52,7 +53,8 @@ export default abstract class VirtualDevice extends Device {
         return this.power;
     }
 
-    public powerOff() {
+    public async powerOff() {
+        await this.initInterfaces();
         this?.vm?.remove();
         this.vm = undefined;
         this.power = false;

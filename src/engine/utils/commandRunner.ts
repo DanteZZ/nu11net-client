@@ -37,6 +37,7 @@ export default class CommandRunner {
     }
     public removeCommand(path: string) {
         // Remove device command
+        console.log("remove", path);
         delete this.commandList?.[path];
     }
     public removeLocalCommand(path: string) {
