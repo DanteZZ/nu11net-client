@@ -1,6 +1,6 @@
 ---
-#<first characters of ethernet interface>:
-  #default: true
-  #dhcp: true
+_iEth:
+  default: true
+  dhcp: true
 lo:
   ip: 127.0.0.1/8

@@ -8,6 +8,13 @@ export default class NetworkSocket extends Device {
             { id: "eth:1", type: eConnectableInterface.ethernet },
         ]);
         this.initInterfaces();
+        const eth = this.getEthernet();
+        eth.ee.on("rx", (data: any) => {
+            console.log("rx", data);
+        });
+        eth.ee.on("tx", (data: any) => {
+            console.log("tx", data);
+        });
     }
 
     protected getEthernet(): Ethernet {

@@ -4,8 +4,8 @@ import ConnectableInterface from "../utils/connectableInterface";
 import Device from "../utils/device";
 
 export default class Ethernet extends ConnectableInterface {
-    connectionTypes: eConnectionType[] = [eConnectionType.twistedPair];
-    ee = new EventEmitter();
+    public connectionTypes: eConnectionType[] = [eConnectionType.twistedPair];
+    public ee = new EventEmitter();
     public _tx(payload: any) {
         const receiver = this.connectedTo();
         if (receiver && receiver instanceof Ethernet) {

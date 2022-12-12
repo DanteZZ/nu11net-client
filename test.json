@@ -50,5 +50,20 @@
             "mapType": "clean",
             "connectedTo": null
         }
+    ],
+    "cables": [
+        {
+            "id": "_cable1",
+            "type": "twistedPair"
+        }
+    ],
+    "cableConnections": [
+        {
+            "cable": "_cable1",
+            "connection": [
+                ["_pc1", "eth:1"],
+                ["_ns1", "eth:1"]
+            ]
+        }
     ]
 }
