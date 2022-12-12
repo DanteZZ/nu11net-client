@@ -482,7 +482,7 @@ export default class Storage extends Interface {
                 typeof pmap["~"] === "string" &&
                     delete pmap["~"][_path.basename(oldpath)];
                 if (typeof nmap["~"] !== "object") {
-                    nmap["~"] == {};
+                    nmap["~"] = {};
                 }
                 nmap["~"][_path.basename(newpath)] = mp;
                 this._writeMap(); // Обновляем MAP

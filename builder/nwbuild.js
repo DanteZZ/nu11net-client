@@ -52,6 +52,7 @@ exports.build = () => {
         platforms: nwinf.platforms,
         version: nwinf.version,
         flavor: "normal",
+        // flavor: "sdk",
         cacheDir: "versions/",
         macIcns: "assets/icon.icns",
         winIco: "assets/icon.ico",
