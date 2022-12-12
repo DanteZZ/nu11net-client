@@ -78,7 +78,7 @@
 			return {
 			    title: "NIOS - Настройка CMOS",
 				footer: `v${nw.App.manifest.version} (C) Copyright 2015-${new Date().getFullYear()}, Nu11Net, Ltd`,
-				showed:true,
+				showed:false,
 				selItem: 0,
 				selSection: 0,
 				disconnected: false,

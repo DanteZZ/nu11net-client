@@ -1,13 +1,14 @@
-import Device from "../engine/utils/device";
 import NetworkSocket from "../engine/devices/networkSocket";
 import PC from "../engine/devices/pc";
 import { eDevice, eProtableDevice } from "../engine/enums";
 import { iUserInfo } from "./userInfo";
 import { readFileSync } from "fs";
 import { basedir } from "./consts";
-import PortableDevice from "../engine/utils/portableDevice";
 import UsbStorage from "../engine/portableDevices/usbStorage";
 import cableConnector from "../engine/utils/cableConnector";
+
+import Game from "../game";
+import { Devices, PortableDevices } from "./common";
 
 const config: iUserInfo = JSON.parse(
     readFileSync(basedir + "/test.json", "utf-8")
@@ -19,20 +20,18 @@ declare global {
         _devs: any;
         _pdevs: any;
         _cc: any;
+        _oge: any;
     }
 }
-
-const devices: Device[] = [];
-const portableDevices: PortableDevice[] = [];
 
 /* SPAWN DEVICES */
 
 config.devices.forEach((d) => {
     if (d.type === eDevice.pc) {
-        devices.push(new PC(d, d.interfaces));
+        Devices.push(new PC(d, d.interfaces));
     }
     if (d.type === eDevice.networkSocket) {
-        devices.push(new NetworkSocket(d, d.interfaces));
+        Devices.push(new NetworkSocket(d, d.interfaces));
     }
 });
 
@@ -40,7 +39,7 @@ config.devices.forEach((d) => {
 
 config.portableDevices.forEach((d) => {
     if (d.type === eProtableDevice.usbStorage) {
-        portableDevices.push(new UsbStorage(d));
+        PortableDevices.push(new UsbStorage(d));
     }
 });
 
@@ -52,14 +51,18 @@ config.cables.forEach((c) => {
 
 /* CREATE CABLE CONNECTIONS */
 
-cableConnector.setDeviceList(devices);
+cableConnector.setDeviceList(Devices);
 cableConnector.setConnections(config.cableConnections);
 cableConnector.updateConnections();
 
-window._devs = devices;
-window._pdevs = portableDevices;
+/* START OGE */
+
+Game().then((e) => (window._oge = e));
+
+window._devs = Devices;
+window._pdevs = PortableDevices;
 window._cc = cableConnector;
 
-window._devs[1].powerOn();
-window._devs[1].socket("usb:1").get().connect(window._pdevs[0]);
+// window._devs[1].powerOn();
+// window._devs[1].socket("usb:1").get().connect(window._pdevs[0]);
 // window._devs[1].socket("usb:1").get().disconnect();

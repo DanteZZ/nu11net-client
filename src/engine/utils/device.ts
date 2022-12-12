@@ -16,10 +16,12 @@ import Usb from "../interfaces/usb";
 import Socket, { iSocket } from "./socket";
 import { VM } from "./vmRunner";
 import { iInterfaceInfo } from "./virtualDevice";
+import { iPosition } from "./interfaces";
 
 export interface iDevice {
     id: string;
     type: eDevice | eProtableDevice;
+    position?: iPosition;
     [key: string]: any;
 }
 
@@ -28,10 +30,12 @@ export abstract class Device implements iDevice {
     readonly type;
     readonly sockets: Socket[];
     public vm?: VM;
+    public position?: iPosition;
 
     constructor(info: iDevice, intList: iInterface[], sockets: iSocket[] = []) {
         this.id = info.id;
         this.type = info.type;
+        this.position = info?.position;
 
         this.sockets = sockets.map((s) => new Socket(s.id, s.type, this));
         this.sockets.forEach((s) =>

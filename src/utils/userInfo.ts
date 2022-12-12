@@ -1,5 +1,6 @@
 import { eConnectionType, eDevice, eProtableDevice } from "../engine/enums";
 import { tInterfaceType } from "../engine/utils/interface";
+import { iPosition } from "../engine/utils/interfaces";
 
 export interface iUserInfo {
     devices: iUserDevice[];
@@ -13,6 +14,7 @@ export interface iUserDevice {
     id: string;
     type: eDevice;
     interfaces: iUserDeviceInterface[];
+    position: iPosition;
     [key: string]: any;
 }
 

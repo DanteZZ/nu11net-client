@@ -78,6 +78,12 @@ button {
     background-color: rgba(0, 0, 0, 0.8);
 }
 
+#oge {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+
 webview {
     display: block !important;
     position: absolute;
