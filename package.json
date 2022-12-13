@@ -28,7 +28,7 @@
         "html-webpack-plugin": "^5.5.0",
         "lodash": "^4.17.21",
         "nw-builder": "^3.5.7",
-        "oge-ts": "^0.1.3",
+        "oge-ts": "^0.1.4",
         "os": "^0.1.2",
         "socket.io": "^4.5.3",
         "standard-version": "^9.3.2",
