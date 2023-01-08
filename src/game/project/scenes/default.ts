@@ -1,4 +1,4 @@
-import { Camera, Scene, Canvas } from "oge-ts";
+import { Camera, Scene, Canvas, Input } from "oge-ts";
 import { Devices } from "../../../utils/common";
 import { aBgRoom } from "../assets";
 import Cursor from "../objects/cursor";
@@ -14,18 +14,49 @@ class _DefaultScene extends Scene {
   public deviceObjects: DeviceObject[] = [];
 
   public init(): void {
+    const cursor = new Cursor();
     this.instances.addInstances([
-      new Cursor(),
+      cursor,
       Player,
       new Decor(eDecorType.table, 555, 1058),
       new Decor(eDecorType.chair, 840, 1020),
     ]);
 
     this.mainCamera = new Camera(this);
-    this.mainCamera.setTrackInstance(Player);
+    this.mainCamera.offset = 20;
+
+    this.mainCamera.setTrackInstance(cursor);
 
     this.setCamera(this.mainCamera);
     this.spawnDevices();
+    this.getCanvas().scale = 1.5;
+
+    this.initZoom();
+  }
+
+  initZoom() {
+    document.addEventListener("mousewheel", (event) => {
+      const delta = (<WheelEvent>event).deltaY;
+      const canvas = this.getCanvas();
+      if (canvas) {
+        const prevScale = canvas.scale;
+        canvas.scale += delta > 0 ? -0.2 : 0.2;
+        if (canvas.scale > 2.5) {
+          canvas.scale = 2.5;
+        }
+        if (canvas.scale < 0.5) {
+          canvas.scale = 0.75;
+        }
+        // if (prevScale !== canvas.scale && this.mainCamera) {
+        //   this.mainCamera.offset = undefined;
+        //   setTimeout(() => {
+        //     if (this.mainCamera) {
+        //       this.mainCamera.offset = 20;
+        //     }
+        //   }, 10);
+        // }
+      }
+    });
   }
 
   public spawnDevices() {
@@ -35,6 +66,8 @@ class _DefaultScene extends Scene {
     );
     this.instances.addInstances(this.deviceObjects);
   }
+
+  public update(): void {}
 
   public draw(canvas: Canvas): void {
     // canvas.drawRect(600, 0, 600, 600, {

@@ -5,7 +5,7 @@ import wall from "../assets/sprites/wall.png";
 import decorChair from "../assets/sprites/decor/chair.png";
 import decorTable from "../assets/sprites/decor/table.png";
 
-import devicePc from "../assets/sprites/devices/pc.png";
+import devicePc from "../assets/sprites/devices/pc.svg";
 import deviceNetworkSocket from "../assets/sprites/devices/networkSocket.png";
 
 import bgRoom from "../assets/backgrounds/room_1.png";
@@ -17,8 +17,8 @@ export const aDecorTable = app.assets.create(decorTable, "decorTable");
 
 export const aDevicePc = app.assets.create(devicePc, "devicePc");
 export const aDeviceNetowrkSocket = app.assets.create(
-    deviceNetworkSocket,
-    "deviceNetworkSocket"
+  deviceNetworkSocket,
+  "deviceNetworkSocket"
 );
 
 export const aBgRoom = app.assets.create(bgRoom, "bgRoom");

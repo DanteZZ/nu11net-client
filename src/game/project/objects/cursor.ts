@@ -13,8 +13,12 @@ class Cursor extends GameObject {
   update() {
     const canvas = this.getBuffer().app?.sceneBuffer.getCanvas();
     if (canvas) {
-      this.x = Input.inputBuffer.mouseX + canvas?.offsetX;
-      this.y = Input.inputBuffer.mouseY + canvas?.offsetY;
+      this.x = Math.ceil(
+        Input.inputBuffer.mouseX / canvas.scale + canvas?.offsetX
+      );
+      this.y = Math.ceil(
+        Input.inputBuffer.mouseY / canvas.scale + canvas?.offsetY
+      );
     }
   }
 }

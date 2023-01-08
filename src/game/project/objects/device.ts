@@ -37,18 +37,11 @@ class DeviceObject extends GameObject {
   }
   draw(canvas?: Canvas): void {
     canvas &&
-      this.sprite?.draw(
-        canvas,
-        this.x,
-        this.y,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        this.isCollide("cursor")
+      this.sprite?.draw(canvas, this.x, this.y, {
+        filter: this.isCollide("cursor")
           ? "drop-shadow(0px 0px 14px rgba(0,178,255,0.75))"
-          : ""
-      );
+          : "",
+      });
   }
 }
 

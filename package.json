@@ -28,7 +28,6 @@
         "html-webpack-plugin": "^5.5.0",
         "lodash": "^4.17.21",
         "nw-builder": "^3.5.7",
-        "oge-ts": "^0.1.4",
         "os": "^0.1.2",
         "socket.io": "^4.5.3",
         "standard-version": "^9.3.2",
@@ -50,6 +49,7 @@
     "dependencies": {
         "@types/fs-extra": "^9.0.13",
         "core-js": "^3.6.5",
+        "oge-ts": "^0.2.1",
         "vue": "^2.6.12"
     }
 }
